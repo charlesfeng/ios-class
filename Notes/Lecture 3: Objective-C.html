@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="9.678571701049805"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-24 07:59:35 +0000"/><meta name="latitude" content="37.45235260383019"/><meta name="longitude" content="-122.155169239727"/><meta name="updated" content="2014-02-24 11:48:44 +0000"/><title>Lecture 3: Objective-C</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div>Animation happens a little out of band from what is actually happening -- it'll eventually catch up.<br/></div>
+<div><br/></div>
+<div>Let's make the game actually playable -- of course, it's part of our Model.</div>
+<div><br/></div>
+<div>When creating a new class, define its public API first, then worry about the implementation.</div>
+<div><br/></div>
+<div><font face="Andale Mono">readonly</font> property <font face="Andale Mono">score</font>: I'm the game logic, you can't change the score publicly (but privately I can)</div>
+<div>Define as <font face="Andale Mono">readwrite</font> in the <font face="Andale Mono">@interface</font> of the .m file</div>
+<div><br/></div>
+<div>It's up to you to make sure that your <font face="Andale Mono">NSMutableArray</font> contains elements of the right type.</div>
+<div><br/></div>
+<div>If you change the initializer (e.g. to add arguments), the compiler doesn't know -- so it's good to have a comment saying it's the new designated initializer. Also, it's probably good in this case to overload <font face="Andale Mono">init</font> and have it return nil.</div>
+<div><br/></div>
+<div><font face="Andale Mono">self.cards[i] =</font> actually calls insertObjectAtIndex, which should work if you're not past the end of the array. But <font face="Andale Mono">addObject</font> is better.</div>
+<div><br/></div>
+<div>Defining constants: either</div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#define MISMATCH_PENALTY</span> <span style="color: rgb(39, 42, 216);">2</span></font><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">static</span> <span style="color: rgb(187, 44, 162);">const</span> <span style="color: rgb(187, 44, 162);">int</span> MISMATCH_PENALTY = <span style="color: rgb(39, 42, 216);">2</span>;</font> // are typed which is cool</div>
+<div>Just be consistent.</div>
+<div><br/></div>
+<div>You can create outlets to multiple things in your UI by control-click-dragging into your interface, then selecting Outlet Collection. These properties have to be strong, since the view doesn't have a pointer to the array of items, just each item itself. Then control-click-drag each item to your <font face="Andale Mono">IBOutletCollection</font> property.</div>
+<div><br/></div>
+<div>Let the last part of the method before the colon indicate what you're looking for, e.g. <font face="Andale Mono">touchBardButton</font>, <font face="Andale Mono">titleForCard</font>, <font face="Andale Mono">backgroundImageForCard</font>.</div>
+<div><br/></div>
+<div>If you override a public method, you generally don't have to put it in the header file again.</div>
+<div><br/></div>
+<div>Array <font face="Andale Mono">firstObject</font> and <font face="Andale Mono">lastObject</font> don't return <font face="Andale Mono">arrayIndexOutOfBoundsError</font>s</div>
+</body></html>

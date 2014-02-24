@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10.15088748931885"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-24 09:13:26 +0000"/><meta name="latitude" content="37.45232473821687"/><meta name="longitude" content="-122.1551232454175"/><meta name="updated" content="2014-02-24 11:49:16 +0000"/><title>Lecture 4: Foundation and Attributed Strings</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div><b>Creating Objects</b></div>
+<div><br/></div>
+Most of the time, we create objects with <font face="Andale Mono">alloc</font> and <font face="Andale Mono">init</font>:
+<div><font face="Andale Mono">NSMutableArray *cards = [[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSMutableArray</span><span style="font-family: 'Andale Mono';"> alloc] init];</span></div>
+<div><font face="Andale Mono">CardMatchingGame *game = [[CardMatchingGame alloc] initWithCardCount:12 usingDeck:d];</font></div>
+<div><br/></div>
+<div>Or with class methods:</div>
+<div><font face="Andale Mono">NSString</font>'s <font face="Andale Mono">+ (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)StringWithFormat:(</span><span style="color: rgb(112, 61, 170);"><font face="Andale Mono">NSString </font></span><span style="font-family: 'Andale Mono';">*)format, ...</span></div>
+<div><font face="Andale Mono">NSString *moltuae = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> stringWithFormat:@"%d", 42];</span></div>
+<div><font face="Andale Mono">UIButton</font>'s <font face="Andale Mono">+ (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)buttonWithType:(UIButtonType)buttonType;</span></div>
+<div><font face="Andale Mono">NSMutableArray</font>'s <font face="Andale Mono">+ (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)arrayWithCapacity:(int)count;</span></div>
+<div><font face="Andale Mono">NSArray's</font> + <font face="Andale Mono">(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)arrayWithObject:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)anObject;</span></div>
+<div><br/></div>
+<div>Sometimes both a class creator method and <font face="Andale Mono">init</font> method exist:</div>
+<div><font face="Andale Mono">[NSString stringWithFormat:...]</font> same as <font face="Andale Mono">[[NSString alloc] initWithFormat:...]</font></div>
+<div>Using either version is fine, though iOS seems to be moving more toward the <font face="Andale Mono">alloc</font>/<font face="Andale Mono">init</font> versions with the new API.</div>
+<div><br/></div>
+<div>You can ask other objects to create new objects for you</div>
+<div><font face="Andale Mono">NSString</font>'s <font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)stringByAppendingString:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)otherString;</span></div>
+<div><font face="Andale Mono">NSArray</font>'s <font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)componentsJoinedByString:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)separator;</span></div>
+<div><font face="Andale Mono">NSString</font>'s &amp; <font face="Andale Mono">NSArray</font>'s <font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)mutableCopy;</span></div>
+<div><br/></div>
+<div>But not all objects given out by other objects are newly created</div>
+<div><font face="Andale Mono">NSArray</font>'s <font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)lastObject;</span></div>
+<div><font face="Andale Mono">NSArray</font>'s <font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)objectAtIndex:(<font color="#BB2CA2">int</font></span><span style="font-family: 'Andale Mono';">)index;</span></div>
+<div>Unless the method has the word "copy" in it, if the object already exists, you get a pointer to it.</div>
+<div>If the object does not already exist, then you're creating it.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><font face="Andale Mono"><b>nil</b></font></div>
+<div><b><br/></b></div>
+<div>Sending messages to <font face="Andale Mono">nil</font> is (mostly) okay, no code executed.</div>
+<div><br/></div>
+<div>If the method returns a value, it will return zero.<br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">int</span> i = [obj methodWhichReturnsAnInt];</font> // <font face="Andale Mono">i</font> will be zero if <font face="Andale Mono">obj</font> is <font face="Andale Mono">nil</font></div>
+<div>It's absolutely fine to depend on this.</div>
+<div><br/></div>
+<div>Be careful if the method returns a C struct. Return value is undefined</div>
+<div><font face="Andale Mono">CGPoint p = [obj getLocation];</font> // <font face="Andale Mono">p</font> will have an undefined value if <font face="Andale Mono">obj</font> is <font face="Andale Mono">nil</font></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Dynamic Binding</b></div>
+<div><b><br/></b></div>
+<div>Objective-C has an important type called <span style="font-family: 'Andale Mono';">id</span>, which means "pointer to an object of unknown/unspecified" type.</div>
+<div><font face="Andale Mono">id myObject;</font></div>
+<div><br/></div>
+<div>All object pointers (e.g. <font face="Andale Mono">NSString *</font>) are treated like <font face="Andale Mono">id</font> at runtime. Objective-C then figures out the code to execute when a message is sent at runtime, which is called "dynamic binding".</div>
+<div><br/></div>
+<div>You could theoretically use <span style="font-family: 'Andale Mono';">id </span>for everything -- but if you use <span style="font-family: 'Andale Mono';">NSString *</span> instead, the compiler can help you by finding bugs, suggesting what methods would be appropriate to send to it, etc. Also, treating all object pointers as "pointer to unknown type" at runtime makes it possible to send a message to an object that it doesn't understand, which crashes your program. Objective-C programs avoid this by having a really smart compiler that gives you warnings as long as you use <span style="font-family: 'Andale Mono';">NSString *</span> instead of <font face="Andale Mono">id</font>.</div>
+<div><br/></div>
+<div>The compiler won't complain about assignments between an <font face="Andale Mono">id</font> and a statically typed variable.</div>
+<div><font face="Andale Mono">NSString *s = <span style="color: rgb(209, 47, 27);">@"x"</span>;</font> // "statically" typed (compiler will warn if <font face="Andale Mono">s</font> is sent non-<font face="Andale Mono">NSString</font> messages)</div>
+<div><font face="Andale Mono">id obj = s;</font> // not statically typed, but perfectly legal</div>
+<div><font face="Andale Mono">NSArray *a = obj;</font> // also legal, but now you have an array pointer that points to a string</div>
+<div><br/></div>
+<div>Sometimes you are silently doing this -- we already have!</div>
+<div><font face="Andale Mono">PlayingCard *otherCard = [otherCards firstObject];</font> // <font face="Andale Mono">firstObject</font> returns <font face="Andale Mono">id</font>!</div>
+<div>That object that comes out of the array better be a playing card, or we're screwed!</div>
+<div><br/></div>
+<div>Remember to never use <font face="Andale Mono">id *</font> (since <font face="Andale Mono">id</font> is a pointer)</div>
+<div><b><br/></b></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@interface</span> Vehicle<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)move;<br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> Ship : <span style="color: rgb(79, 129, 135);">Vehicle</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)shoot;<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(79, 129, 135);">Ship</span> *s = [[<span style="color: rgb(79, 129, 135);">Ship</span> alloc] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+[s shoot];<br/>
+[s move];</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>This works since the <font face="Andale Mono">Ship</font> class has a <font face="Andale Mono">shoot</font> method and inherits the <font face="Andale Mono">move</font> method.</div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Vehicle </span><font face="Andale Mono">*v = s;</font></div>
+<div><font face="Andale Mono">[v shoot];</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>You'll get a compiler warning since the compiler only knows <font face="Andale Mono">v</font> is a V<font face="Andale Mono">ehicle</font>, but won't crash at runtime because we know <font face="Andale Mono">v</font> is a <font face="Andale Mono">Ship</font>.</div>
+<div><b><br/></b></div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id </span><font face="Andale Mono">obj = ...;</font><b><br/></b></div>
+<div><font face="Andale Mono">[obj shoot];</font></div>
+<div><b><br/></b></div>
+<div>In this case, there won't be a compiler warning, since the compiler knows that the <font face="Andale Mono">shoot</font> method exists and so it's not impossible that <font face="Andale Mono">obj</font> might respond to it. But we haven't typed <font face="Andale Mono">obj</font> enough for the compiler to be sure it's wrong, so no warning. This might crash at runtime if <font face="Andale Mono">obj</font> is not a <font face="Andale Mono">Ship</font>.</div>
+<div><br/></div>
+<div><font face="Andale Mono">[obj someMethodNameThatNoObjectAnywhereRespondsTo];</font> <br/></div>
+<div><br/></div>
+<div>This will cause a compiler warning.</div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">NSString</span><span style="font-family: 'Andale Mono';"> </span><font face="Andale Mono">*hello = </font><span style="color: rgb(209, 47, 27);"><font face="Andale Mono">@"hello"</font></span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono">[hello shoot];</font>  </div>
+<div><br/></div>
+<div>This will also cause a compiler warning, since the compiler knows that <font face="Andale Mono">NSString</font> objects do not respond to <font face="Andale Mono">shoot</font>. Guaranteed crash at runtime.</div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">Ship</span><span style="font-family: 'Andale Mono';"> </span><font face="Andale Mono">*helloShip = (</font><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">Ship</span><span style="font-family: 'Andale Mono';"> </span><font face="Andale Mono">*)hello;</font> </div>
+<div><br/></div>
+<div>No compiler warning; we are "casting" here so the compiler thinks we know what we're doing.</div>
+<div><br/></div>
+<div><font face="Andale Mono">[helloShip shoot];</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>This will crash since the <font face="Andale Mono">NSString</font> object does not have the method <font face="Andale Mono">shoot</font>.</div>
+<div><br/></div>
+<div><font face="Andale Mono">[(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)hello shoot];</font> </div>
+<div><br/></div>
+<div>We are also casting so no compiler warning but guaranteed crash at runtime.</div>
+<div><br/></div>
+<div>When would we use this then?</div>
+<div>- When we want to mix objects of different classes in a collection (e.g. <span style="font-family: 'Andale Mono';">NSArray</span>)</div>
+<div>- When we want to support "blind, structured" communication in MVC (i.e. delegation)</div>
+<div>We'll make it safer using Introspection and Protocols.</div>
+<div><br/></div>
+<div><i>Introspection</i>: asking at runtime what class an object is or what messages can be sent to it.</div>
+<div><br/></div>
+<div><i>Protocols</i>: a syntax that is "in between" <span style="font-family: 'Andale Mono';">id</span> and static typing.</div>
+<div>Doesn't specify the class of an object pointed to, but does specify what methods it implements.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">id</span> &lt;UIScrollViewDelegate&gt; scrollViewDelegate; </font><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Introspection</b></div>
+<div><b><br/></b></div>
+<div>NSObject has these methods which it calculates at runtime:</div>
+<div><font face="Andale Mono">isKindOfClass</font> returns whether an object is that kind of class (inheritance included)<br/></div>
+<div><font face="Andale Mono">isMemberOfClass</font> returns whether an object is that kind of class (no inheritance)<br/></div>
+<div><font face="Andale Mono">respondsToSelector</font> returns whether an object responds to a given method</div>
+<div><br/></div>
+<div>These methods take a <font face="Andale Mono">Class</font> argument, which you get by sending the class method <font face="Andale Mono">class</font> to a class (not the instance method <font face="Andale Mono">class</font>). When you've identified a class, you can cast it.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> ([obj isKindOfClass:[NSString <span style="color: rgb(187, 44, 162);">class</span>]]) {<br/>
+    NSString *s = [(NSString *)obj stringByAppendingString:<span style="color: rgb(209, 47, 27);">@"xyzzy"</span>];<br/>
+}</font><br/></div>
+<div>The instance method <font face="Andale Mono">class</font> returns essentially the same thing, but the reader would be confused.<br/></div>
+<div><br/></div>
+<div>Method testing methods take a selector (<font face="Andale Mono">SEL</font>).</div>
+<div>The <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@selector</span><font face="Andale Mono">()</font> directive turns the name of a method into a selector</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> ([obj respondsToSelector:<span style="color: rgb(187, 44, 162);">@selector</span>(shoot)]) {<br/>
+    [obj shoot];<br/>
+} <span style="color: rgb(187, 44, 162);">else</span> <span style="color: rgb(187, 44, 162);">if</span> ([obj respondsToSelector:<span style="color: rgb(187, 44, 162);">@selector</span>(shootAt:)]) {<br/>
+    [obj shootAt:target];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">SEL</span> is the Objective-C "type" for a selector.<br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">SEL</span> shootSelector = <span style="color: rgb(187, 44, 162);">@selector</span>(shoot);<br/>
+<span style="color: rgb(187, 44, 162);">SEL</span> shootAtSelector = <span style="color: rgb(187, 44, 162);">@selector</span>(shootAt:);<br/>
+<span style="color: rgb(187, 44, 162);">SEL</span> moveToSelector = <span style="color: rgb(187, 44, 162);">@selector</span>(moveTo:withPenColor:);</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Other methods that respond to <font face="Andale Mono">SEL</font> objects:<br/></div>
+<div><font face="Andale Mono">performSelector:</font> or <font face="Andale Mono">performSelector:withObject:</font> methods in <font face="Andale Mono">NSObject</font>:<br/></div>
+<div>     <font face="Andale Mono">[obj performSelector:shootSelector];</font></div>
+<div>     <font face="Andale Mono">[obj performSelector:shootAtSelector withObject:coordinate];</font></div>
+<div><font face="Andale Mono">makeObjectsPerformSelector:</font> methods in <font face="Andale Mono">NSArray</font>:<br/></div>
+<div>     <font face="Andale Mono">[array makeObjectsPerformSelector:shootSelector</font><font face="Andale Mono">];</font></div>
+<div>     <font face="Andale Mono">[array makeObjectsPerformSelector:shootAtSelector withObject:target];</font>  //target is an id</div>
+<div><br/></div>
+<div>Target actions also take a selector, e.g. in <font face="Andale Mono">UIButton</font>,<br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addTarget:(<span style="color: rgb(187, 44, 162);">id</span>)anObject action:(<span style="color: rgb(187, 44, 162);">SEL</span>)action ...;<br/>
+[buttonaddTarget:<span style="color: rgb(187, 44, 162);">self</span> action:<span style="color: rgb(187, 44, 162);">@selector</span>(digitPressed:) ...];</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>We can improve the <font face="Andale Mono">match</font> method in <font face="Andale Mono">PlayingCard</font> using introspection.<br/></div>
+<div><br/></div>
+<div>The other time we use introspection is in MVC blind communication/delegation.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Foundation Framework</b></div>
+<div><b><br/></b></div>
+<div><u><font face="Andale Mono">NSObject</font></u></div>
+<div><u><br/></u></div>
+<div>Base class for pretty much every object in the iOS SDK.</div>
+<div>Implements introspection methods discussed earlier.</div>
+<div><br/></div>
+<div>Also implements <font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSString</span> *)description </font>which is valuable for printing instance content in the debugger.</div>
+<div><font face="Andale Mono">NSLog(<span style="color: rgb(209, 47, 27);">@"array contents are %@"</span>, myArray);</font> replaces <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">%@</span> with <span style="font-family: 'Andale Mono';">[myArray description]</span>.</div>
+<div><br/></div>
+<div>Copying objects can be mutable or immutable.</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)copy;</font> can be used to "freeze" a mutable array or dictionary into an immutable object.</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)mutableCopy;</font> can be used to "unfreeze" into a mutable object.</div>
+<div>These aren't implemented in all objects, and an exception is raised if not.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSArray</font></u></div>
+<div><u><br/></u></div>
+<div>Ordered collection of objects that's immutable.</div>
+<div><br/></div>
+<div>All objects are held onto <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">strong</font></span>ly, so as long as someone has a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span> pointer to the array, the objects in the array won't be erased from the heap.</div>
+<div><br/></div>
+<div>Created by manipulating other arrays or by <span style="color: rgb(39, 42, 216);"><font face="Andale Mono">@[]</font></span>.</div>
+<div><br/></div>
+<div>Key methods:</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><span style="font-family: 'Andale Mono';">)count;</span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)objectAtIndex:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><font face="Andale Mono">)index;</font> crashes if index is out of bounds; returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)lastObject;</font> returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> (doesn't crash) if no objects<br/></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)firstObject;</font> returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> (doesn't crash) if no objects<br/></div>
+<div><br/></div>
+<div>Other methods:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *)sortedArrayUsingSelector:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">SEL</span><span style="font-family: 'Andale Mono';">)aSelector;</span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><font face="Andale Mono">)makeObjectsPerformSelector:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">SEL</span><font face="Andale Mono">)aSelector withObject:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';">)selectorArgument;</span></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)componentsJoinedByString:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)separator;</span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><u><font face="Andale Mono">NSMutableArray</font></u></div>
+<div><u><br/></u></div>
+<div>Mutable version of NSArray so inherits all of its methods.</div>
+<div><br/></div>
+<div>Create with alloc/init or</div>
+<div><font face="Andale Mono">+ (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)arrayWithCapacity:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><font face="Andale Mono">)numItems;</font> <font face="Andale Mono">numItems</font> is a performance hint only</div>
+<font face="Andale Mono">+ (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)array</font><font face="Andale Mono">;</font> so <font face="Andale Mono">[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSMutableArray</span><font face="Andale Mono"> array]</font> is the same as <font face="Andale Mono">[[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSMutableArray</span><font face="Andale Mono"> alloc] init]</font>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Key methods:</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><font face="Andale Mono">)addObject:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)object</font><span style="font-family: 'Andale Mono';">;</span> adds to the end of the array; note <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span> is the type</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><font face="Andale Mono">)insertObject:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono">)object atIndex:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><span style="font-family: 'Andale Mono';">)index;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><font face="Andale Mono">)removeObjectAtIndex:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><font face="Andale Mono">)index</font><span style="font-family: 'Andale Mono';">;</span><br/></div>
+<div><br/></div>
+<div><u>Enumerating arrays</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSArray</span> *myArray = ...;<br/>
+<span style="color: rgb(187, 44, 162);">for</span> (NSString *string <span style="color: rgb(187, 44, 162);">in</span> myArray) {<br/>
+    <span style="color: rgb(187, 44, 162);">double</span> value = [string doubleValue];<br/>
+}</font></div>
+<div><u><br/></u></div>
+<div>There's no way for the compiler to know what myArray contains, so it can crash if string is not an NSString. Fix by using introspection:</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSArray</span> *myArray = ...;<br/>
+<span style="color: rgb(187, 44, 162);">for</span> (<span style="color: rgb(187, 44, 162);">id</span> obj <span style="color: rgb(187, 44, 162);">in</span> myArray) {<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([obj isKindOfClass:[NSString <span style="color: rgb(187, 44, 162);">class</span>]]) {<br/>
+        ...<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSNumber</font></u></div>
+<div><u><br/></u></div>
+<div>Object wrapper around primitive types like <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">int</font></span>, <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">float</font></span>, <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">double</font></span>, <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">BOOL</font></span>, <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">enum</font></span>s, etc.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSNumber</span> *n = [<span style="color: rgb(112, 61, 170);">NSNumber</span> <span style="color: rgb(61, 29, 129);">numberWithInt</span>:<span style="color: rgb(39, 42, 216);">36</span>];<br/>
+<span style="color: rgb(187, 44, 162);">float</span> f = [<span style="color: rgb(79, 129, 135);">n</span> <span style="color: rgb(61, 29, 129);">floatValue</span>]; <span style="color: rgb(0, 132, 0);">// can convert types</span><br/>
+<br/></font>New syntax in iOS 6: can put any expression that returns a primitive type into <span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">@(</span><span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">)</span>.<font face="Andale Mono"> <span style="color: rgb(112, 61, 170);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSNumber</span> *three = <span style="color: rgb(39, 42, 216);">@3</span>;<br/></font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSNumber</span><span style="font-family: 'Andale Mono';"> </span><font face="Andale Mono">*underline = <span style="color: rgb(39, 42, 216);">@(</span>NSUnderlineStyleSingle<span style="color: rgb(39, 42, 216);">)</span>; <span style="color: rgb(0, 132, 0);">// enum</span><br/>
+<span style="color: rgb(112, 61, 170);">NSNumber</span> *match = <span style="color: rgb(39, 42, 216);">@(</span>[card match:<span style="color: rgb(39, 42, 216);">@[</span>otherCard<span style="color: rgb(39, 42, 216);">]</span>]<span style="color: rgb(39, 42, 216);">)</span>; <span style="color: rgb(0, 132, 0);">//returns primitive type</span></font><br/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSValue</font></u></div>
+<div><u><br/></u></div>
+<div>Way to encapsulate more complicated types than primitive types (e.g. C structs)</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSValue</span> *edgeInsetsObject = [<span style="color: rgb(112, 61, 170);">NSValue</span> <span style="color: rgb(61, 29, 129);">valueWithUIEdgeInsets</span>:<span style="color: rgb(61, 29, 129);">UIEdgeInsetsMake</span>(<span style="color: rgb(39, 42, 216);">1</span>,<span style="color: rgb(39, 42, 216);">1</span>,<span style="color: rgb(39, 42, 216);">1</span>,<span style="color: rgb(39, 42, 216);">1</span>)];</font><br/></div>
+<div><br/></div>
+<div>Probably don't need this, since generally you can turn structs into strings for display.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSData</font></u></div>
+<div><u><br/></u></div>
+<div>"Bag of bits" -- used to save/restore/transmit raw data.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSDate</font></u></div>
+<div><u><br/></u></div>
+<div>Find out time right now, or to store past or future time/dates.</div>
+<div><br/></div>
+<div>There's also <font face="Andale Mono">NSCalendar</font>, <font face="Andale Mono">NSDateFormatter</font>, <font face="Andale Mono">NSDateComponents</font>.</div>
+<div><br/></div>
+<div>Be careful to study localization in detail if you want to use dates in your UI.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSSet</font>/<font face="Andale Mono">NSMutableSet</font></u></div>
+<div><u><br/></u></div>
+<div>Like an array, but no ordering. No <font face="Andale Mono">objectAtIndex:</font> method but there's a <font face="Andale Mono">member:</font> method that returns an object if there is one in the set <font face="Andale Mono">isEqual:</font> to it.</div>
+<div><br/></div>
+<div>Great for telling you whether an object is in there very efficiently.</div>
+<div><br/></div>
+<div>Can union and intersect other sets.</div>
+<div><br/></div>
+<div>
+<div><u><font face="Andale Mono">NSOrderedSet</font>/<font face="Andale Mono">NSMutableOrderedSet</font></u></div>
+<div><u><br/></u></div>
+<div>A cross between an <font face="Andale Mono">NSArray</font> and an <font face="Andale Mono">NSSet</font>. Objects in an ordered set are distinct, e.g. you can't put the same object in multiple times like an array.</div>
+</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSDictionary</font></u></div>
+<div><u><br/></u></div>
+<div>Immutable collection of objects looked up by a key (simple hash table).</div>
+<div><br/></div>
+<div>All keys and values are held onto <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">strong</font></span>ly by a <font face="Andale Mono">NSDictionary</font>.</div>
+<div><br/></div>
+<div>Created using the syntax <font face="Andale Mono"><span style="color: rgb(39, 42, 216);">@{</span> key1 : value1, key2 : value2, key3: value3 }</font></div>
+<div>e.g.</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSDictionary</span> *colors = <span style="color: rgb(39, 42, 216);">@{</span> <span style="color: rgb(209, 47, 27);">@"green"</span> : [<span style="color: rgb(112, 61, 170);">UIColor</span> <span style="color: rgb(61, 29, 129);">greenColor</span>],<br/>
+                          <span style="color: rgb(209, 47, 27);">@"blue"</span> : [<span style="color: rgb(112, 61, 170);">UIColor</span> <span style="color: rgb(61, 29, 129);">blueColor</span>],<br/>
+                          <span style="color: rgb(209, 47, 27);">@"red"</span> : [<span style="color: rgb(112, 61, 170);">UIColor</span> <span style="color: rgb(61, 29, 129);">redColor</span>] <span style="color: rgb(39, 42, 216);">}</span>;</font><br/></div>
+<div><br/></div>
+<div>Look up using "array like" notation:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSString</span> *colorString = ...;<br/>
+<span style="color: rgb(112, 61, 170);">UIColor</span> *colorObject = colors[colorString];</font><br/></div>
+<div><br/></div>
+<div>Implements</div>
+<font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSUInteger</span>)count;<br/></font>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">id</span>)objectForKey:(<span style="color: rgb(187, 44, 162);">id</span>)key; </font>where key is object and must implement <font face="Andale Mono">hash</font> and <font face="Andale Mono">isEqual:</font> properties (to have efficient lookup, but also to check when two things hash to the same thing, whether they're actually equal)</div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span>s are good keys because they hash based on their characters, and do <font face="Andale Mono">isEqual:</font>.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span>'s <font face="Andale Mono">hash</font> and <font face="Andale Mono">isEqual:</font> are pretty bad (pointer is the hash, <font face="Andale Mono">isEqual:</font> is <font face="Andale Mono">==</font>)</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSMutableDictionary</font></u></div>
+<div><u><br/></u></div>
+<div>Mutable version of a dictionary.</div>
+<div><br/></div>
+<div>Key methods:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setObject:(<span style="color: rgb(187, 44, 162);">id</span>)anObject forKey:(<span style="color: rgb(187, 44, 162);">id</span>)key;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)removeObjectForKey:(<span style="color: rgb(187, 44, 162);">id</span>)key;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)removeAllObjects;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addEntriesFromDictionary:(<span style="color: rgb(112, 61, 170);">NSDictionary</span> *)otherDictionary;</font><br/></div>
+<div><br/></div>
+<div><u>Enumerating dictionaries</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSDictionary</span> *myDictionary = ...;<br/>
+<span style="color: rgb(187, 44, 162);">for</span> (<span style="color: rgb(187, 44, 162);">id</span> key <span style="color: rgb(187, 44, 162);">in</span> myDictionary) {<br/>
+    <span style="color: rgb(0, 132, 0);">// do something with key here</span><br/>
+    <span style="color: rgb(187, 44, 162);">id</span> value = [myDictionary objectForKey:key];<br/>
+    <span style="color: rgb(0, 132, 0);">// do something with value here</span><br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Property List</u></div>
+<div><br/></div>
+<div>Means a collection of collections, or a graph of objects containing only</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDate</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSData</span> (or mutable subclasses thereof)<br/></div>
+<div><br/></div>
+<div>An <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> is a Property List if all its members are too, so an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span> is a Property List, and an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> is as long as those <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span>'s members are Property Lists.</div>
+<div><br/></div>
+<div>An <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span> is one if all keys and values are too.</div>
+<div><br/></div>
+<div>There's a bunch of methods on the SDK which operate on Property Lists, usually to read them from somewhere or write them out to somewhere.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)writeToFile:(<span style="color: rgb(112, 61, 170);">NSString</span> *)path atomically:(<span style="color: rgb(187, 44, 162);">BOOL</span>)atom;</font><br/></div>
+<div><br/></div>
+<div>Property List must cascade down the whole object graph.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSUserDefaults</font></u></div>
+<div><u><br/></u></div>
+<div>Lightweight storage of Property Lists, basically an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span> that persists between launches of your application. Not a full-on database, but can store small things like user preferences.</div>
+<div><br/></div>
+<div>You can read and write via a shared instance obtained via the class method standardUserDefaults:</div>
+<div><font face="Andale Mono">[[NSUserDefaults standardUserDefaults] setArray:rvArray forKey:<span style="color: rgb(209, 47, 27);">@"RecentlyViewed"</span>];</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Methods:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setDouble:(<span style="color: rgb(187, 44, 162);">double</span>)aDouble forKey:(<span style="color: rgb(112, 61, 170);">NSString</span> *)key;<br/>
+- (<span style="color: rgb(112, 61, 170);">NSInteger</span>)integerForKey:(<span style="color: rgb(112, 61, 170);">NSString</span> *)key; <span style="color: rgb(0, 132, 0);">// typedef to 32- or 64-bit int</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setObject:(<span style="color: rgb(187, 44, 162);">id</span>)obj forKey:(</font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSString</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*)key;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// obj must be a Property List</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSArray</span> *)arrayForKey:(<span style="color: rgb(112, 61, 170);">NSString</span> *)key; <span style="color: rgb(0, 132, 0);">// returns nil if val at key isn't NSArray</span></font><br/></div>
+<div><br/></div>
+<div>After writing each batch of changes, you have to call <font face="Andale Mono">synchronize</font>.</div>
+<div><font face="Andale Mono">[[NSUserDefaults standardUserDefaults] synchronize];</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><u>NSRange</u></div>
+<div><u><br/></u></div>
+<div>C struct (not a class) used to specify subranges inside strings and arrays, etc.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef</span> <span style="color: rgb(187, 44, 162);">struct</span> {<br/>
+    <span style="color: rgb(112, 61, 170);">NSUInteger</span> location;<br/>
+    <span style="color: rgb(112, 61, 170);">NSUInteger</span> length;<br/>
+} NSRange;</font><br/></div>
+<div><br/></div>
+<div>Import location value NSNotFound:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSString</span> *greeting = <span style="color: rgb(209, 47, 27);">@"hello world"</span>;<br/>
+<span style="color: rgb(112, 61, 170);">NSString</span> *hi = <span style="color: rgb(209, 47, 27);">@"hi"</span>;<br/>
+<span style="color: rgb(112, 61, 170);">NSRange</span> r = [<span style="color: rgb(79, 129, 135);">greeting</span> <span style="color: rgb(61, 29, 129);">rangeOfString</span>:<span style="color: rgb(79, 129, 135);">hi</span>]; <span style="color: rgb(0, 132, 0);">// find hi inside greeting</span><br/>
+<span style="color: rgb(187, 44, 162);">if</span> (r.location == NSNotFound) {<br/>
+    <span style="color: rgb(0, 132, 0);">// couldn't find hi inside greeting</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRangePointer</span> is just an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRange</span><font face="Andale Mono"> *</font> which is just used as an out method parameter.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>UIKit</b></div>
+<div><b><br/></b></div>
+<div><u><font face="Andale Mono">UIColor</font></u></div>
+<div><u><br/></u></div>
+<div>Object representing a color, can be RGB, HSB, even a pattern (<font face="Andale Mono">UIImage</font>).</div>
+<div><br/></div>
+<div>Colors can also have alpha</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIColor</span> *color = [otherColor colorWithAlphaComponent:<span style="color: rgb(39, 42, 216);">0.3</span>]);</font><br/></div>
+<div><br/></div>
+<div>Some standard/system colors have class methods:</div>
+<div><span style="font-family: 'Andale Mono';">[UIColor greenColor]</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">[UIColor lightTextColor]</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">UIFont</font></u></div>
+<div><u><br/></u></div>
+<div>Incredibly important to get right, using fonts the right way.</div>
+<div><br/></div>
+<div>It's best to get a UIFont by asking for the preferred font for a given text style:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIFont</span> *font = [<span style="color: rgb(112, 61, 170);">UIFont</span> <span style="color: rgb(61, 29, 129);">preferredFontForTextStyle</span>:<span style="color: rgb(112, 61, 170);">UIFontTextStyleBody</span>];</font></div>
+<div>Can use <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIFontTextStyleHeadline</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIFontTextStyleCaption1</span>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIFontTextStyleFootnote</span>, etc. (see <font face="Andale Mono">UIFontDescriptor</font>)<br/></div>
+<div><br/></div>
+<div>There's also "system" fonts used in places like button titles.</div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(112, 61, 170);">UIFont</span> *)systemFontOfSize:(<span style="color: rgb(112, 61, 170);">CGFloat</span>)pointSize;<br/>
++ (</font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIFont</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*)boldSystemFontOfSize:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGFloat</span><span style="font-family: 'Andale Mono';">)pointSize;</span></div>
+<div>Never use these for user's content, just what's on the button etc.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">UIFontDescriptor</font></u></div>
+<div><u><br/></u></div>
+<div>Fonts are designed by artists, not always to fit any sort of categorization.</div>
+<div>Some have Narrow or Bold or Condensed faces, some do not.</div>
+<div>Even "size" is sometimes a designed-in aspect of a particular font.</div>
+<div><br/></div>
+<div><font face="Andale Mono">UIFontDescriptor</font> attempts to categorize a font by family, face, size, and other attributes; you can ask for fonts that have those attributes and get a "best match" -- but keep in mind the font you want might not even have a bold version!</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Attributed Strings</b></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSAttributedString</font></u></div>
+<div><u><br/></u></div>
+<div>How text looks on string: obviously the font matters, but also other determiners (color, "outlined", stroke width, underlining, etc.).</div>
+<div><br/></div>
+<div>Each character in a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span> has an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span> of "attributes".</div>
+<div><br/></div>
+<div>Get attributes at a given location:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSDictionary</span> *)attributesAtIndex:(<span style="color: rgb(112, 61, 170);">NSUInteger</span>)index effectiveRange:(<span style="color: rgb(112, 61, 170);">NSRangePointer</span>)range;</font><br/></div>
+<div>Returns the range, letting you know how many characters the attributes are identical.</div>
+<div>Can also ask about a certain attribute you're interested in.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRangePointer</span> is a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRange</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*</span>. You can pass <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">NULL</font></span> if you don't care.</div>
+<div><br/></div>
+<div>If you want to do string things to it, there's a method</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSString</span><span style="font-family: 'Andale Mono';"> *)string</span><br/></div>
+<div>so you can use</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSAttributedString</span> *attributedString = ...;<br/>
+<span style="color: rgb(112, 61, 170);">NSString</span> *substring = ...;<br/>
+<span style="color: rgb(112, 61, 170);">NSRange</span> r = [[attributedString <span style="color: rgb(61, 29, 129);">string</span>] <span style="color: rgb(61, 29, 129);">rangeOfString</span></font><font face="Andale Mono">:substring];</font><br/></div>
+<div>Note that the returned string is volatile, so you can modify the characters in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span> just by changing this string.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSMutableAttributedString</font></u></div>
+<div><u><br/></u></div>
+<div>We almost always use mutable attributed strings.</div>
+<div><u><br/></u></div>
+<div>You can add an attribute to a range of characters, which doesn't touch the other attributes in that range ...</div>
+<span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)addAttributes:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSDictionary</span><span style="font-family: 'Andale Mono';"> *)attributes range:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSRange</span><span style="font-family: 'Andale Mono';">)range;</span>
+<div>... set the attributes in a range, which replaces all attributes in that range ...</div>
+<font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setAttributes:(</font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSDictionary</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*)attributes range:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRange</span><span style="font-family: 'Andale Mono';">)range;</span>
+<div>... or remove a specific attribute from a range ...</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)removeAttributes:(<span style="color: rgb(112, 61, 170);">NSString</span> *)attributeName range:(<span style="color: rgb(112, 61, 170);">NSRange</span>)range;</font><br/></div>
+<div><br/></div>
+<div>Modifying the characters: just modify the returned </div>
+<div><span style="font-family: 'Andale Mono';">-</span> <span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSMutableString</span><span style="font-family: 'Andale Mono';"> *)mutableString</span></div>
+<div>and attributes will be preserved.</div>
+<div><br/></div>
+<div><u>More on Attributed Strings</u></div>
+<div><u><br/></u></div>
+<div>What kind of attributes are there?</div>
+<div><font face="Andale Mono"><span style="color: rgb(39, 42, 216);">@{</span> NSFontAttributeName : [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIFont</span><font face="Andale Mono"> preferredFontWithTextStyle:</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIFontTextStyleHeadline</span><span style="font-family: 'Andale Mono';">],</span></div>
+<div><font face="Andale Mono">   NSForegroundColorAttributeName : [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIColor</span><span style="font-family: 'Andale Mono';"> greenColor],</span></div>
+<div><font face="Andale Mono">   NSStrokeWidthAttributeName : @-<span style="color: rgb(39, 42, 216);">5</span>, <span style="color: rgb(0, 132, 0);">// - means fill and stroke; + means stroke only</span><br/>
+   NSUnderlineStyleAttributeName : <span style="color: rgb(39, 42, 216);">@(</span>NSUnderlineStyleNone<span style="color: rgb(39, 42, 216);">)</span>,<br/>
+   NSBackgroundColorAttributeName : transparentYellow <span style="color: rgb(39, 42, 216);">}</span>;</font><br/></div>
+<div><br/></div>
+<div>Where do we use an Attributed String?</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIButton</span>s: <span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)setAttributedTitle:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span><font face="Andale Mono"> </font><span style="font-family: 'Andale Mono';">*)title forState:...;</span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UILabel</span>s: <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">nonatomic</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">strong</span><span style="font-family: 'Andale Mono';">) </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span><span style="font-family: 'Andale Mono';"> *attributedText;</span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextView</span>s: <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">nonatomic</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">) </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSTextStorage</span><span style="font-family: 'Andale Mono';"> *textStorage;</span></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span>s know how to draw themselves directly on screen.</div>
+<div><br/></div>
+<div><u>UILabel</u></div>
+<div><u><br/></u></div>
+<div>Can set its contents using the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span> property <font face="Andale Mono">text</font>, but also has a property to set/get its text using an :</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span><span style="font-family: 'Andale Mono';"> *attributedText;</span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>This attributed string isn't mutable, so you have to make a mutableCopy, modify it, then set it back.</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSMutableAttributedString</span> *labelText = [myLabel.attributedText mutableCopy];<br/>
+[labelText setAttributes:...];<br/>
+myLabel.attributedText = labelText;</font><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>You don't have to do it that much since there are a bunch of properties for setting things like text color, etc</div>
+</body></html>

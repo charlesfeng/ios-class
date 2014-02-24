@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="9.891592025756836"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-24 01:12:31 +0000"/><meta name="latitude" content="37.45238700775299"/><meta name="longitude" content="-122.1550486841853"/><meta name="updated" content="2014-02-24 11:48:32 +0000"/><title>Lecture 1: Class Logistics, Overview of iOS, MVC, Objective-C</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div><b>What's in iOS?</b></div>
+<div><br/></div>
+<div><u>Core OS</u>: stuff that's close to the hardware </div>
+<div>
+<ul>
+<li>Unix kernel, BSD-based</li>
+<li>Has sockets, filesystem permissions, power management, keychain access, Bonjour (finding other things on network)</li>
+<li>Mostly in C</li>
+</ul>
+</div>
+<div><u>Core Services</u>: object oriented layer above core OS </div>
+<div>
+<ul>
+<li>Arrays, dictionaries, strings</li>
+<li>Object-oriented ways to find location via GPS, multithreading, etc.</li>
+</ul>
+</div>
+<div><u>Media</u> </div>
+<div>
+<ul>
+<li>Video, video editing, images, audio, PDF</li>
+</ul>
+</div>
+<u>Cocoa Touch</u>: UI layer<br/>
+<div>
+<ul>
+<li>Buttons, sliders, text fields, animations, camera, image picker, localization, map kit, web view</li>
+<li>Really high-level objects. We're going to focus mainly on this layer</li>
+<li>Called Cocoa Touch b/c API was originally designed for Mac OS X</li>
+<li>Mature API (been around ~30 years), well thought-out</li>
+</ul>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+</div>
+<div><b>Platform Components</b></div>
+<div><b><br/></b></div>
+<div><u>Tools</u>: Everything's in Xcode 5 -- debugger, source code editing/control.</div>
+<div>Profiler/memory usage in Instruments</div>
+<div>
+<div><u><br/></u></div>
+<div><u>Language</u>: Objective-C, no parentheses, square brackets, colons. A bit more fast/loose than Java, more simple/elegant than C++</div>
+</div>
+<div><br/></div>
+<div><u>Frameworks</u>: Foundation (core services; arrays, dictionaries, etc), UIKit (buttons, sliders, etc), Core Data (OO database), Core Motion (gyro, accelerometer), Map Kit</div>
+<div><br/></div>
+<div><u>Design strategies</u>: MVC</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>MVC</b></div>
+<div><br/></div>
+<div>A strategy for how to organize all the classes in your application. Divide into three camps: Model, View, Controller</div>
+<div><i><br/></i></div>
+<div><u>Model</u> = what your application is (but not how it is displayed)</div>
+<div>Independent of how your UI works, e.g. cards, decks, game logic</div>
+<div><i><br/></i></div>
+<div><u>Controller </u>= how your model is presented to the user (UI logic)</div>
+Interprets and formats the model data for the view
+<div>Very specific to how your UI works</div>
+<div><i><br/></i></div>
+<div><u>View </u>= your controller's minions to build the UI. Pretty generic</div>
+<div><br/></div>
+<div><u>Communication</u>:</div>
+<div><br/></div>
+<div>Controller can directly talk to the Model and the View</div>
+<div>     Controller -&gt; View is called an outlet</div>
+<div><br/></div>
+<div>Model can never talk to the view. The model is completely UI-independent.</div>
+<div><br/></div>
+<div>Can the View talk to the Controller? Kind of, but the View objects are generic so communication is "blind" and structured, e.g. target action: Controller drops target on itself, hands out action to View, View sends action back when things happen in the UI.</div>
+<div><br/></div>
+<div><i>Will, should, did</i> ("should allow scrolling", "did scroll to point") <i>delegated</i> blindly by the View to the Controller using a <i>protocol</i>.</div>
+<div><br/></div>
+<div>Views do not own the data they display. The information belongs in the Model. Views have a protocol to acquire the information from Controller via <i>data source</i> (<i>data at</i>, <i>count</i>).</div>
+<div><br/></div>
+<div>Model can't talk to the Controller, but what if something changes in the Model and the Controller needs to find out? <i>Notification</i> and <i>key value observing (KVO)</i> broadcasts when things change; controller can tune in, then ask Model for data.</div>
+<div><br/></div>
+<div><img src="Lecture%201%3A%20Class%20Logistics,%20Overview%20of%20iOS,%20MVC,%20Objective-C.resources/Screen%20Shot%202014-02-23%20at%205.35.32%20PM.png" height="638" width="1330"/><br/></div>
+<div><br/></div>
+<div>Can combine multiple MVC groups to make complicated programs.</div>
+<div>An MVC can use another MVC as one of its views (minions).</div>
+<div><br/></div>
+<div>Controllers of MVC groups communicate with each other.</div>
+<div>Sometimes Models are shared between some MVCs.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Objective-C</b></div>
+<div><b><br/></b></div>
+<div>Strict superset of C, adds syntax for classes, methods, etc.</div>
+<div><br/></div>
+<div>Most important concept today: <u>Properties</u></div>
+<div>Combination of a getter method and a setter method in a class</div>
+<div>Getter usually has the name of the property (e.g. "<font face="Andale Mono">myValue</font>")</div>
+<div>Setter's name is set + capitalized property name (e.g. "<font face="Andale Mono">setMyValue:</font>")</div>
+<div>Call setter to store the value, getter to get it.</div>
+<div><br/></div>
+<div>Every class has a header file .h and implementation file .m</div>
+<div><br/></div>
+<div><u>.h: Public API</u></div>
+<div><br/></div>
+<div>Must say who the superclass is (e.g. <font face="Andale Mono">NSObject</font>). Obviously have to import it, though can just import Foundation.</div>
+<div><br/></div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> means you need storage per instance. All objects live in the heap (where you allocate free memory), and we have pointers to them. </div>
+<div><br/></div>
+<div>Objective-C will manage, allocate, and free all storage for you.</div>
+<div>Pointers can be <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span><font face="Andale Mono"> </font>or <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">weak</span>.</div>
+<div>Memory in the heap is kept as long as anyone has a strong pointer to it (automatic reference counting).</div>
+<div>Weak pointers become nil as soon as the thing it's pointing to has no more strong pointers and gets cleaned up.</div>
+<div><br/></div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nonatomic</span>: getter/setter is not thread-safe, or can't have two threads working on it at the same time.</div>
+<div>Usually we have a separate set of objects per thread (e.g. Model, View on separate threads).</div>
+<div>If you don't say nonatomic, there has to be all sorts of locking code.</div>
+<div><br/></div>
+<div>If you type <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> in the header file, the getter/setter are automatically added to the implementation file but <font color="#C0C0C0">you don't see it</font>.</div>
+<div><br/></div>
+<div>Primitive types (BOOL, int, float) aren't stored in the heap so don't need strong/weak. Still need to be nonatomic (just like everything else).</div>
+<div><br/></div>
+<div>Can rename the getter using <font face="Andale Mono">getter=</font>.</div>
+<div><br/></div>
+<div>All properties + variables start off as 0, or the pointer is nil.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@import</span> Foundation; </font>(or <font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">&lt;Foundation/Foundation.h&gt;</span></font>)</div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@interface</span> <span style="color: rgb(79, 129, 135);">Card</span> : NSObject<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) NSString *contents;<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">getter</span>=isChosen) <span style="color: rgb(187, 44, 162);">BOOL</span> chosen;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">getter</span>=isMatched) <span style="color: rgb(187, 44, 162);">BOOL</span> matched;<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">int</span>)match:(Card *)card;</font><br/></div>
+<div><br/></div>
+<div><u>.m: Private API and all the implementation</u></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Don't need implementation, but need to import header file.</div>
+<div>Can have private declarations (usually for properties) using <font face="Andale Mono">@interface</font>.<br/></div>
+<div>Don't have to declare methods first, can just implement them.</div>
+<div><br/></div>
+<div><span style="color: rgb(187, 44, 162);"><font face="Andale Mono">@synthesize</font></span> lets you denote the name of the instance variable where a property is stored. Usually just _ + name of property.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (NSString *)contents</font></div>
+<div>Getter: declares a method named <font face="Andale Mono">contents</font> returning <font face="Andale Mono">NSString *</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setContents:(NSString *)contents</font><br/></div>
+Setter: takes an argument of type <font face="Andale Mono">NSString *</font> named <font face="Andale Mono">contents</font>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Sending messages: open square brackets, dot notation</div>
+<div>Use dot notation to call setter/getter of properties.</div>
+<div>Calling getter: <font face="Andale Mono">card.contents</font>, <font face="Andale Mono">self.contents</font></div>
+<div>Calling setter: <font face="Andale Mono">card.contents = &lt;blah&gt;</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><span style="font-family: 'Andale Mono';">[card.contents isEqualToString:self.contents]</span><font face="Andale Mono"><br/></font></div>
+<div><span style="font-family: 'Andale Mono';">card.contents </span>is object message is being sent to</div>
+<span style="font-family: 'Andale Mono';">isEqualToString </span>is name of message being sent<span style="font-family: 'Andale Mono';"><br/>
+self.contents </span>is argument being passed along with the message
+<div><font face="Andale Mono"><br/></font></div>
+<div>Compare strings with <font face="Andale Mono">isEqualToString</font> (can't use <font face="Andale Mono">==</font> because then you'd be comparing pointers)</div>
+<div><br/></div>
+<div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"Card.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> <span style="color: rgb(79, 129, 135);">Card</span>()<br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@implementation</span> Card<br/>
+<br/>
+<font color="#C0C0C0">@synthesize contents = _contents;<br/>
+@synthesize chosen = _chosen;<br/>
+@synthesize matched = _matched;<br/>
+<br/>
+- (NSString *)contents<br/>
+{<br/>
+    return _contents;<br/>
+}<br/>
+<br/>
+- (void)setContents:(NSString *)contents<br/>
+{<br/>
+    _contents = contents;<br/>
+}<br/>
+<br/>
+- (BOOL)isChosen<br/>
+{<br/>
+    return _chosen;<br/>
+}<br/>
+<br/>
+- (void)setChosen:(BOOL)chosen<br/>
+{<br/>
+    _chosen = chosen;<br/>
+}<br/>
+<br/>
+- (BOOL)isMatched<br/>
+{<br/>
+    return _matched;<br/>
+}<br/>
+<br/>
+- (void)setMatched:(BOOL)matched<br/>
+{<br/>
+    _matched = matched;<br/>
+}</font><br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">int</span>)match:(<span style="color: rgb(79, 129, 135);">Card</span>*)card<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">int</span> score = <span style="color: rgb(39, 42, 216);">0</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([card.<span style="color: rgb(79, 129, 135);">contents</span> <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">contents</span>]) {<br/>
+        score = <span style="color: rgb(39, 42, 216);">1</span>;<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> score;<br/>
+}</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>What if we want to compare to an array of cards?<font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono" color="#929292"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">int</span>)match:(NSArray*)otherCards<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">int</span> score = <span style="color: rgb(39, 42, 216);">0</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">for</span> (Card *card <span style="color: rgb(187, 44, 162);">in</span> otherCards) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> ([card.contents isEqualToString:<span style="color: rgb(187, 44, 162);">self</span>.contents]) {<br/>
+            score = <span style="color: rgb(39, 42, 216);">1</span>;<br/>
+        }<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> score;<br/>
+}</font><br/></div>
+</div>
+<div><br/></div>
+<div>What if omitted the <font face="Andale Mono">*</font> in the <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">for</span> line? You'll get a syntax error, because all objects are always pointed to.</div>
+<div><br/></div>
+<div>Can you use square brackets to call setter/getter methods instead of dot notation? Yes.</div>
+<div><br/></div>
+<div>Can you use dot notation for methods with no arguments? Kind of, you'll get warned about that by Objective-C. Don't do it.</div>
+</body></html>

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="9.702184677124023"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-24 04:21:19 +0000"/><meta name="latitude" content="37.45248017254117"/><meta name="longitude" content="-122.1549777962938"/><meta name="updated" content="2014-02-24 11:48:38 +0000"/><title>Lecture 2: Xcode 5</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Deck</b>
+<div><b><br/></b></div>
+<div><u>Deck.h</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">addCard</font> has two arguments. Note the argument is interspersed with the name of the method, <font face="Andale Mono">addCard: atTop:</font></div>
+<div><br/></div>
+<div><font face="Andale Mono">drawRandomCard</font> isn't a property since it kind of does something, has an algorithm, so you wouldn't want to use a getter/setter.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">&lt;Foundation/Foundation.h&gt;</span><span style="color: rgb(120, 73, 42);"><br/>
+#import</span> <span style="color: rgb(209, 47, 27);">"Card.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> Deck : <span style="color: rgb(112, 61, 170);">NSObject</span><br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addCard:(<span style="color: rgb(79, 129, 135);">Card</span> *)card atTop:(<span style="color: rgb(187, 44, 162);">BOOL</span>)atTop;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addCard:(<span style="color: rgb(79, 129, 135);">Card</span> *)card;<br/>
+<br/>
+- (<span style="color: rgb(79, 129, 135);">Card</span> *)drawRandomCard;<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/></font></div>
+<div><u><br/></u></div>
+<div><u>Deck.m</u></div>
+<div><u><br/></u></div>
+<div>Every method is completely distinct and has a distinct name, so the <font face="Andale Mono">addCard:</font> method is distinct from the <font face="Andale Mono">addCard: atTop:</font> method (even though it calls the other).</div>
+<div><br/></div>
+<div>Get a mutable array to store the cards in. An array can have objects of any class; no way to specify which class. There's ways to check and see if the objects are what you want; we'll go over that later. Normally an <font face="Andale Mono">NSArray</font> is immutable so we need the subclass <font face="Andale Mono">NSMutableArray</font>.</div>
+<div><br/></div>
+<div><font face="Andale Mono">insertObject: atIndex:</font> and <span style="font-family: 'Andale Mono';">addObject:</span> are methods in <font face="Andale Mono">NSMutableArray</font>, not in <font face="Andale Mono">NSArray</font> (because that would be mutating it)</div>
+<div><br/></div>
+<div>If we just created a deck and called <font face="Andale Mono">addCard</font>, it would not work, since the property <font face="Andale Mono">self.cards</font> starts out as 0 (it points to nil). We can fix this by adding a check in the getter to see if <font face="Andale Mono">self.cards</font> exists and allocate if it doesn't. We can also put it in the initializer for the Deck, but that would add junk that's better off being closer to the getter (lazy instantiation pattern).</div>
+<div><br/></div>
+<div>Use square brackets to access an array, e.g. <font face="Andale Mono">self.cards[index]</font>. (It's actually syntactic sugar for a message send <font face="Andale Mono">[self.cards objectAtIndex:index]</font>).</div>
+<div><br/></div>
+<div>What if the deck is empty? You'll get an index out of bounds error, so watch out for that.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"Deck.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> <span style="color: rgb(79, 129, 135);">Deck</span>()<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">NSMutableArray</span> *cards; <span style="color: rgb(0, 132, 0);">// of Card</span><br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@implementation</span> Deck<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSMutableArray</span> *)cards<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_cards</span>) <span style="color: rgb(79, 129, 135);">_cards</span> = [[<span style="color: rgb(112, 61, 170);">NSMutableArray</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_cards</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addCard:(<span style="color: rgb(79, 129, 135);">Card</span> *)card atTop:(<span style="color: rgb(187, 44, 162);">BOOL</span>)atTop<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (atTop) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span> <span style="color: rgb(61, 29, 129);">insertObject</span>:card <span style="color: rgb(61, 29, 129);">atIndex</span>:<span style="color: rgb(39, 42, 216);">0</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span> <span style="color: rgb(61, 29, 129);">addObject</span>:card];<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addCard:(<span style="color: rgb(79, 129, 135);">Card</span> *)card<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> addCard:card atTop:No];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(79, 129, 135);">Card</span>*)drawRandomCard<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">Card</span> *randomCard = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span> <span style="color: rgb(61, 29, 129);">count</span>]) {<br/>
+        <span style="color: rgb(187, 44, 162);">unsigned</span> index = <span style="color: rgb(61, 29, 129);">arc4random</span>() % [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span> <span style="color: rgb(61, 29, 129);">count</span>];<br/>
+        randomCard = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span>[index];<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">cards</span> <span style="color: rgb(61, 29, 129);">removeObjectAtIndex</span>:index];<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> randomCard;<br/>
+}<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>When do I use <font face="Andale Mono">NSInteger</font> or <font face="Andale Mono">NSNumber</font> vs. <font face="Andale Mono">int</font>? It's a style thing, you'd use them if you want to use objects e.g. passing to methods, but even then you wouldn't have to.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Playing Card</b> (subclass of Card)</div>
+<div><br/></div>
+<div><u>PlayingCard.h</u></div>
+<div><u><br/></u></div>
+<div>Using NSUInteger instead of unsigned int, which has a bit of a nit on different platforms, e.g. is 64 bit on iPhone 5s.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"Card.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> PlayingCard : <span style="color: rgb(79, 129, 135);">Card</span><br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">NSString</span> *suit;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">NSUInteger</span> rank;<br/>
+<br/>
++ (<span style="color: rgb(112, 61, 170);">NSArray</span> *)validSuits;<br/>
++ (<span style="color: rgb(112, 61, 170);">NSUInteger</span>)maxRank;<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><u><br/></u></div>
+<div><u>PlayingCard.m</u></div>
+<div><u><br/></u></div>
+<div>Overwriting the contents getter to actually calculate the card.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">return</span> [NSString stringWithFormat:<span style="color: rgb(209, 47, 27);">@"%d%"@", self.rank, self.suit];</span></font><br/></div>
+<div><font face="Andale Mono">%d</font> is an integer, <font face="Andale Mono">@"</font> is a string representation of an object. Not that great because a J of hearts will be an 11 of hearts. Instead, let's have a rank string array and append the string of the suit to it.</div>
+<div><br/></div>
+<div>Putting a <font face="Andale Mono">@</font> in front of a string makes a string object. </div>
+<div><br/></div>
+<div>Let's make the suit also return a question mark if nil.</div>
+<div><font face="Andale Mono">containsObject</font> is a method in <font face="Andale Mono">NSArray</font>.</div>
+<div><br/></div>
+<div>Since we've implemented both the getter and setter of suit, we need the @synthesize command.</div>
+<div><font face="Andale Mono"><br/></font><span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">@[</span><span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">]</span> creates a new array every time, calling alloc init array with objects. It's probably good to move it out, which we will -- but that's just to make the code cleaner, not for performance reasons. We now create a class method (starting with <font face="Andale Mono">+</font>), in which you can't use instance variables, only generic stuff. We only use class methods for (1) creating things or (2) utility methods e.g. constants. Call it using <font face="Andale Mono">[NameOfClass nameOfMethod]</font>. Can make class methods public by adding them to the .h file.</div>
+<div><br/></div>
+<div>Let's make <font face="Andale Mono">rankStrings</font> a class method too and add another public class method that returns the max rank.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"PlayingCard.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@implementation</span> PlayingCard<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSString</span> *)contents<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSArray</span> *rankStrings = [<span style="color: rgb(79, 129, 135);">PlayingCard</span> <span style="color: rgb(49, 89, 93);">rankStrings</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [rankStrings[<span style="color: rgb(187, 44, 162);">self</span>.rank] stringByAppendingString:<span style="color: rgb(187, 44, 162);">self</span>.suit];<br/>
+}<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@synthesize</span> suit = _suit; <span style="color: rgb(0, 132, 0);">// because we provide setter AND getter</span><br/>
+<br/>
+<br/>
++ (<span style="color: rgb(112, 61, 170);">NSArray</span> *)validSuits<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(39, 42, 216);">@[</span><span style="color: rgb(209, 47, 27);">@"♥"</span>,<span style="color: rgb(209, 47, 27);">@"♦"</span>,<span style="color: rgb(209, 47, 27);">@"♣"</span>,<span style="color: rgb(209, 47, 27);">@"♠"</span><span style="color: rgb(39, 42, 216);">]</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setSuit:(<span style="color: rgb(112, 61, 170);">NSString</span> *)suit<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([[<span style="color: rgb(79, 129, 135);">PlayingCard</span> <span style="color: rgb(49, 89, 93);">validSuits</span>] <span style="color: rgb(61, 29, 129);">containsObject</span>:suit]) {<br/>
+        _suit = suit;<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSString</span> *)suit<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> _suit ? _suit : <span style="color: rgb(209, 47, 27);">@"?"</span>;<br/>
+}<br/>
+<br/>
+<br/>
++ (<span style="color: rgb(112, 61, 170);">NSArray</span> *)rankStrings {<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(39, 42, 216);">@[</span><span style="color: rgb(209, 47, 27);">@"?"</span>,<span style="color: rgb(209, 47, 27);">@"A"</span>,<span style="color: rgb(209, 47, 27);">@"2"</span>,<span style="color: rgb(209, 47, 27);">@"3"</span>,...,<span style="color: rgb(209, 47, 27);">@"10"</span>,<span style="color: rgb(209, 47, 27);">@"J"</span>,<span style="color: rgb(209, 47, 27);">@"Q"</span>,<span style="color: rgb(209, 47, 27);">@"K"</span><span style="color: rgb(39, 42, 216);">]</span>;<br/>
+}<br/>
+<br/>
++ (<span style="color: rgb(112, 61, 170);">NSUInteger</span>)maxRank { <span style="color: rgb(187, 44, 162);">return</span> [[<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">rankStrings</span>] <span style="color: rgb(61, 29, 129);">count</span>]-<span style="color: rgb(39, 42, 216);">1</span>; }<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setRank:(<span style="color: rgb(112, 61, 170);">NSUInteger</span>)rank<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (rank &lt;= [<span style="color: rgb(79, 129, 135);">PlayingCard</span> <span style="color: rgb(49, 89, 93);">maxRank</span>]) {<br/>
+        _rank = rank;<br/>
+    }<br/>
+}<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>
+<hr/></div>
+<div>
+<div><b><br/>
+Playing Card Deck</b></div>
+<div><br/></div>
+<div><u>PlayingCardDeck.h</u></div>
+</div>
+<div><u><br/></u></div>
+<div>No public API.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"Deck.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> PlayingCardDeck : <span style="color: rgb(79, 129, 135);">Deck</span><br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><u><br/></u></div>
+<div><u>PlayingCardDeck.m</u></div>
+<div><u><br/></u></div>
+<div>Only thing we're adding is an <font face="Andale Mono">init</font>. Always returns <font face="Andale Mono">self</font>, but the return type is <font face="Andale Mono">instancetype</font> -- this is going to return an object that's the same instance type as itself. Also we're setting <span style="font-family: 'Andale Mono';">self = [super init]</span> then checking if it exists to make sure that if the superclass can't even <font face="Andale Mono">init</font> itself, we won't <font face="Andale Mono">init</font> ourselves either and return nil.</div>
+<div><br/></div>
+<div>Never call <font face="Andale Mono">alloc</font> without wrapping an <font face="Andale Mono">init</font> around it. Never call <font face="Andale Mono">init</font> without wrapping it around an <font face="Andale Mono">alloc</font>.</div>
+<div><br/></div>
+<div>It's possible to have initializers with arguments, but ours doesn't for now.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">"PlayingCardDeck.h"</span><span style="color: rgb(120, 73, 42);"><br/>
+#import</span> <span style="color: rgb(209, 47, 27);">"PlayingCard.h"</span><span style="color: rgb(120, 73, 42);"><br/></span><br/>
+<span style="color: rgb(187, 44, 162);">@implementation</span> PlayingCardDeck<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">instancetype</span>)init<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span> = [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>) {<br/>
+        <span style="color: rgb(187, 44, 162);">for</span> (NSString *suit <span style="color: rgb(187, 44, 162);">in</span> [PlayingCard validSuits]) {<br/>
+            <span style="color: rgb(187, 44, 162);">for</span> (NSUInteger rank = <span style="color: rgb(39, 42, 216);">1</span>; rank &lt;= [PlayingCard maxRank]; rank++) {<br/>
+                PlayingCard *card = [[PlayingCard alloc] init];<br/>
+                card.rank = rank;<br/>
+                card.suit = suit;<br/>
+                [<span style="color: rgb(187, 44, 162);">self</span> addCard:card];<br/>
+            }<br/>
+        }<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+}<br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>
+<hr/>
+<font face="Andale Mono"><br/></font></div>
+<div><b>Building a Card Game in Xcode</b></div>
+<div><b><br/></b></div>
+<div>You can build apps for iPhone and iPad and share all the MVC stuff underneath.</div>
+<div><br/></div>
+<div>Navigator on the left.</div>
+<div><br/></div>
+<div>Utilities area on the right, contains details as to what's going on in the middle. Can also drag out how you're going to build your interface.</div>
+<div><br/></div>
+<div>Document outline can be togged in the middle, gives you all the instances of objects in your view in an outline form.</div>
+<div><br/></div>
+<div>Main.storyboard is our view of our MVC.</div>
+<div><br/></div>
+<div>CardGameAppDelegate.h and .m are useful later on for multitasking etc, but we'll move them out of the way for now into Supporting Files.</div>
+<div><br/></div>
+<div>Use the blue guide lines! They help with making things evenly spaced apart, auto laying things out when you switch from portrait to landscape, etc.</div>
+<div><br/></div>
+<div>Adding a button to the view -&gt; we're actually editing an instance of a button here; it's not just generating code behind the scenes.</div>
+<div><br/></div>
+<div>A button in iOS 7 looks like a hyperlink by default.</div>
+<div><br/></div>
+<div>How do we get images into our app? Go to Images.xcassets. You'll notice that there are 1x and 2x image versions for non-retina/retina respectively.</div>
+<div><br/></div>
+<div>Hold down control key, drag a line from the view to the code -&gt; creates action.</div>
+<div><br/></div>
+<div>IBAction is actually typedefed to void -- but Xcode uses that instead of void so it can tell which methods are related to actions.</div>
+<div><br/></div>
+<div>0 is equivalent to nil, so you can do <font face="Andale Mono">if ([string length]) { }</font></div>
+<div><br/></div>
+<div><font face="Andale Mono">retain</font> in the documentation is the same as <font face="Andale Mono">strong</font></div>
+<div><br/></div>
+<div>Hold down option and click on things to see a little popup; double click to go straight to the documentation.</div>
+<div><br/></div>
+<div>Drag from a label to the interface area to make an outlet. You can make it a weak pointer because the label is held strongly by the view itself. When it's removed from the view, the weak pointer will become nil which is what we want.</div>
+<div><br/></div>
+<div>IBOutlet is also typedefed to void.</div>
+<div><br/></div>
+<div>To rename something after dragging, you have to right click, disconnect it, then control-drag again.</div>
+<div><br/></div>
+<div>Can also control-rightclick the yellow square to see all the connections for your controller.</div>
+<div>The little <font face="Andale Mono">view</font> property points to the entire view for your controller.</div>
+<div><br/></div>
+<div><font face="Andale Mono">self.flipCount++</font> calls both the getter and the setter.</div>
+<div><br/></div>
+<div><font face="Andale Mono">NSLog</font> is a great way to debug.</div>
+<div><br/></div>
+<div>Adding new classes to your app: File -&gt; New -&gt; File...</div>
+<div>Good to store your models in a Model directory.</div>
+</body></html>
