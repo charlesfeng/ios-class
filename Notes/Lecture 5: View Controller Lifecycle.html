@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="16.28683280944824"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-24 17:32:30 +0000"/><meta name="latitude" content="37.45213878766754"/><meta name="longitude" content="-122.1854241125054"/><meta name="updated" content="2014-02-24 22:54:58 +0000"/><title>Lecture 5: View Controller Lifecycle</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<font face="Andale Mono"><u>UITextView</u></font>
+<div><b><br/></b></div>
+<div>Like <font face="Andale Mono">UILabel</font>, but multi-line, selectable/editable, scrollable, etc.</div>
+<div><br/></div>
+<div>Set its text and attributes via its <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSMutableAttributedString</span>.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSTextStorage</span><span style="font-family: 'Andale Mono';"> *textStorage;</span></div>
+<div>Modify it and the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextView</span> will automatically update!</div>
+<div><br/></div>
+<div>Font can vary from character to character -- it's just the <font face="Andale Mono">font</font> attribute on each character. Methods like <font face="Andale Mono">setFont</font> will set the font of all the characters; if you want to set the font on a subset of characters just use a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">for</span> loop, iterate over each character, getting its attributes and adding the font to the attributes.</div>
+<div><br/></div>
+<div>Can use TextKit for more advanced layout.</div>
+<div><br/></div>
+<div>To define where text can be:</div>
+<font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSTextContainer</span><span style="font-family: 'Andale Mono';"> *textContainer;</span>
+<div><br/></div>
+<div>To read characters from <font face="Andale Mono">textStorage</font> and lay down glyphs one by one into <font face="Andale Mono">textContainer</font>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLayoutManager</span><span style="font-family: 'Andale Mono';"> *layoutManager;</span></div>
+<div><br/></div>
+<div>Exclusion zones are used to flow around images.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Auto-layout: mechanism to design a user interface, specifying how it stretches and shrinks.</div>
+<div>Snapping everything to a blue guide line makes auto layout much easier.</div>
+<div><br/></div>
+<div>Rounded rect buttons were a thing in iOS 6 but not really in iOS 7.</div>
+<div><br/></div>
+<div>Any way to include CSS? Not directly, but preferred fonts are plugged into the CSS system in web views etc., so you can make sure fonts match up that way.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidLoad</font> part of the view lifecycle</div>
+<div><br/></div>
+<div>Generally good to be more verbose with method names, e.g. </div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">IBAction</span>)changeBodySelectionColorToMatchBackgroundOfButton:(<span style="color: rgb(112, 61, 170);">UIButton</span> *)sender</font><br/></div>
+<div><br/></div>
+<div>Can control-click-drag multiple buttons to an action to execute it upon click of any of them.</div>
+<div><br/></div>
+<div>To do an outline, need to set the stroke width and the color of the stroke.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>View Controller Lifecycle</b></div>
+<div><b><br/></b></div>
+<div>Sequence of messages is sent as it progresses through the lifecycle.</div>
+<div>You very commonly override these methods to do certain work.</div>
+<div><br/></div>
+<div><u>Summary</u></div>
+<div><br/></div>
+<div><i>Creation</i>: start of the lifecycle.</div>
+<div>Most MVCs are instantiated out of a storyboard; there are ways to do it in code but are rare.</div>
+<div>By far the least important, and we won't do much in this stage.</div>
+<div><br/></div>
+<div><i>Outlet setting</i></div>
+<div><i>Appearing and disappearing</i></div>
+<div><i>Geometry changes</i></div>
+<div><i>Low-memory situations</i></div>
+<div><br/></div>
+<div>At each step, iOS invokes method(s) on the Controller.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">viewDidLoad</font></u></div>
+<div><br/></div>
+<div>Called after instantiation and outlet-setting. Only called once in the lifecycle.</div>
+<div><br/></div>
+<div>Great place to put a lot of setup code for the controller/MVC. Better than init because the outlets are set.</div>
+<div><br/></div>
+<div>Geometry code (<span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">bounds</span>) aren't set yet! Can't be sure whether you're on iPhone or iPad or ???. Don't put geometry-dependent code here.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidLoad<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidLoad</span>];</font></div>
+<div><font face="Andale Mono">    <span style="color: rgb(0, 132, 0);">// do some setup of my MVC</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">viewWillAppear</font></u></div>
+<div><u><br/></u></div>
+<div>Notified just before the view appears on screen (every time the view appears).</div>
+<div><br/></div>
+<div>Your view only gets loaded once, but might appear/disappear a lot. Don't put something in this method that actually should be in <font face="Andale Mono">viewDidLoad</font>.</div>
+<div><br/></div>
+<div>Do something here if things you display (e.g. your model) are changing while your MVC is off-screen. Sync up with things that change before the first appearance/between appearances.</div>
+<div><br/></div>
+<div>Can put code here for optimization purposes, e.g. if you're not sure if the view will ever appear, it's probably better to put expensive code in here for slightly better performance.</div>
+<div><br/></div>
+<div>Can do geometry-based initialization here, but it's better to do it elsewhere since geometry can change after this is called (e.g. when someone rotates the phone).</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated;</font><br/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">viewWillDisappear</font></u></div>
+<div><u><br/></u></div>
+<div>Won't do a lot of stuff here, but you can stop animating, stop using resources. Also put code that remembers your state if necessary.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillDisappear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillDisappear</span>:animated]; <span style="color: rgb(0, 132, 0);">// call in all viewWill/Did methods</span><br/>
+    <span style="color: rgb(0, 132, 0);">// remember the scroll position the user was at</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> rememberScrollPosition]; <span style="color: rgb(0, 132, 0);">// have to implement this ofc</span><br/>
+    <span style="color: rgb(0, 132, 0);">// do some other cleanup now that we're removed</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> saveDataToPermanentStore]; <span style="color: rgb(0, 132, 0);">// can also do in Did</span><br/>
+    <span style="color: rgb(0, 132, 0);">// don't do anything time-consuming here, or app will be sluggish</span><br/>
+    <span style="color: rgb(0, 132, 0);">// maybe even kick off a thread to do what needs doing</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">viewDidAppear</font></u></div>
+<div><u><font face="Andale Mono">viewDidDisappear</font></u></div>
+<div><br/></div>
+<div>Called after the thing happens, e.g. just appeared on screen or just disappeared.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">viewWillLayoutSubviews</font></u></div>
+<div><u><font face="Andale Mono">viewDidLayoutSubviews</font></u></div>
+<div><br/></div>
+<div>Called just before/after iOS 7 lays out subviews (any time a view's <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">frame</span> changed), e.g. autorotation.</div>
+<div><br/></div>
+<div>Can reset the frames of your subviews here or set other geometry-affecting properties.</div>
+<div><br/></div>
+<div>Autolayout happens between "will" and "did".</div>
+<div><br/></div>
+<div><u>Autorotation</u></div>
+<div><u><br/></u></div>
+<div>Top level view controller will have its bounds reoriented iff:</div>
+<div>- View controller returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span> from <font face="Andale Mono">shouldAutorotate</font></div>
+<div>- View controller returns the new orientation in <font face="Andale Mono">supportedInterfaceOrientations</font></div>
+<div>- Application allows rotation to that orientation (defined in <font face="Andale Mono">Info.plist</font>)</div>
+<div><br/></div>
+<div>Generally a good idea to implement rotation in MVCs.</div>
+<div><br/></div>
+<div>There are also methods that get called, but usually the aforementioned ones are enough.</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)</span><font face="Andale Mono">willRotateToInterfaceOrientation...</font></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)</span><font face="Andale Mono">willAnimateRotationToInterfaceOrientation...</font></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)</span><font face="Andale Mono">didRotateFromInterfaceOrientation...</font></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">didReceiveMemoryWarning</font></u></div>
+<div><u><br/></u></div>
+<div>Called in low-memory situations. Your responsibility is to try to free up memory in the heap, or set <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span> pointers to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>. Of course, things on screen shouldn't be touched, but things that aren't on screen that can be recreated should be released.</div>
+<div><br/></div>
+<div>Of course, you should be freeing up that stuff anyway, since you don't want to be a memory pig. Things to focus on: images, sounds, videos.</div>
+<div><br/></div>
+<div>Why be a good citizen? iOS has the right to kill your app if you're being a memory hog. This means you shouldn't be using more memory than a single MVC that's on screen right now (or multiple MVCs on an iPad). You also don't want to slow down other applications the user is running, or you might get some bad reviews.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">awakeFromNib</font></u></div>
+<div><br/></div>
+<div>Sent to all objects that come out of (is un-freezedried) from a storyboard, including your Controller. Happens before outlets are set (before the MVC is "loaded").</div>
+<div><br/></div>
+<div>Anything that would go in your Controller's <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">init</span> method would have to go here too (because <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">init</span> methods aren't called on objects that come out of a storyboard).</div>
+<div><br/></div>
+<div>Put code somewhere else if at all possible.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setup { }; <span style="color: rgb(0, 132, 0);">// do something that can't wait until viewDidLoad</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)awakeFromNib { [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">setup</span>]; }<br/>
+<span style="color: rgb(0, 132, 0);">// this is UIViewController's designated initializer</span><br/>
+- (<span style="color: rgb(187, 44, 162);">instancetype</span>)initWithNibName:(<span style="color: rgb(112, 61, 170);">NSString</span> *)name bundle:(<span style="color: rgb(112, 61, 170);">NSBundle</span> *)bundle<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span> = [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">initWithNibName</span>:name <span style="color: rgb(61, 29, 129);">bundle</span>:bundle];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">setup</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Summary</u></div>
+<div>
+<ol>
+<li>Instantiated from storyboard</li>
+<li><font face="Andale Mono">awakeFromNib</font></li>
+<li>Outlets get set</li>
+<li><font face="Andale Mono">viewDidLoad</font></li>
+<li>(when geometry is determined) <font face="Andale Mono">viewWillLayoutSubviews:</font>, <font face="Andale Mono">viewDidLayoutSubviews:</font></li>
+<li>(every time MVC appears) <font face="Andale Mono">viewWillAppear:</font>, <font face="Andale Mono">viewDidAppear:</font></li>
+<li>(when geometry changes while visible, e.g. rotation) <font face="Andale Mono">viewWillLayoutSubviews:</font>, <font face="Andale Mono">viewDidLayoutSubviews:</font></li>
+<li>(every time MVC disappears) <font face="Andale Mono">viewWillDisappear:</font>, <font face="Andale Mono">viewDidDisappear:</font></li>
+<li>(possibly if memory gets low) <font face="Andale Mono">didReceiveMemoryWarning:</font></li>
+<li>There's no "unload" anymore</li>
+</ol>
+<div>
+<hr/>
+<br/></div>
+</div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Making the Outline button outlined.</div>
+<div><br/></div>
+<div>What color are buttons? You can change the global tint color for your application on your storyboard settings, which affects all clickable things; you can also set local tint for individual items but that's usually not good.</div>
+<div><br/></div>
+<div>For C structs in iOS, there's usually a <font face="Andale Mono">NSMakeX</font>:</div>
+<div><font face="Andale Mono">[title <span style="color: rgb(61, 29, 129);">setAttributes</span>:<span style="color: rgb(39, 42, 216);">@{</span> <span style="color: rgb(112, 61, 170);">NSStrokeWidthAttributeName</span> : <span style="color: rgb(39, 42, 216);">@3</span>,<br/>
+                        <span style="color: rgb(112, 61, 170);">NSStrokeColorAttributeName</span> : <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">outlineButton</span>.<span style="color: rgb(112, 61, 170);">tintColor</span> <span style="color: rgb(39, 42, 216);">}</span><br/>
+              <span style="color: rgb(61, 29, 129);">range</span>:<span style="color: rgb(61, 29, 129);">NSMakeRange</span>(<span style="color: rgb(39, 42, 216);">0</span>, [title <span style="color: rgb(61, 29, 129);">length</span>])];</font><br/></div>
+<div><br/></div>
+<div>There's no <font face="Andale Mono">MutableAttributedString</font> in buttons like in textviews; you have to get it, mutate the local version, then set it back.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>NSNotification</b></div>
+<div><b><br/></b></div>
+<div>The "radio station" from the MVC slides.</div>
+<div><br/></div>
+<div><u><font face="Andale Mono">NSNotificationCenter</font></u></div>
+<div><u><br/></u></div>
+<div>Get the default "notification center" via <font face="Andale Mono">[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> defaultCenter]</font></div>
+<div>This results in a shared instance.</div>
+<div><br/></div>
+<div>If you want to listen to a station, send:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addObserver:(<span style="color: rgb(187, 44, 162);">id</span>)observer     <span style="color: rgb(0, 132, 0);">// who to notify (e.g. self)</span><br/>
+           selector:(<span style="color: rgb(187, 44, 162);">SEL</span>)methodInvokedIfSomethingHappens </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// in observer</span><font face="Andale Mono"><br/>
+               name:(<span style="color: rgb(112, 61, 170);">NSString</span> *)name <span style="color: rgb(0, 132, 0);">// station name</span><br/>
+             object:(<span style="color: rgb(187, 44, 162);">id</span>)sender       <span style="color: rgb(0, 132, 0);">// who to watch; nil for anyone</span></font><br/></div>
+<div><br/></div>
+<div>Then you'll be notified when there are broadcasts:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)methodInvokedIfSomethingHappens:(NSNotification *)notification<br/>
+{<br/>
+    </font><span style="font-family: 'Andale Mono';">notification.name</span><span style="font-family: 'Andale Mono';">     </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// name passed above</span></div>
+<div><font face="Andale Mono">    notification.object   <span style="color: rgb(0, 132, 0);">// object sending notification</span><br/>
+    notification.userInfo <span style="color: rgb(0, 132, 0);">// notification-specific info (id, often nil)</span></font><font face="Andale Mono"><br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Everything about notifications is inside your app, not the system (since space in heap is only your app). If you get a message from the system, then <span style="font-family: 'Andale Mono';">notification.userInfo</span> will be <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>.</div>
+<div><br/></div>
+<div>When done listening, "tune out":</div>
+<div><font face="Andale Mono">[center removeObserver:<span style="color: rgb(187, 44, 162);">self</span>];<br/>
+[center removeObserver:<span style="color: rgb(187, 44, 162);">self</span> name:UIContentSizeCategoryDidChangeNotification object:<span style="color: rgb(187, 44, 162);">nil</span>];</font><br/></div>
+<div>(second one tunes out from only certain notifications, in this case from any sender)</div>
+<div>This is important since <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNotificationCenter</span> keeps an "unsafe retained" pointer to you, which can crash your app -- this is for compatibility reasons; it should actually be <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">weak</span>.</div>
+<div><br/></div>
+<div>Normally, you remove yourself when your MVC goes off-screen. If that doesn't make sense though, you can remove yourself in a method called <font face="Andale Mono">dealloc</font>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)dealloc<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// be careful!</span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">    // can't access properties as you're almost gone from heap</span><br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">removeObserver</span>:<span style="color: rgb(187, 44, 162);">self</span>];<br/>
+}</font><br/></div>
+<div>Try not to use this, and for sure don't use it for anything else.</div>
+<div><br/></div>
+<div>You can call <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">removeObserver</span> even if you're not observing anything and it'll be okay.</div>
+<div><br/></div>
+<div><u>Example</u></div>
+<div><u><br/></u></div>
+<div>Watch for changes in the size of preferred fonts (user can change this in Settings):</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> *center = [<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>];<br/>
+[center addObserver:<span style="color: rgb(187, 44, 162);">self</span><br/>
+           selector:<span style="color: rgb(187, 44, 162);">@selector</span>(preferredFontsSizeChanged:)<br/>
+               name:UIContentSizeCategoryDidChangeNotification<br/>
+             object:<span style="color: rgb(187, 44, 162);">nil</span>]; <span style="color: rgb(0, 132, 0);">// broadcasts not object-specific</span><br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)preferredFontsSizeChanged:(<span style="color: rgb(112, 61, 170);">NSNotification</span> *)notification<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// re-set the fonts of objects using preferred fonts</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Adding to Attributor</u></div>
+<div><br/></div>
+<div>For your will/did functions, you can call <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">super</span> either before or after you do your work -- it usually doesn't matter, just depends on what you want to happen.</div>
+<div><br/></div>
+<div>Generally to stop listening, you shouldn't just put in <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span>; specify the notification name in <font face="Andale Mono">removeObserver</font>.</div>
+<div><br/></div>
+<div>What if they change the text style when you're not listening? Add <font face="Andale Mono">usePreferredFonts</font> into <font face="Andale Mono">viewWillAppear</font>.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillAppear</span>:animated];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">usePreferredFonts</span>];<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">addObserver</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                                             <span style="color: rgb(61, 29, 129);">selector</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(preferredFontsChanged:)<br/>
+                                                 <span style="color: rgb(61, 29, 129);">name</span>:<span style="color: rgb(112, 61, 170);">UIContentSizeCategoryDidChangeNotification</span><br/>
+                                               <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillDisappear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillDisappear</span>:animated];<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">removeObserver</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                                                    <span style="color: rgb(61, 29, 129);">name</span>:<span style="color: rgb(112, 61, 170);">UIContentSizeCategoryDidChangeNotification</span><br/>
+                                                  <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)preferredFontsChanged:(<span style="color: rgb(112, 61, 170);">NSNotification</span> *)notification<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">usePreferredFonts</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)usePreferredFonts<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">body</span>.<span style="color: rgb(112, 61, 170);">font</span> = [<span style="color: rgb(112, 61, 170);">UIFont</span> <span style="color: rgb(61, 29, 129);">preferredFontForTextStyle</span>:<span style="color: rgb(112, 61, 170);">UIFontTextStyleBody</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">headline</span>.<span style="color: rgb(112, 61, 170);">font</span> = [<span style="color: rgb(112, 61, 170);">UIFont</span> <span style="color: rgb(61, 29, 129);">preferredFontForTextStyle</span>:<span style="color: rgb(112, 61, 170);">UIFontTextStyleHeadline</span>];<br/>
+}</font></div>
+</body></html>
