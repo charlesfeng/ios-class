@@ -10,19 +10,36 @@
 
 @implementation PlayingCard
 
-- (int)match:(NSArray *)otherCards
+- (int)matchOne:(PlayingCard *)card
 {
     int score = 0;
     
-    if ([otherCards count] == 1) {
-        id card = [otherCards firstObject];
+    if ([self.suit isEqualToString:card.suit]) {
+        score = 1;
+    } else if (self.rank == card.rank) {
+        score = 4;
+    }
+    
+    return score;
+}
+
+- (int)match:(NSArray *)otherCards
+{
+    NSMutableArray *oldCards = [[NSMutableArray alloc] init];
+    int score = 0;
+    
+    for (id card in otherCards) {
         if ([card isKindOfClass:[PlayingCard class]]) {
-            PlayingCard *otherCard = [otherCards firstObject];
-            if ([self.suit isEqualToString:otherCard.suit]) {
-                score = 1;
-            } else if (self.rank == otherCard.rank) {
-                score = 4;
+            PlayingCard *otherCard = (PlayingCard *)card;
+            
+            // calculate match score for all pairwise matches
+            score += [self matchOne:otherCard];
+            for (Card *oldCard in oldCards) {
+                int nom = [oldCard match:@[otherCard]];
+                score += nom;
             }
+            
+            [oldCards addObject:otherCard];
         }
     }
     

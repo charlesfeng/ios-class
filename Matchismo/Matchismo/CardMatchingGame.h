@@ -18,6 +18,11 @@
 - (Card *)cardAtIndex:(NSUInteger)index;
 
 @property (nonatomic, readonly) NSInteger score;
-@property (nonatomic) NSInteger selectable;
+@property (nonatomic, readonly) NSUInteger lastMatchScore;
+
+@property (nonatomic) NSUInteger numSelectable;
+@property (nonatomic) NSUInteger mismatchPenalty;
+@property (nonatomic) NSUInteger matchBonus;
+@property (nonatomic) NSUInteger costToChoose;
 
 @end

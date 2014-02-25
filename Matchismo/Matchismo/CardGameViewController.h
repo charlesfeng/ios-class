@@ -8,12 +8,16 @@
 // Abstract class. Must implement methods as described below.
 
 #import <UIKit/UIKit.h>
+#import "CardMatchingGame.h"
 #import "Deck.h"
 
 @interface CardGameViewController : UIViewController
 
+@property (strong, nonatomic) CardMatchingGame *game;
+
 // protected
 // for subclasses
 - (Deck *)createDeck; // abstract
+- (void)initializeGame; // abstract
 
 @end
