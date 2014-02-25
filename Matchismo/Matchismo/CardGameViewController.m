@@ -8,7 +8,6 @@
 
 #import "CardGameViewController.h"
 #import "CardMatchingGame.h"
-#import "PlayingCardDeck.h"
 
 @interface CardGameViewController ()
 @property (nonatomic) int flipCount;
@@ -25,9 +24,9 @@
     return _game;
 }
 
-- (Deck *)createDeck
+- (Deck *)createDeck // abstract
 {
-    return [[PlayingCardDeck alloc] init];
+    return nil;
 }
 
 - (IBAction)touchCardButton:(UIButton *)sender

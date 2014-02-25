@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="16.50706672668457"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-25 00:32:38 +0000"/><meta name="latitude" content="37.45210824650287"/><meta name="longitude" content="-122.1854676560773"/><meta name="updated" content="2014-02-25 02:58:23 +0000"/><title>Lecture 6: Polymorphism with Controllers, UINavigation, UITabBar</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Demo</b>
+<div><br/></div>
+<div>Create a subclass of <font face="Andale Mono">CardGameViewController</font> for playing cards so we don't have to have <font face="Andale Mono">PlayingCardDeck</font> explicitly in the code.</div>
+<div><br/></div>
+<div>First get rid of offending code to create an <i>abstract</i> class: cannot be instantiated and used; only useful as a superclass for other classes that are <i>concrete</i>.</div>
+<div><br/></div>
+<div>There's no abstract keyword in Objective-C; just document it in the header file + any methods in the implementation. Also delineate which methods in the header file are public methods and which ones are meant for subclasses to override.</div>
+<div><br/></div>
+<div>Don't worry about the designated initializer when creating a controller subclass since we'd normally use <font face="Andale Mono">awakeFromNib</font> for objects being un-freezedried from the storyboard.</div>
+<div><br/></div>
+<div>Telling storyboard to use a concrete subclass: control-shift-click the storyboard to see all the things on your mouse, click the Controller (it should have a blue highlight now), go to Identity Inspector, set the Custom Class.</div>
+<div><br/></div>
+<div>Outlets/actions connected to abstract superclass still work for all subclasses. You have to wire up connections to the class that has the outlets/actions; in this case, additional cards would be wired to the abstract superclass.</div>
+<div><br/></div>
+<div>Outlet/action connecting is a "private" thing so you don't have to make the outlets public in the superclass, but calling methods requires you to do so.</div>
+<div><b><br/></b></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Multiple MVCs</b></div>
+<div><b><br/></b></div>
+<div><i>Why?</i> To put more stuff in our app.</div>
+<div><br/></div>
+<div><i>How to add a new MVC to your storyboard:</i></div>
+<div>Drag "View Controller" from Object Palette.</div>
+<div>Create a subclass of UIViewController using the New File menu item.</div>
+<div>Set that subclass as the class of your new Controller in the Attributes Inspector. (it's a common mistake to forget to do this, in which case you can't hook up any outlets or actions!)</div>
+<div><br/></div>
+<div><i>How to present this new MVC to your user:</i></div>
+<div>Use a controller whose View is other MVCs, such as</div>
+<div><font face="Andale Mono">UINavigationController</font></div>
+<div><font face="Andale Mono">UITabBarController</font></div>
+<div><br/></div>
+<div>
+<hr/></div>
+<div><br/></div>
+<div><u><font face="Andale Mono">UINavigationController</font></u></div>
+<div><u><br/></u></div>
+<div>Lets the user "dive down" into more detail. Allows an MVC to show more information about something in another MVC.</div>
+<div><br/></div>
+<div>For example, the Calendar app has 5 MVCs:</div>
+<div>
+<ul>
+<li>Starts with a year view.<br/></li>
+<li>Touching a month goes into a month view. The <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>'s View encompasses the whole screen, and contains a Month MVC's View.<br/></li>
+<li>Touching a day goes into a Day MVC's View.<br/></li>
+<li>Touching an event goes into an Event MVC's View.<br/></li>
+</ul>
+<div>The <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> encloses other MVCs, and touches in one MVC "segue" to the other MVCs.</div>
+</div>
+<div><br/></div>
+<div>Components of a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>:</div>
+<div>
+<ul>
+<li>Navigation Bar (contents determined by embedded MVC's <font face="Andale Mono">navigationItem</font>)</li>
+<li style="list-style: none; display: inline">
+<ul>
+<li>Title (by default is <font face="Andale Mono">title</font> property of the embedded MVC; can also put in storyboard)</li>
+<li>Embedded MVC's <font face="Andale Mono">navigationItem.rightBarButtonItems</font> (an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBarButtonItems</span>) to the right of the title</li>
+<li>Back button (automatic); uses the title of the previous MVC but can also be set. If it doesn't fit or isn't defined, it just says Back.</li>
+</ul>
+</li>
+<li>Embedded MVC's <font face="Andale Mono">toolbarItems</font> property (also an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBarButtonItems</span>)</li>
+<li style="list-style: none; display: inline">
+<ul>
+<li>Automatically navigates away/back if successive MVCs don't have/have this property.</li>
+</ul>
+</li>
+</ul>
+<div>MVCs working together need to be independent, encapsulated, able to run by themselves. If an MVC acts as a View of another MVC, then it can't talk back to its Controller (except via blind, structured communication which is usually too complicated).</div>
+</div>
+<div><br/></div>
+<div>The <font face="Andale Mono">rootViewController</font> outlet of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> points to a MVC's Controller and embeds the View of that Controller into its own View.</div>
+<div><br/></div>
+<div>A button in that embedded View can change the MVC that the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> points to, un-freezedrying it from the storyboard and embedding the new MVC's View. When this happens, the original MVC should be silent, having no control over the new MVC. Pressing Back moves the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> back to the original MVC, deallocating the new MVC from the heap. Every time you push a new thing onto a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>, you're creating a new one from the storyboard; every time you navigate away, it's deallocated.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Segues</b></div>
+<div><br/></div>
+<div>Segues are used to make a second MVC appear on screen.</div>
+<div><br/></div>
+<div>Each View + Controller on the storyboard is a "scene".</div>
+<div><br/></div>
+<div>To make a segue, control+drag from the thing you want to start the segue, into the controller you want a segue to.</div>
+<div><br/></div>
+<div><u>Types of segues</u></div>
+<div><i><br/></i></div>
+<div><i>push</i> is the kind you use when the two Controllers are inside a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span></div>
+<div><i>modal</i> is a "take over the screen" segue (don't abuse this)</div>
+<div><i>custom</i> is very rare</div>
+<div><br/></div>
+<div><u>Creating a segue</u></div>
+<div><br/></div>
+<div>Click the segue and go to Attributes Inspector to set an Identifier to identify the segue in our code. Pick an identifier that describes what's going on here.</div>
+<div><br/></div>
+<div>Have to put the View Controllers inside a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>. Do this by picking which one you want to be the root, do Editor -&gt; Embed in -&gt; Navigation Controller.</div>
+<div><br/></div>
+<div>The little arrow in the very left is the application starting point, the MVC that will be on screen when your application launches. You can pick it up and drag around, though it doesn't make any sense to have the arrow pointing at a Controller inside a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>.</div>
+<div><br/></div>
+<div>You'll see a <font face="Andale Mono">rootViewController</font> connection/outlet (denoted by two dots) between the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> and your root Controller. It isn't a segue.</div>
+<div><br/></div>
+<div>All scenes that are inside the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> (can legally transition back and forth) now have navigation bars, which are part of the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>'s View. Can double click the Title in the bars to edit the <font face="Andale Mono">title</font>. Can also add a button using <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBarButtonItem</span> (not <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIButton</span>).</div>
+<div><br/></div>
+<div>When does a pushed MVC pop off? Usually when the user presses the "back" button, but can happen programmatically with:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)popViewControllerAnimated:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated;</font><br/></div>
+<div>Do this when the user takes an action that makes it irrelevant to be on screen (e.g. deleting a record).</div>
+<div><br/></div>
+<div>Get a hold of your <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> from any controller in the stack using:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.navigationController</span><br/></div>
+<div>e.g.<span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">[</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.navigationController popViewControllerAnimated:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span><span style="font-family: 'Andale Mono';">]</span></div>
+<div>Sometimes you want MVCs that can exist outside a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>, in which case just check if <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.navigationController</span> is defined first.</div>
+<div><br/></div>
+<div><u>What happens in code</u></div>
+<div><br/></div>
+<div>The VC that contains the button that initiated the segue is sent a message. Pass data the new VC needs here, then "let it run". Treat the new VC as part of the View, so it shouldn't talk back to you (except through blind communication like delegation).</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([segue.<span style="color: rgb(112, 61, 170);">identifier</span> <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(209, 47, 27);">@"Do Something"</span>]) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> ([segue.destinationViewController isKindOfClass:[</font><span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">DoSomethingVC</span><span style="font-family: 'Andale Mono';"> class]]) {</span></div>
+<div><font face="Andale Mono">            </font><span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">DoSomethingVC</span><span style="font-family: 'Andale Mono';"> *doVC = (</span><span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">DoSomethingVC</span><span style="font-family: 'Andale Mono';"> *)segue.destinationViewController;</span></div>
+<div><font face="Andale Mono">            doVC.neededInfo = ...;<br/>
+        }<br/>
+    }<br/>
+}</font></div>
+<div><br/></div>
+<div>Check <span style="font-family: 'Andale Mono';">segue.</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">identifier</span> just in case you have (or eventually want) multiple segues.</div>
+<div>Check the class of <span style="font-family: 'Andale Mono';">segue.destinationViewController</span> to make sure that we're going to the right type of VC.</div>
+<div><br/></div>
+<div>When this is called, your outlets are not set in the destination MVC (gets called before <font face="Andale Mono">viewDidLoad</font>). Any information you pass needs to be held onto until they're set, then can be used to update the UI.</div>
+<div><br/></div>
+<div>You can prevent a segue from happening by responding <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NO</span> to this method:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)shouldPerformSegueWithIdentifier:(<span style="color: rgb(112, 61, 170);">NSString</span> *)identifier sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([identifier <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(209, 47, 27);">@"Do Something"</span>]) {<br/>
+        <span style="color: rgb(187, 44, 162);">return</span> [<span style="color: rgb(187, 44, 162);">self</span> canDoThisThing] ? <span style="color: rgb(187, 44, 162);">YES</span> : <span style="color: rgb(187, 44, 162);">NO</span>;<br/>
+    }<br/>
+}<br/></font></div>
+<div>Try not to have any "dead buttons"; at least put up an alert.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Add a second MVC to Attributor to provide statistics on the text.</div>
+<div><br/></div>
+<div>Common pattern: outlets that update if they're currently on screen; otherwise update when shown.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setTextToAnalyze:(<span style="color: rgb(112, 61, 170);">NSAttributedString</span> *)textToAnalyze<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_textToAnalyze</span> = textToAnalyze;<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">view</span>.<span style="color: rgb(112, 61, 170);">window</span>) [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateUI</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillAppear</span>:animated];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateUI</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Finding characters with attribute, using <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSMutableAttributedString</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSAttributedString</span> *)charactersWithAttribute:(<span style="color: rgb(112, 61, 170);">NSString</span> *)attributeName<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSMutableAttributedString</span> *characters = [[<span style="color: rgb(112, 61, 170);">NSMutableAttributedString</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">int</span> index = <span style="color: rgb(39, 42, 216);">0</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">while</span> (index &lt; [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">textToAnalyze</span> <span style="color: rgb(61, 29, 129);">length</span>]) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSRange</span> range;<br/>
+        <span style="color: rgb(187, 44, 162);">id</span> value = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">textToAnalyze</span> <span style="color: rgb(61, 29, 129);">attribute</span>:attributeName <span style="color: rgb(61, 29, 129);">atIndex</span>:index <span style="color: rgb(61, 29, 129);">effectiveRange</span>:&amp;range];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (value) {<br/>
+            [characters <span style="color: rgb(61, 29, 129);">appendAttributedString</span>:[<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">textToAnalyze</span> <span style="color: rgb(61, 29, 129);">attributedSubstringFromRange</span>:range]];<br/>
+            index = range.<span style="color: rgb(112, 61, 170);">location</span> + range.<span style="color: rgb(112, 61, 170);">length</span>;<br/>
+        } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+            index++;<br/>
+        }<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> characters;<br/>
+}<br/></font></div>
+<div><br/></div>
+<div>Remember to update your Custom Class for your VC!</div>
+<div><br/></div>
+<div>Can quickly test new VCs by adding some stuff to viewDidLoad, then dragging the storyboard arrow onto the VC:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidLoad<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidLoad</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">textToAnalyze</span> = [[<span style="color: rgb(112, 61, 170);">NSAttributedString</span> <span style="color: rgb(61, 29, 129);">alloc</span>]<br/>
+                          <span style="color: rgb(61, 29, 129);">initWithString</span>:<span style="color: rgb(209, 47, 27);">@"test"</span><br/>
+                          <span style="color: rgb(61, 29, 129);">attributes</span>:<span style="color: rgb(39, 42, 216);">@{</span> <span style="color: rgb(112, 61, 170);">NSForegroundColorAttributeName</span> : [<span style="color: rgb(112, 61, 170);">UIColor</span> <span style="color: rgb(61, 29, 129);">greenColor</span>],<br/>
+                                        <span style="color: rgb(112, 61, 170);">NSStrokeWidthAttributeName</span> : @-<span style="color: rgb(39, 42, 216);">3</span> <span style="color: rgb(39, 42, 216);">}</span></font><font face="Andale Mono">];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>After you put the root controller into a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>, connect the segue, add the <font face="Andale Mono">prepareForSegue</font> method:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([segue.<span style="color: rgb(112, 61, 170);">identifier</span> <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(209, 47, 27);">@"Analyze Text"</span>]) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> ([segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span> <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">TextStatsViewController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+            <span style="color: rgb(79, 129, 135);">TextStatsViewController</span> *tsvc = (<span style="color: rgb(79, 129, 135);">TextStatsViewController</span> *)segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span>;<br/>
+            tsvc.<span style="color: rgb(79, 129, 135);">textToAnalyze</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">body</span>.<span style="color: rgb(112, 61, 170);">textStorage</span>;<br/>
+        }<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><u><font face="Andale Mono">UITabBarController</font></u></div>
+<div><b><u><br/></u></b></div>
+<div>Good example is the clock app which has four tabs on the bottom. Each of the four tabs are completely independent of each other, which is what you want for a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarController</span>.</div>
+<div><br/></div>
+<div>Control-dragging a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarController</span> to other VC's sets an array:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">NSArray</span> *viewControllers;</font><br/></div>
+<div>However many you have defines how many tabs you have on the bottom.</div>
+<div><br/></div>
+<div>Title of a tab is the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span>'s <font face="Andale Mono">title</font> property.</div>
+<div>Icon of a tab is on <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarItem</span> (but you usually just set it in the storyboard).</div>
+<div><br/></div>
+<div>What if you have more than five controllers (e.g. the iPod app)? Then a More... button appears, which upon clicking pops up a tab selection UI that also allows organizing tabs. Generally this is not recommended as it's a little cumbersome for users.</div>
+<div><br/></div>
+<div>When you drag a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarController</span> out, it comes with two blank controllers. You can delete them by selecting them and hitting Delete.</div>
+<div><br/></div>
+<div>When you control-drag between the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarController</span> and your VC, select "Relationship Segue: view controllers". The relationships aren't really segues.</div>
+<div><br/></div>
+<div>All relevant VCs now have some room on the bottom for the tab bar.</div>
+<div><br/></div>
+<div>Don't put a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITabBarController</span> inside (or anywhere downstream of) a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>.</div>
+<div><br/></div>
+<div>Changing ordering of tabs: can rearrange them by dragging.</div>
+<div>Can change the name of each tab by double clicking.</div>
+<div><br/></div>
+<div>Tab Bar icons are 30x30, alpha channel only. Can also be set in Xcode from the asset library.</div>
+<div><br/></div>
+<div>You can zoom in and out of a storyboard by double clicking the background or using the buttons.</div>
+</body></html>
