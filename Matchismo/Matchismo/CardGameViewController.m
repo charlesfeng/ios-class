@@ -8,6 +8,7 @@
 
 #import "CardGameViewController.h"
 #import "CardMatchingGame.h"
+#import "HistoryViewController.h"
 
 @interface CardGameViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
@@ -29,6 +30,12 @@
     return _game;
 }
 
+- (NSMutableArray *)history
+{
+    if (!_history) _history = [[NSMutableArray alloc] init];
+    return _history;
+}
+
 - (Deck *)createDeck { return nil; } // abstract
 
 - (void)initializeGame {} // abstract
@@ -47,8 +54,17 @@
 - (IBAction)touchRedealButton:(UIButton *)sender {
     self.game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count] usingDeck:[self createDeck]];
     [self initializeGame];
-    [self updateUI];
     [self setGameStarted:NO];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"History"]) {
+        if ([segue.destinationViewController isKindOfClass:[HistoryViewController class]]) {
+            HistoryViewController *hvc = (HistoryViewController *)segue.destinationViewController;
+            hvc.history = self.history;
+        }
+    }
 }
 
 @end

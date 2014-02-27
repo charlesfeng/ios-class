@@ -14,6 +14,7 @@
 @interface CardGameViewController : UIViewController
 
 @property (strong, nonatomic) CardMatchingGame *game;
+@property (strong, nonatomic) NSMutableArray *history;
 
 // protected
 // for subclasses

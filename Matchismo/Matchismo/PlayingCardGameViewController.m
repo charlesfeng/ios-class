@@ -24,8 +24,9 @@
     
     // stupid workaround for UISegmentedControl tint color bug
     // http://stackoverflow.com/questions/19239227
+    UIColor *color = self.gameTypeControl.tintColor;
     [self.gameTypeControl setTintColor:[UIColor clearColor]];
-    [self.gameTypeControl setTintColor:self.view.tintColor];
+    [self.gameTypeControl setTintColor:color];
 }
 
 - (Deck *)createDeck
@@ -35,11 +36,13 @@
 
 - (void)initializeGame
 {
-    // game defaults
     self.game.numSelectable = 2;
     self.game.matchBonus = 4;
     self.game.mismatchPenalty = 2;
     self.game.costToChoose = 1;
+    
+    [self updateUI];
+    [self updateStatusLabel:@"Welcome to Match!"];
 }
 
 - (void)updateUI
@@ -57,23 +60,29 @@
             }
         } else if (card.isChosen) {
             [cardsChosen appendString:[self titleForCard:card]];
-        } else if ([cardButton.currentTitle length] != 0) {
+        } else if (cardButton.tag != 0) {
             [cardsUnchosen appendString:cardButton.titleLabel.text];
         }
         
         [cardButton setTitle:[self titleForCard:card] forState:UIControlStateNormal];
         [cardButton setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
+
         cardButton.enabled = !card.isMatched;
+        cardButton.tag = (int)card.isChosen;
     }
     
+    NSMutableString *status = [[NSMutableString alloc] init];
     if ([cardsMatched length] != 0) {
-        [self updateStatusLabel:[NSString stringWithFormat:@"Matched %@ for %d points.", cardsMatched, (int)self.game.lastMatchScore]];
+        [status appendString:[NSString stringWithFormat:@"Matched %@ for %d points.", cardsMatched, (int)self.game.lastMatchScore]];
+        [self.history addObject:[NSString stringWithString:status]];
     } else if ([cardsChosen length] != 0 && [cardsUnchosen length] != 0) {
-        [self updateStatusLabel:[NSString stringWithFormat:@"%@%@ don't match! %d point penalty!", cardsUnchosen, cardsChosen, (int)self.game.mismatchPenalty]];
+        [status appendString:[NSString stringWithFormat:@"%@%@ don't match! %d point penalty!", cardsUnchosen, cardsChosen, (int)self.game.mismatchPenalty]];
+        [self.history addObject:status];
     } else {
-        [self updateStatusLabel:cardsChosen];
+        [status appendString:cardsChosen];
     }
     
+    [self updateStatusLabel:status];
     self.scoreLabel.text = [NSString stringWithFormat:@"Score: %d", (int)self.game.score];
 }
 
@@ -86,6 +95,7 @@
 {
     if (!started) {
         [self updateStatusLabel:@"Game was re-dealt!"];
+        [self.history removeAllObjects];
     }
     
     self.gameTypeControl.enabled = !started;
@@ -98,7 +108,7 @@
 
 - (UIImage *)backgroundImageForCard:(Card *)card
 {
-    return [UIImage imageNamed:card.isChosen ? @"cardfront" : @"cardbackblue"];
+    return [UIImage imageNamed:card.isChosen ? @"cardfront" : @"cardback"];
 }
 
 - (IBAction)touchGameTypeControl:(UISegmentedControl *)sender {

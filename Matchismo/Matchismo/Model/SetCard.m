@@ -23,17 +23,17 @@ const static int SETSIZE = 3;
         NSMutableSet *colors = [[NSMutableSet alloc] init];
         
         [numbers addObject:@(self.number)];
-        [symbols addObject:@(self.number)];
-        [shadings addObject:@(self.number)];
-        [colors addObject:@(self.number)];
+        [symbols addObject:@(self.symbol)];
+        [shadings addObject:@(self.shading)];
+        [colors addObject:@(self.color)];
         
         for (id card in otherCards) {
             if ([card isKindOfClass:[SetCard class]]) {
                 SetCard *otherCard = (SetCard *)card;
                 [numbers addObject:@(otherCard.number)];
-                [symbols addObject:@(otherCard.number)];
-                [shadings addObject:@(otherCard.number)];
-                [colors addObject:@(otherCard.number)];
+                [symbols addObject:@(otherCard.symbol)];
+                [shadings addObject:@(otherCard.shading)];
+                [colors addObject:@(otherCard.color)];
             }
         }
         
