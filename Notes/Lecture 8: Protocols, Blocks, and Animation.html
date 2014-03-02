@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-02 08:14:51 +0000"/><meta name="latitude" content="37.45237982710222"/><meta name="longitude" content="-122.1551279805156"/><meta name="updated" content="2014-03-02 23:14:15 +0000"/><title>Lecture 8: Protocols, Blocks, and Animation</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Protocols</b>
+<div><b><br/></b></div>
+<div>The problem with <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">id</font></span>: it's hard to communicate your intent.</div>
+<div>What do you want callers of the method to pass/what are you returning exactly?</div>
+<div><br/></div>
+<div>Introspection helps occasionally, but it's more of a runtime thing and doesn't help with communicating your intent at all.</div>
+<div><br/></div>
+<div>Protocols: syntactical modification of <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span>; for example: <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id </span><span style="font-family: 'Andale Mono';">&lt;MyProtocol&gt; obj</span></div>
+<div><span style="font-family: 'Andale Mono';">MyProtocol </span>would then be defined to be a list of methods (including <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s)</div>
+<div>The variable <span style="font-family: 'Andale Mono';">obj</span> can point to an object of any class, but it implements known methods.</div>
+<div><br/></div>
+<div><u>Declaring a </u><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';"><u>@protocol</u></span><u>:</u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@protocol</span> Foo&lt;Xyzzy, </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span><span style="font-family: 'Andale Mono';">&gt;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <span style="color: rgb(187, 44, 162);">int</span> readonlyProperty; <span style="color: rgb(0, 132, 0);">// getter (only is part of this protocol)</span><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">NSString</span> *readwriteProperty; <span style="color: rgb(0, 132, 0);">// getter and setter are both part of protocol</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)someMethod;</font><br/>
+<span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@optional</span><font face="Andale Mono"><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)methodWithArgument:(<span style="color: rgb(187, 44, 162);">BOOL</span>)argument; </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// optional<br/></span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@required</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">int</span>)methodThatReturnsSomething;</font><font face="Andale Mono"> </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// required again</span><font face="Andale Mono"><br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>There's no implementation for a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@protocol</span>.</div>
+<div><br/></div>
+<div>All of these methods are required -- anyone implementing this protocol must implement them all!</div>
+<div><font face="Andale Mono">&lt;Xyzzy, </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span><span style="font-family: 'Andale Mono';">&gt;</span> is like a super-protocl -- makes you have to implement the methods in both the <span style="font-family: 'Andale Mono';">Xyzzy</span> protocol and the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span> protocol, if you want to implement <span style="font-family: 'Andale Mono';">Foo</span>.</div>
+<div><br/></div>
+<div>What's the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span> protocol?</div>
+<div>Has things like <span style="font-family: 'Andale Mono';">class</span>, <span style="font-family: 'Andale Mono';">isEqual:</span>, <span style="font-family: 'Andale Mono';">isKindOfClass:</span>, <span style="font-family: 'Andale Mono';">description</span>, <span style="font-family: 'Andale Mono';">performSelector:</span>, etc.</div>
+<div>Not uncommon to add this requirement when declaring a protocol; then, you can rely on introspection and such on the object obeying the protocol.</div>
+<div>Of course, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span> implements the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span> protocol.</div>
+<div>In Objective-C (unlike Java), not all classes have to inherit from <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject</span>.</div>
+<div><br/></div>
+<div>Where do <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@protocol</span> declarations go?</div>
+<div>In header files -- in its own, dedicated header file, or in the header file of the class that's going to require its use.</div>
+<div>If it's only required by a particular class's API, put it there; else put it in its own header file.</div>
+<div><u><br/>
+Implementing a </u><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';"><u>@protocol</u></span><u>:</u><br/></div>
+<div><br/></div>
+<div>Classes can promise to implement the protocol in their <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@interface</span> declarations.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@import</span> <span style="color: rgb(209, 47, 27);">"Foo.h"</span> <span style="color: rgb(0, 132, 0);">// header file that contains the Foo @protocol</span><br/>
+<span style="color: rgb(187, 44, 162);">@interface</span> MyClass : </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject </span><span style="font-family: 'Andale Mono';">&lt;Foo&gt;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// implements Foo @protocol</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>Can be in private <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@interface</span> if they don't want others to know.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@interface</span> MyClass()</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">&lt;Foo&gt;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@end</span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div>Of course, either way, you have to implement <span style="font-family: 'Andale Mono';">Foo</span>'s <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@required</span> methods in the <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@implementation</span>!</div>
+<div><br/></div>
+<div>Now you can declare variables that hold pointers to objects that promise to implement protocols!</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">id</span> &lt;Foo&gt; obj = [[MyClass alloc] init]; <span style="color: rgb(0, 132, 0);">// compiler will like this</span><br/>
+<span style="color: rgb(187, 44, 162);">id</span> &lt;Foo&gt; obj = [<span style="color: rgb(112, 61, 170);">NSArray</span> <span style="color: rgb(61, 29, 129);">array</span>]; <span style="color: rgb(0, 132, 0);">// compiler will not like this</span></font><br/></div>
+<div><br/></div>
+<div>You can also declare arguments to methods to require a protocol.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)giveMeFooObject:(<span style="color: rgb(187, 44, 162);">id</span> &lt;Foo&gt;)anObjectImplementingFoo;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">weak</span>) <span style="color: rgb(187, 44, 162);">id</span> &lt;Foo&gt; myFooProperty;</font><br/></div>
+<div><br/></div>
+<div>This is all just syntactic sugar in the compiler -- makes no difference at runtime; the compiler can just warn you now. Think of it as documentation for your method interfaces.</div>
+<div><br/></div>
+<div>#1 use of protocols: <span style="font-family: 'Andale Mono';">delegate</span>s and <span style="font-family: 'Andale Mono';">dataSource</span>s.</div>
+<div>Blind because they're talking via <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span>s, but structured because there's a protocol that the View uses to talk to that Object blindly.</div>
+<div>Complex <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> classes commonly have a <span style="font-family: 'Andale Mono';">dataSource</span>, because Views cannot own their own data.</div>
+<div><br/></div>
+<div>Other uses: declaring what sort of things are "animatable" (by implementing a certain protocol)</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Blocks</b></div>
+<div><b><br/></b></div>
+<div><u>What is a block?</u></div>
+<div><u><br/></u></div>
+<div>A block of code (i.e. a sequence of statements inside <span style="font-family: 'Andale Mono';">{}</span>) that is usually included "in-line" with the calling of the method that is going to use it, e.g. a closure. Very smart about local variables, referenced objects, etc.</div>
+<div><br/></div>
+<div>
+<div>Blocks start with the magical character <span style="font-family: 'Andale Mono';">^</span>, then (optional) return type, then (optional) arguments in parentheses, then code in curly braces: <font face="Andale Mono">^<span style="color: rgb(187, 44, 162);">BOOL</span>(<span style="color: rgb(187, 44, 162);">id</span> obj, ...) {}</font></div>
+<div><br/></div>
+<div>You can use local variables declared before the block inside the block, but those variables are read only unless you mark the local variable as <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">__block</span> or the variable is an instance variable. With <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">__block</span>, compiler transfers the variable off the stack into the heap (so it can be used by the block), then after the block's finished, it copies it back into the heap, then the stack.</div>
+</div>
+<div><br/></div>
+<div>Some shorthand: if you don't have any arguments, you don't need to have any parentheses. If the return type can be inferred, it isn't needed either.</div>
+<div><br/></div>
+<div><u>Example</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">double</span> stopValue = <span style="color: rgb(39, 42, 216);">53.5</span>;<br/>
+<span style="color: rgb(112, 61, 170);">NSString</span> *stopKey = [<span style="color: rgb(209, 47, 27);">@"Enough"</span> <span style="color: rgb(61, 29, 129);">uppercaseString</span>];<br/>
+<span style="color: rgb(187, 44, 162);">__block</span> <span style="color: rgb(187, 44, 162);">BOOL</span> stoppedEarly = <span style="color: rgb(187, 44, 162);">NO</span>;<br/>
+[<span style="color: rgb(112, 61, 170);">aDictionary</span> enumerateKeysAndObjectsUsingBlock:^(<span style="color: rgb(187, 44, 162);">id</span> key, <span style="color: rgb(187, 44, 162);">id</span> value, <span style="color: rgb(187, 44, 162);">BOOL</span> *stop) {<br/>
+    <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"value for key %@ is %@"</span>, key, value);<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([stopKey <span style="color: rgb(61, 29, 129);">isEqualToString</span>:key] || ([value <span style="color: rgb(61, 29, 129);">doubleValue</span>] == stopValue)) {<br/>
+        *stop = <span style="color: rgb(187, 44, 162);">YES</span>;<br/>
+        stoppedEarly = <span style="color: rgb(187, 44, 162);">YES</span>; <span style="color: rgb(0, 132, 0);">// this is legal!</span><br/>
+    }<br/>
+}];</font><br/></div>
+<div><br/></div>
+<div>This <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">NSLog</span>s every <span style="font-family: 'Andale Mono';">key</span> and <span style="font-family: 'Andale Mono';">value</span> in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">aDictionary</span> (but stops if the <span style="font-family: 'Andale Mono';">key</span> is <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">"ENOUGH"</span> or the double <span style="font-family: 'Andale Mono';">value</span> is <span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">53.5</span>).</div>
+<div><span style="font-family: 'Andale Mono';">*stop</span> is an outgoing <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span>.</div>
+<div><br/></div>
+<div>When you send a message to it, <span style="font-family: 'Andale Mono';">stopKey</span> will automatically have a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span> pointer created to it until the block goes out of scope.</div>
+<div><br/></div>
+<div><u>Blocks like objects?</u></div>
+<div><u><br/></u></div>
+<div>Sort of act like objects: can be stored inside other objects (in properties, arrays, dictionaries, etc.)</div>
+<div>But they only act like objects for the purposes of storing them; their only "method" is <span style="font-family: 'Andale Mono';">copy</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">NSMutableArray</span> *myBlocks; <span style="color: rgb(0, 132, 0);">// array of blocks</span><br/></font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span>.myBlocks addObject:^{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> doSomething];</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// danger!</span><font face="Andale Mono"><br/>
+}];</font><span style="font-size: 11px; font-family: Menlo; color: rgb(0, 132, 0);"><br/></span></div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">void</span> (^doit)(<span style="color: rgb(187, 44, 162);">void</span>) = <span style="color: rgb(187, 44, 162);">self</span>.myBlocks[<span style="color: rgb(39, 42, 216);">0</span>];</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// invoking it</span><font face="Andale Mono"><br/>
+doit();</font><br/></div>
+<div><br/></div>
+<div>There is danger lurking here though: memory cycles!</div>
+<div>All objects referenced inside a block will stay in the heap as long as the block exists.</div>
+<div>In this case, <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span> references the block, but the block also references <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span> -- so neither can leave the heap!</div>
+<div><br/></div>
+<div>To break memory cycles, use a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">__weak</span> local variable.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">__weak</span> MyClass *weakSelf = <span style="color: rgb(187, 44, 162);">self</span>; <span style="color: rgb(0, 132, 0);">// even though self is strong, weakSelf is weak</span></font><br/></div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span>.myBlocks addObject:^{<br/>
+    [<span style="color: rgb(187, 44, 162);">weakSelf</span> doSomething];</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// safe now</span><font face="Andale Mono"><br/>
+}];</font><br/></div>
+<div><br/></div>
+<div><u>When to use blocks</u></div>
+<div><u><br/></u></div>
+<div>Enumeration (like with <font face="Andale Mono">NSDictionary</font>)</div>
+<div>View animations</div>
+<div>Sorting (sort using a block as a comparison method)</div>
+<div>Notification (when something happens, execute this block)</div>
+<div>Error handlers (if an error happens, execute this block)</div>
+<div>Completion handlers (when you are done doing this, execute this block)</div>
+<div><br/></div>
+<div>Super-important use: multithreading with Grand Central Dispatch (GCD) API</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Animation</b></div>
+<div><b><br/></b></div>
+<div>Animating views: specific properties, or groups of views all at once</div>
+<div>Animation of View Controller transitions</div>
+<div>Core Animation</div>
+<div><br/></div>
+<div>SpriteKit: a way to animate sprites<br/></div>
+<div><br/></div>
+<div><u>Animating <font face="Andale Mono">UIView</font> properties</u></div>
+<div><br/></div>
+<div>Changes to <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> properties animated over time: <font face="Andale Mono">frame</font>, <font face="Andale Mono">transform</font> (translation, rotation, scale), <font face="Andale Mono">alpha</font> (opacity)</div>
+<div><br/></div>
+<div>A class method takes animation parameters and an animation block as arguments.</div>
+<div>The animation block contains the code that makes the change to the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>s. The changes are made immediately (even though they appear over time!) A "completion block" can be executed when the animation is done.</div>
+<div><br/></div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(187, 44, 162);">void</span>)animateWithDuration:(<span style="color: rgb(112, 61, 170);">NSTimeInterval</span>)duration<br/>
+                      delay:(<span style="color: rgb(112, 61, 170);">NSTimeInterval</span>)delay<br/>
+                    options:(<span style="color: rgb(112, 61, 170);">UIViewAnimationOptions</span>)options<br/>
+                 animations:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(187, 44, 162);">void</span>))animations<br/>
+                 completion:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(187, 44, 162);">BOOL</span> finished))completion;</font><br/></div>
+<div><br/></div>
+<div><font face="Andale Mono">[<span style="color: rgb(112, 61, 170);">UIView</span> <span style="color: rgb(61, 29, 129);">animateWithDuration</span>:<span style="color: rgb(39, 42, 216);">3.0</span><br/>
+                      <span style="color: rgb(61, 29, 129);">delay</span>:<span style="color: rgb(39, 42, 216);">0.0</span><br/>
+                    <span style="color: rgb(61, 29, 129);">options</span>:<span style="color: rgb(61, 29, 129);">UIViewAnimationOptionBeginFromCurrentState</span><br/>
+                 <span style="color: rgb(61, 29, 129);">animations</span>:^{ myView.alpha = <span style="color: rgb(39, 42, 216);">0.0</span>; }<br/>
+                 <span style="color: rgb(61, 29, 129);">completion</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> fin) { <span style="color: rgb(187, 44, 162);">if</span> (fin) [<span style="color: rgb(112, 61, 170);">myView</span> removeFromSuperview]; }];</font><br/></div>
+<div><br/></div>
+<div>Note that the function returns immediately; if you want to have things happen successively you can set <span style="font-family: 'Andale Mono';">delay</span>s or <span style="font-family: 'Andale Mono';">completion</span> arguments.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewAnimationOptions</span>:</div>
+<div><font face="Andale Mono">BeginFromCurrentState <span style="color: rgb(0, 132, 0);">// "intercept/pick up from" other, in-progress anims of same properties</span><br/>
+AllowUserInteraction <span style="color: rgb(0, 132, 0);">// allow gestures to be processed while anim is in progress</span><br/>
+LayoutSubviews <span style="color: rgb(0, 132, 0);">// animate relayout of subviews along with parent's animation</span><br/>
+Repeat <span style="color: rgb(0, 132, 0);">// repeat indefinitely</span><br/>
+Autoreverse <span style="color: rgb(0, 132, 0);">// play anim forward then backward</span><br/>
+OverrideInheritedDuration <span style="color: rgb(0, 132, 0);">// if not set, use duration of any in-progress anim</span><br/>
+OverrideInheritedCurve <span style="color: rgb(0, 132, 0);">// if not set, use curve of in-progress anim</span><br/>
+AllowAnimatedContent <span style="color: rgb(0, 132, 0);">// if not set, just interpolate between current and end state img</span><br/>
+CurveEaseInEaseOut <span style="color: rgb(0, 132, 0);">// slower then normal then slower</span><br/>
+CurveEaseIn <span style="color: rgb(0, 132, 0);">// slower then constant</span><br/>
+CurveLinear <span style="color: rgb(0, 132, 0);">// same speed throughout</span><br/></font></div>
+<div><br/></div>
+<div><u>Animating view modifications</u></div>
+<div><br/></div>
+<div>If you want an entire view modification at once, use <span style="font-family: 'Andale Mono';">transitionWithView</span>s</div>
+Flipping view over: <span style="font-family: 'Andale Mono';">UIViewAnimationOptionsTransitionFlipFrom{Left,Right,Top,Bottom}</span><br/>
+Dissolving from old to new: <span style="font-family: 'Andale Mono';">UIViewAnimationOptionsTransitionCrossDissolve</span><br/>
+Curling up or down: <span style="font-family: 'Andale Mono';">UIViewAnimationOptionsTransitionCurl{Up,Down}</span>
+<div>
+<div><br/></div>
+<div>Put the modification in <span style="font-family: 'Andale Mono';">options</span> and changes in the <span style="font-family: 'Andale Mono';">animations</span> block of this method:</div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(187, 44, 162);">void</span>)transitionWithView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)view<br/>
+                  duration:(<span style="color: rgb(112, 61, 170);">NSTimeInterval</span>)duration<br/>
+                   options:(UIViewAnimationOptions)options<br/>
+                animations:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(187, 44, 162);">void</span>))animations<br/>
+                completion:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(187, 44, 162);">BOOL</span></font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">fin</span><span style="font-family: 'Andale Mono';">))completion;</span></div>
+<div><br/></div>
+<div>Note that the function returns immediately; if you want to have things happen successively you can set <span style="font-family: 'Andale Mono';">delay</span>s or <span style="font-family: 'Andale Mono';">completion</span> <span style="font-size: 11px; font-family: Menlo;"><br/></span></div>
+</div>
+<div><br/></div>
+<div>Animating changes to the view hierarchy:</div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(187, 44, 162);">void</span>)transitionFromView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)fromView<br/>
+                    toView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)toView<br/>
+                  duration:(<span style="color: rgb(112, 61, 170);">NSTimeInterval</span>)duration<br/>
+                   options:(<span style="color: rgb(112, 61, 170);">UIViewAnimationOptions</span>)options<br/>
+                completion:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(187, 44, 162);">BOOL</span> fin))completion</font><br/></div>
+<div>If you want to use the <span style="font-family: 'Andale Mono';">hidden</span> property, include <span style="font-family: 'Andale Mono';">UIViewAnimationOptionShowHideTransitionViews</span> -- or else it'll actually remove <span style="font-family: 'Andale Mono';">fromView</span>.</div>
+<div><br/></div>
+<div><u>Dynamic animation</u></div>
+<div><u><br/></u></div>
+<div>Define physics relating animatable objects; let them run until they resolve to stasis.</div>
+<div>Easily possible to set it up so that stasis never occurs -- performance problem!</div>
+<div><br/></div>
+<div>Steps:</div>
+<div>1. Create a <span style="font-family: 'Andale Mono';">UIDynamicAnimator</span></div>
+<div>2. Add <span style="font-family: 'Andale Mono';">UIDynamicBehavior</span>s to it (gravity, collisions, etc)</div>
+<div>3. Add <span style="font-family: 'Andale Mono';">UIDynamicItem</span>s (usually <font face="Andale Mono">UIView</font>s) to the <span style="font-family: 'Andale Mono';">UIDynamicBehavior</span>s</div>
+<div>4. That's it! Things will happen instantly.</div>
+<div><br/></div>
+<div>Creating a <span style="font-family: 'Andale Mono';">UIDynamicAnimator</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIDynamicAnimator</span> *animator = [[UIDynamicAnimator alloc] initWithReferenceView:aView];</font><br/></div>
+<div>The reference view must be at the top of the view hierarchy for all views you want to animate.</div>
+<div><br/></div>
+<div>Create and add <span style="font-family: 'Andale Mono';">UIDynamicBehavior</span>s:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIGravityBehavior</span> *gravity = [[<span style="color: rgb(112, 61, 170);">UIGravityBehavior</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+[animator addBehavior:gravity];<br/>
+<span style="color: rgb(112, 61, 170);">UICollisionBehavior</span> *collider = [[<span style="color: rgb(112, 61, 170);">UICollisionBehavior</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+[animator addBehavior:collider];</font><br/></div>
+<div><br/></div>
+<div>Add <span style="font-family: 'Andale Mono';">UIDynamicItem</span>s:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt; item1 = ...;<br/>
+<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt; item2 = ...;<br/>
+[gravity addItem:item1];<br/>
+[collider addItem:item1];<br/>
+[gravity addItem:item2];<br/></font></div>
+<div><br/></div>
+<div>The items must implement the <span style="font-family: 'Andale Mono';">UIDynamicItem</span> protocol (<span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>s do!):</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@protocol</span> UIDynamicItem<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <span style="color: rgb(112, 61, 170);">CGRect</span> bounds;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readwrite</span>) <span style="color: rgb(112, 61, 170);">CGPoint</span> center;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readwrite</span>) <span style="color: rgb(112, 61, 170);">CGAffineTransform</span> transform;<br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/></font></div>
+<div><br/></div>
+<div>To change <span style="font-family: 'Andale Mono';">center</span> or <span style="font-family: 'Andale Mono';">transform</span> while animator is running, call <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIDynamicAnimator</span>'s:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)updateItemUsingCurrentState:(<span style="color: rgb(187, 44, 162);">id</span> &lt;UIDynamicItem&gt;)item;</font><span style="font-size: 11px; font-family: Menlo; color: rgb(187, 44, 162);"><br/></span></div>
+<div><br/></div>
+<div><font face="Andale Mono">UIGravityBehavior</font>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">CGFloat</span> angle;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">CGFloat</span> magnitude; <span style="color: rgb(0, 132, 0);">// 1.0 is 1000 points/s/s</span></font><br/></div>
+<div><br/></div>
+<div>
+<div><font face="Andale Mono">UICollisionBehavior</font>: things bouncing off each other</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">UICollisionBehaviorMode</span> collisionMode; <span style="color: rgb(0, 132, 0);">// Items, Boundaries, Everything (default)</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)addBoundaryWithIdentifier:(<span style="color: rgb(112, 61, 170);">NSString</span> *)identifier forPath:(<span style="color: rgb(112, 61, 170);">UIBezierPath</span> *)bezierPath;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(187, 44, 162);">BOOL</span> translatesReferenceBoundsIntoBoundary;</font><br/></div>
+</div>
+<div><br/></div>
+<div><font face="Andale Mono">UIAttachmentBehavior</font>: things bouncing off each other<br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">instancetype</span>)initWithItem:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)item attachedToAnchor:(<span style="color: rgb(112, 61, 170);">CGPoint</span>)anchor;<br/>
+- (<span style="color: rgb(187, 44, 162);">instancetype</span>)initWithItem:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)i1 attachedToItem:(<span style="color: rgb(187, 44, 162);">id</span>&lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)i2;<br/>
+- (<span style="color: rgb(187, 44, 162);">instancetype</span>)initWithItem:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)item offsetFromCenter:(<span style="color: rgb(112, 61, 170);">CGPoint</span>)offset...;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readwrite</span>) <span style="color: rgb(112, 61, 170);">CGFloat</span> length; <span style="color: rgb(0, 132, 0);">// distance between attached things (settable)</span><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readwrite</span>) <span style="color: rgb(112, 61, 170);">CGPoint</span> anchorPoint; <span style="color: rgb(0, 132, 0);">// can be reset at any time</span></font><br/></div>
+<div>The attachment is like a spring -- can control damping and frequency of oscillations (default "iron bar")</div>
+<div><br/></div>
+<div><font face="Andale Mono">UISnapBehavior</font>: four springs at four corners around the item in the new spot.<br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">instancetype</span><span style="font-family: 'Andale Mono';">)initWithItem:(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">id</span><span style="font-family: 'Andale Mono';"> &lt;</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIDynamicItem</span><span style="font-family: 'Andale Mono';">&gt;)item snapToPoint:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGPoint</span><span style="font-family: 'Andale Mono';">)point;</span><br/></div>
+<div>Can control the damping with <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGFloat</span><span style="font-family: 'Andale Mono';"> damping;</span></div>
+<div><br/></div>
+<div><font face="Andale Mono">UIPushBehavior</font>: responds to pushes<br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">UIPushBehaviorMode</span> mode; <span style="color: rgb(0, 132, 0);">// Continuous or Instantaneous</span><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">CGVector</span> pushDirection;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">CGFloat</span> magnitude/angle; <span style="color: rgb(0, 132, 0);">// magnitude 1.0 moves 100x100 view at 100 pts/s/s</span></font><br/></div>
+<div><br/></div>
+<div><font face="Andale Mono">UIDynamicItemBehavior</font>: controls the intrinsic behavior of items as they are affected by other behaviors. Any item added to this behavior will be affected.<br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(187, 44, 162);">BOOL</span> allowsRotation;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(187, 44, 162);">BOOL</span> friction;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(187, 44, 162);">BOOL</span> elasticity;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">CGFloat</span> density;</font><br/></div>
+<div><br/></div>
+<div>Can also be used to get information about items, e.g. if you want to take over animating an item:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">CGPoint</span>)linearVelocityForItem:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)item;<br/>
+- (<span style="color: rgb(112, 61, 170);">CGPoint</span>)angularVelocityForItem:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UIDynamicItem</span>&gt;)item;</font><br/></div>
+<div><br/></div>
+<div>Can create your own subclass of <span style="font-family: 'Andale Mono';">UIDynamicItemBehavior</span> which is just a combination of other behaviors.</div>
+<div>Override <span style="font-family: 'Andale Mono';">init</span> method(s), <span style="font-family: 'Andale Mono';">addItem</span>(s)<font face="Andale Mono">:</font> and <span style="font-family: 'Andale Mono';">removeItem</span>(s)<span style="font-family: 'Andale Mono';">:</span> to do this...</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addChildBehavior:(UIDynamicBehavior *)behavior;</font><br/></div>
+<div><br/></div>
+<div>All behaviors know the <span style="font-family: 'Andale Mono';">UIDynamicAnimator</span> they are part of, and they can only be part of one at a time.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> UIDynamicAnimator *dynamicAnimator;</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// nil if not currently animated</span></div>
+<div>The behavior will be sent this message when its animator changes:<font face="Andale Mono"><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)willMoveToAnimator:(UIDynamicAnimator *)animator;</font><br/></div>
+<div><br/></div>
+<div>Every time the behavior is applied, the block set with this <span style="font-family: 'Andale Mono';">UIDynamicBehavior</span> property is called:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">copy</span>) <span style="color: rgb(187, 44, 162);">void</span> (^action)(<span style="color: rgb(187, 44, 162);">void</span>);</font><br/></div>
+<div>Called <span style="font-family: 'Andale Mono';">action</span>, takes no arguments and returns nothing.</div>
+<div>You can set this to do anything you want, but it'll be called a lot (e.g. every move, every collision, ...) so make it very efficient.</div>
+<div>If the <span style="font-family: 'Andale Mono';">action</span> refers to properties in the behavior itself, watch out for memory cycles.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Dropit: Drop squares, collect them at the bottom of the screen, then blow them up!</div>
+<div><br/></div>
+<div>Always u/se a generic <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> to contain your game just in case you want to add additional elements...</div>
+<div><br/></div>
+<div>Lazy instantiation for <font color="#703DAA" face="Andale Mono">UIDynamicAnimator</font>, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIGravityBehavior</span>, and <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UICollisionBehavior</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIDynamicAnimator</span> *)animator<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_animator</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">_animator</span> = [[<span style="color: rgb(112, 61, 170);">UIDynamicAnimator</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithReferenceView</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">gameView</span>];<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_animator</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">UIGravityBehavior</span> *)gravity<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_gravity</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">_gravity</span> = [[<span style="color: rgb(112, 61, 170);">UIGravityBehavior</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        <span style="color: rgb(79, 129, 135);">_gravity</span>.<span style="color: rgb(112, 61, 170);">magnitude</span> = <span style="color: rgb(39, 42, 216);">0.9</span>;<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">animator</span> <span style="color: rgb(61, 29, 129);">addBehavior</span>:<span style="color: rgb(79, 129, 135);">_gravity</span>];<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_gravity</span>;<br/>
+}</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UICollisionBehavior</span> *)collider<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_collider</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">_collider</span> = [[<span style="color: rgb(112, 61, 170);">UICollisionBehavior</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        <span style="color: rgb(79, 129, 135);">_collider</span>.<span style="color: rgb(112, 61, 170);">translatesReferenceBoundsIntoBoundary</span> = <span style="color: rgb(187, 44, 162);">YES</span>;</font><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">        [</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">animator</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">addBehavior</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">_collider</span><span style="font-family: 'Andale Mono';">];</span><font face="Andale Mono"><br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_collider</span>;<br/>
+}<br/></font></div>
+<div><br/></div>
+<div>You can find out when an animator reaches quiescent state using a delegate for the animator.</div>
+<div><br/></div>
+<div>Removing objects when animation is done:</div>
+<div><font face="Andale Mono"><span style="color: rgb(61, 29, 129);">completion</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> finished) {<br/>
+     [dropsToRemove <span style="color: rgb(61, 29, 129);">makeObjectsPerformSelector</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(removeFromSuperview)];<br/>
+ }];</font></div>
+</body></html>
