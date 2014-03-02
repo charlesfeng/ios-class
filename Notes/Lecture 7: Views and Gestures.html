@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="14.14072704315186"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-02-27 02:24:11 +0000"/><meta name="latitude" content="37.45206666191885"/><meta name="longitude" content="-122.1855360177484"/><meta name="updated" content="2014-03-02 08:13:19 +0000"/><title>Lecture 7: Views and Gestures</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<u>Views</u>: drawing custom stuff on screen.
+<div><u>Gestures</u>: how to react to users' touch gestures.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Views</b></div>
+<div><b><br/></b></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> defines a coordinate space in a rectangular area.</div>
+<div><br/></div>
+<div>Views are hierarchical (can have views inside views).</div>
+<div><br/></div>
+<div>Each view has one superview: <font face="Andale Mono">(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView </span><span style="font-family: 'Andale Mono';">*)superview</span></div>
+<div><br/></div>
+<div>Each view can have many (or zero) subviews: <font face="Andale Mono">(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *)subviews</span></div>
+<div>Subviews later in the array appear on top of those earlier.</div>
+<div>A view can clip subviews to its bounds or not (default is no clipping).</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIWindow</span> contains all the views on screen.</div>
+<div>
+<div><br/></div>
+<div>Hierarchy is most often constructed in Xcode graphically (even custom views).</div>
+<div> </div>
+</div>
+<div>In code:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addSubview:(<span style="color: rgb(112, 61, 170);">UIView</span> *)view; <span style="color: rgb(0, 132, 0);">// sent to superview</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)removeFromSuperview; <span style="color: rgb(0, 132, 0);">// sent to view that's being removed</span></font><br/></div>
+<div><br/></div>
+<div>The top of the view hierarchy for your MVC is the <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property </span><font face="Andale Mono">view</font>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><font face="Andale Mono"> *view;</font> in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span></div>
+<div>This view is...</div>
+<div>- A regular <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span></div>
+<div>- The view whose bounds change when rotation happens</div>
+<div>- The view to which you programmatically add subviews</div>
+<div>- The topmost parent of all your <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>s</div>
+<div>- Automatically hooked up when you drag out a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span></div>
+<div><br/></div>
+<div>You might want to override <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>'s designated initializer. Just make sure you do that in addition to modifying <font face="Andale Mono">awakeFromNib</font>, since <font face="Andale Mono">initWithFrame:</font> is not called for a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> coming out of a storyboard.</div>
+<div><br/></div>
+<div>Typical code:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setup { ... }<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)awakeFromNib { [<span style="color: rgb(187, 44, 162);">self</span> setup ]; }<br/>
+- (<span style="color: rgb(187, 44, 162);">id</span>)initWithFrame:(CGRect)aRect<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span> = [<span style="color: rgb(187, 44, 162);">super</span> initWithFrame:aRect];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> setup];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">initWithFrame:aRect</span> specifies where the view is in its superview's coordinate system.</div>
+<div><br/></div>
+<div><u>Coordinates</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">CGFloat</font>: just a floating point number used for graphics</div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">CGPoint</span>: C struct with two <span style="font-family: 'Andale Mono';">CGFloat</span>s in it: <font face="Andale Mono">x</font> and <font face="Andale Mono">y</font></div>
+<span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGPoint</span><span style="font-family: 'Andale Mono';"> p = </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">CGPointMake</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">34.5</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">22.0</span><span style="font-family: 'Andale Mono';">);</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">p.x += </span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">20</span><span style="font-family: 'Andale Mono';">; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// move right by 20 points</span>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">CGSize</span>: C struct with two <span style="font-family: 'Andale Mono';">CGFloat</span>s in it: <font face="Andale Mono">width</font> and <font face="Andale Mono">height</font></div>
+<span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGSize</span><span style="font-family: 'Andale Mono';"> s = </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">CGSizeMake</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">100.0</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">200.0</span><span style="font-family: 'Andale Mono';">);</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">s.height += </span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">50</span><span style="font-family: 'Andale Mono';">; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// make the size 50 points taller</span>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">CGRect</span>: C struct with a <span style="font-family: 'Andale Mono';">CGPoint origin</span> and a <span style="font-family: 'Andale Mono';">CGSize </span><span style="font-family: 'Andale Mono';">size</span>.</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">CGRect</span> aRect = <span style="color: rgb(61, 29, 129);">CGRectMake</span>(<span style="color: rgb(39, 42, 216);">45.0</span>, <span style="color: rgb(39, 42, 216);">75.5</span>, <span style="color: rgb(39, 42, 216);">300</span>, <span style="color: rgb(39, 42, 216);">500</span>);<br/>
+aRect.size.height += <span style="color: rgb(39, 42, 216);">45</span>; <span style="color: rgb(0, 132, 0);">// make rect 45 points taller</span><br/>
+aRect.origin.x += <span style="color: rgb(39, 42, 216);">30</span>; <span style="color: rgb(0, 132, 0);">// move rect to the right 30 points</span></font></div>
+<div><u><br/></u></div>
+<div>Origin of a view's coordinate system is upper left.</div>
+<div><br/></div>
+<div>Units are "points", not pixels. Usually you don't care about how many pixels per point are on the screen since fonts/arcs automatically adjust to user higher resolution.</div>
+<div><br/></div>
+<div>There is a <font color="#703DAA" face="Andale Mono">UIView</font> property which tells you the # pixels/point:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">CGFloat</span><font face="Andale Mono"> </font><font face="Andale Mono">contentScaleFactor;</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// not readonly but pretend it is</span></div>
+<div><br/></div>
+<div>Views have 3 properties related to location and size:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">CGRect</span><font face="Andale Mono"> </font><font face="Andale Mono">bounds;</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// internal drawing space origin + size</span><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">CGPoint</span><font face="Andale Mono"> </font><font face="Andale Mono">center;</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// center of view in superview's coord space</span><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">CGRect</span><font face="Andale Mono"> </font><font face="Andale Mono">frame;</font><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// rect in superview's coord space</span><font face="Andale Mono"><br/></font></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">                       </span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// containing all of bounds.size</span></div>
+<div>Get the center in your own coordinate system by dividing width, height by 2.</div>
+<div><br/></div>
+<div>Views can be rotated, scaled, and translated, which is why <span style="font-family: 'Andale Mono';">frame</span> and <span style="font-family: 'Andale Mono';">bounds</span> aren't necessarily specifying the same area -- or <span style="font-family: 'Andale Mono';">frame.size</span> is not always equal to <span style="font-family: 'Andale Mono';">bounds.size</span>.</div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">frame</span> is the rectangle where you exist in the superview's coordinate system, whereas <span style="font-family: 'Andale Mono';">bounds</span> is how you draw inside your own coordinate system.</div>
+<div><br/></div>
+<div>When is the origin of <span style="font-family: 'Andale Mono';">bounds</span> not (0, 0)? You can define it yourself, but 99% of the time it will be.</div>
+<div><br/></div>
+<div><u>Creating Views</u></div>
+<div><u><br/></u></div>
+<div>Most often done in Xcode. Drag out a generic <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> from the palette and use the Identity Inspector to change its class to your custom class.</div>
+<div><br/></div>
+<div>In code, just use <font face="Andale Mono">alloc</font> and <font face="Andale Mono">initWithFrame:</font>, or <span style="font-family: 'Andale Mono';">alloc</span> and <span style="font-family: 'Andale Mono';">init</span> (in which case <font face="Andale Mono">frame</font> will be <font face="Andale Mono">CGRectZero</font>).</div>
+<div><br/></div>
+<div>Example:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">CGRect</span> labelRect = <span style="color: rgb(61, 29, 129);">CGRectMake</span>(<span style="color: rgb(39, 42, 216);">20</span>, <span style="color: rgb(39, 42, 216);">20</span>, <span style="color: rgb(39, 42, 216);">50</span>, <span style="color: rgb(39, 42, 216);">30</span>);<br/>
+<span style="color: rgb(112, 61, 170);">UILabel</span> *label = [[<span style="color: rgb(112, 61, 170);">UILabel</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFrame</span>:<span style="color: rgb(79, 129, 135);">labelRect</span>];<br/>
+label.text = <span style="color: rgb(209, 47, 27);">@"Hello!"</span>;<br/>
+[<span style="color: rgb(187, 44, 162);">self</span>.view addSubview:label];</font><br/></div>
+<div><br/></div>
+<div>When would you want to create your own <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> subclass?</div>
+<div>When you want to do some custom drawing on screen, when you want to handle touch events in a special way (different from a button/slider).</div>
+<div><br/></div>
+<div>Drawing is easy: create a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> subclass and override 1 method:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)drawRect:(CGRect)aRect;</span><br/></div>
+<div>Can optimize by not drawing outside of <span style="font-family: 'Andale Mono';">aRect</span> (not required though)</div>
+<div><br/></div>
+<div>Never call <span style="font-family: 'Andale Mono';">drawRect:</span>!!!</div>
+<div>Just let iOS know that your view's visual is out of date using one of these methods:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)setNeedsDisplay;</span></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)setNeedsDisplayInRect</span><span style="font-family: 'Andale Mono';">:(CGRect)aRect</span><br/></div>
+<div>Then the OS will call <span style="font-family: 'Andale Mono';">drawRect:</span> at an appropriate time.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Custom Views</b></div>
+<div><br/></div>
+<div>How do you implement <span style="font-family: 'Andale Mono';">drawRect:</span>? Use Core Graphics or the object-oriented class <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBezierPath</span>.</div>
+<div><br/></div>
+<div>How does Core Graphics work?</div>
+<div>1. Get a context to draw into.</div>
+<div>2. Create paths out of lines, arcs, etc.</div>
+<div>3. Set colors, fonts, textures, linewidths, linecaps, etc.</div>
+<div>4. Stroke or fill the above-created paths.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBezierPath</span> does all of the above: creates context for you; send messages to create paths, change colors, stroke/fill.</div>
+<div><br/></div>
+<div><u>Context</u></div>
+<div><u><br/></u></div>
+<div>Determines where your drawing goes: on screen, offscreen bitmap, PDF, printer.</div>
+<div><br/></div>
+<div>For normal drawing, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIKit</span> sets up the current context for you. A new one is set up each time <font face="Andale Mono">drawRect:</font> is called. If you need the context for Core Graphics functions, just call (from inside <span style="font-family: 'Andale Mono';">drawRect:</span>):</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGContextRef</span><span style="font-family: 'Andale Mono';"> context = </span><span style="font-family: 'Andale Mono';">UIGraphicsGetCurrentContext()</span><span style="font-family: 'Andale Mono';">;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><u>Drawing paths</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIBezierPath</span> *path = [[<span style="color: rgb(112, 61, 170);">UIBezierPath</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>]; <span style="color: rgb(0, 132, 0);">// begin the path</span><br/>
+[path moveToPoint:CGPointMake(<span style="color: rgb(39, 42, 216);">75</span>, <span style="color: rgb(39, 42, 216);">10</span>)]; <span style="color: rgb(0, 132, 0);">// move around</span><br/>
+[path addLineToPoint:CGPointMake(<span style="color: rgb(39, 42, 216);">160</span>, <span style="color: rgb(39, 42, 216);">150</span>)]; <span style="color: rgb(0, 132, 0);">// add some lines</span><br/>
+[path addLineToPoint:CGPointMake(<span style="color: rgb(39, 42, 216);">10</span>, <span style="color: rgb(39, 42, 216);">150</span>)];<br/>
+[path closePath]; <span style="color: rgb(0, 132, 0);">// close path to show 3 sides</span><br/>
+[[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIColor</span><span style="font-family: 'Andale Mono';"> greenColor] setFill];</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// fill the path</span></div>
+<div><font face="Andale Mono">[[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIColor</span><span style="font-family: 'Andale Mono';"> redColor] setStroke];</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// stroke it</span></div>
+<div><font face="Andale Mono">[path fill]; [path stroke]; <span style="color: rgb(0, 132, 0);">// draw it!</span></font><br/></div>
+<div><br/></div>
+<div>Can set graphics state e.g. line width:</div>
+<div><font face="Andale Mono">path.lineWidth = <span style="color: rgb(39, 42, 216);">2.0</span>;</font><br/></div>
+<div><br/></div>
+<div>Can draw rounded rects, ovals, etc.</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIBezierPath</span> *roundedRect = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBezierPath</span><span style="font-family: 'Andale Mono';"> bezierPathWithRoundedRect:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGRect</span><span style="font-family: 'Andale Mono';">)bounds cornerRadius:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGFloat</span><span style="font-family: 'Andale Mono';">)radius];</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIBezierPath</span> *oval = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBezierPath</span><span style="font-family: 'Andale Mono';"> bezierPathWithOvalInRect:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGRect</span><span style="font-family: 'Andale Mono';">)bounds];</span></div>
+<div><font face="Andale Mono">[roundedRect stroke];<br/>
+[oval fill];</font><br/></div>
+<div><br/></div>
+<div>Can "clip" your drawing:</div>
+<div><span style="font-family: 'Andale Mono';">[roundedRect addClip];</span><br/></div>
+<div><br/></div>
+<div><u>Drawing with transparency</u></div>
+<div><u><br/></u></div>
+<div>Use <font face="Andale Mono">alpha</font> in <font face="Andale Mono">UIColor</font>s.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBezierPath</span> has a <font face="Andale Mono">backgroundColor</font> property which can be set to transparent values.</div>
+If you want your view to be transparent, remember to set <font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property BOOL</span></font><font face="Andale Mono"> </font><font face="Andale Mono">opaque</font> to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NO</span>. This is even if the background color is nil, etc.
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGFloat</span><font face="Andale Mono"> </font><font face="Andale Mono">alpha</font> can make the entire view partially transparent.</div>
+<div><br/></div>
+<div>When transparent views overlap, they show through. The lower ones (earlier in the <font face="Andale Mono">subviews</font> array) can "show through" transparent views on top of them. This might result in a performance hit.</div>
+<div><br/></div>
+<div>Can hide a view entirely by setting <font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">nonatomic</span><span style="font-family: 'Andale Mono';">) </span><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">BOOL</span></font><font face="Andale Mono"> </font><font face="Andale Mono">hidden;</font></div>
+<div><br/></div>
+<div><u>Preserving graphics state</u></div>
+<div><br/></div>
+<div>When you call subroutines for drawing things, you might need to preserve graphics state of the calling method. Use the save and restore context functions.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)drawGreenCircle:(<span style="color: rgb(112, 61, 170);">CGContextRef</span>)ctxt<br/>
+{<br/>
+    CGContextSaveGState(ctxt);<br/>
+    [[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIColor</span><span style="font-family: 'Andale Mono';"> greenColor] setFill];</span></div>
+<div><font face="Andale Mono">    <span style="color: rgb(0, 132, 0);">// draw my circle</span><br/>
+    CGContextRestoreGState(ctxt);<br/>
+}<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)drawRect:(CGRect)aRect<br/>
+{<br/>
+    CGContextRef context = UIGraphicsGetCurrentContext();<br/>
+    [[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIColor</span><span style="font-family: 'Andale Mono';"> redColor] setFill];</span></div>
+<div><font face="Andale Mono">    <span style="color: rgb(0, 132, 0);">// do some stuff</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> drawGreenCircle:context];<br/>
+    <span style="color: rgb(0, 132, 0);">// do more stuff; fill color still red</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Drawing text</u></div>
+<div><u><br/></u></div>
+<div>Can use <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UILabel</span> as a subview to draw text in our view.</div>
+<div><br/></div>
+<div>Can use a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span> to draw in a <font face="Andale Mono">drawRect:</font></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSAttributedString</span> *text = ...;<br/>
+[text drawAtPoint:(CGPoint)p];<br/>
+<span style="color: rgb(112, 61, 170);">CGSize</span> textSize = [<span style="color: rgb(79, 129, 135);">text</span> <span style="color: rgb(61, 29, 129);">size</span>]; <span style="color: rgb(0, 132, 0);">// how much space it takes up</span></font><br/></div>
+<div><br/></div>
+<div>How can there be drawing methods in Foundation? Actually they're added by UIKit via <i>categories</i> -- a way to add methods to an existing class without subclassing it!</div>
+<div><br/></div>
+<div><u>Drawing images</u></div>
+<div><u><br/></u></div>
+<div>Can use <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span> as a subview to draw an image in our view.<u><br/></u></div>
+<div><br/></div>
+<div>To use in a <span style="font-family: 'Andale Mono';">drawRect:</span></div>
+<div><br/></div>
+<div>Create an image object first...<span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIImage</span> *image = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageNamed</span>:<span style="color: rgb(209, 47, 27);">@"foo.jpg"</span>]; <span style="color: rgb(0, 132, 0);">// file in Resources</span><br/>
+<span style="color: rgb(112, 61, 170);">UIImage</span> *image = [[UIImage alloc] initWithContentsOfFile:(NSString *)fullPath]; <span style="color: rgb(0, 132, 0);">// named file</span><br/>
+<span style="color: rgb(112, 61, 170);">UIImage</span> *image = [[UIImage alloc] initWithData:(NSData *)imageData]; <span style="color: rgb(0, 132, 0);">// raw data</span><br/>
+UIGraphicsBeginImageContext(CGSize); <span style="color: rgb(0, 132, 0);">// create one yourself by drawing</span><br/>
+<span style="color: rgb(112, 61, 170);">UIImage</span> *myImage = <span style="color: rgb(61, 29, 129);">UIGraphicsGetImageFromCurrentImageContext</span>()<br/>
+UIGraphicsEndImageContext();</font><br/></div>
+<div><br/></div>
+<div>... then add it to the current graphics context.</div>
+<div><font face="Andale Mono">[image drawAtPoint:(CGPoint)p];<br/>
+[image drawInRect:(CGRect)r];<br/>
+[image drawAsPatternInRect:(CGRect)r];</font><br/>
+<font face="Menlo" style="font-size: 11px;"><br/></font></div>
+<div>You can also get jpg/png representations of your image.<font face="Menlo" style="font-size: 11px;">    </font><br/>
+<font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSData</span> *jpgData = </font><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">UIImageJPEGRepresentation</span><span style="font-family: 'Andale Mono';">((</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImage</span><span style="font-family: 'Andale Mono';"> *)myImage, (CGFloat)quality);</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSData</span> *pngData = <span style="color: rgb(61, 29, 129);">UIImagePNGRepresentation</span>((<span style="color: rgb(112, 61, 170);">UIImage</span> *)myImage);</font><br/></div>
+<div><br/></div>
+<div><u>Redrawing on bounds change</u></div>
+<div><u><br/></u></div>
+<div>By default, there is no redraw then the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>'s bounds change. The "bits" of your view will be stretched/squished/moved. This is defined in </div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>) UIViewContentMode contentMode;</font><br/></div>
+<div><br/></div>
+<div>Possible values:</div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// moves image bits</span><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">UIViewContentMode{Left,Right,Top,Right,BottomLeft,BottomRight,TopLeft,TopRight}</font></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// bit stretching/shrinking</span><font face="Andale Mono"><br/>
+UIViewContentModeScale{ToFill,AspectFill,AspectFit}</font></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// redraw everything; often what you want</span><font face="Andale Mono"><br/>
+UIViewContentModeRedraw</font><br/></div>
+<div><br/></div>
+<div><u>Getting touches</u></div>
+<div><u><br/></u></div>
+<div>Can get notified of raw touch events (touch down, moved, up) -- but that's rare now.</div>
+<div><br/></div>
+<div>To react to certain, predefined "gestures", use <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIGestureRecognizer</span> </div>
+<div>This is an abstract class; we will use concrete subclasses of it.</div>
+<div><br/></div>
+<div>Two sides to using a gesture recognizer:</div>
+<div>
+<ol>
+<li>Add a gesture recognizer to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> to ask it to recognize that gesture (usually done by a controller)</li>
+<li>Provide the implementation of a method to "handle" that gesture when it happens (provided by the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> itself, but not unreasonable for the Controller to do it/handle differently than the View does)<br/></li>
+</ol>
+</div>
+<div>Adding a gesture recognizer to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> from a controller:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setPannableView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)pannableView <span style="color: rgb(0, 132, 0);">// maybe setter in Controller</span><br/>
+{<br/>
+    _pannableView = pannableView;<br/>
+    <span style="color: rgb(112, 61, 170);">UIPanGestureRecognizer</span> *pangr = [[<span style="color: rgb(112, 61, 170);">UIPanGestureRecognizer</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTarget</span>:pannableView <span style="color: rgb(61, 29, 129);">action</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(pan:)];<br/>
+    [pannableView <span style="color: rgb(61, 29, 129);">addGestureRecognizer</span>:pangr]; <span style="color: rgb(0, 132, 0);">// gesture handling on</span><br/>
+}</font><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIPanGestureRecognizer</span> is a concrete subclass of that handles panning (others do swiping, pinching, tapping, etc.)</div>
+<div><br/></div>
+<div>In this case, we specify the View itself (<span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">initWithTarget</span><span style="font-family: 'Andale Mono';">:pannableView</span>) as the target to handle the gesture. We do this generally when the gestures modify how the View is drawn. If the gestures modified the Model, we'd have to use the Controller to handle gestures.</div>
+<div><br/></div>
+<div>We then implement the target <span style="font-family: 'Andale Mono';">pan:</span> of gesture recognizer. Note that there is also another version that takes no arguments.</div>
+<div>`</div>
+<div>Each concrete subclass of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIGestureRecognizer</span> has a few helper methods. For <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIPanGestureRecognizer</span>:</div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// how far the touch moved since last reset</span><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGPoint</span><span style="font-family: 'Andale Mono';">) translationInView:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIView</span> <span style="font-family: 'Andale Mono';">*)aView;</span><span style="font-family: 'Andale Mono';"> </span></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// how fast the user's finger is moving</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGPoint</span><font face="Andale Mono">) velocityInView:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><span style="font-family: 'Andale Mono';"> *)aView;</span></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// allows you to reset the translation</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setTranslation:(<span style="color: rgb(112, 61, 170);">CGPoint</span>)translation inView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)aView;</font><br/></div>
+<div><br/></div>
+<div>Also inherits a property from <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIGestureRecognizer</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) UIGestureRecognizerState state;</font><br/></div>
+<div>Starts in <font face="Andale Mono">Possible</font> state until it starts to be recognized.</div>
+<div>Then either goes to <font face="Andale Mono">Recognized</font> state (for discrete gestures like a tap) or <font face="Andale Mono">Began</font> state (for continuous gestures like a pan).</div>
+<div>If gesture is continuous, it'll move on to <font face="Andale Mono">Changed</font> and eventually <font face="Andale Mono">Ended</font> state. Can also go to <font face="Andale Mono">Cancelled</font> state if the recognizer realizes it's not this gesture after all.</div>
+At any time, it can change to <font face="Andale Mono">Failed</font> (e.g. if a phone call comes in). Be aware of this.
+<div><br/></div>
+<div>What would <span style="font-family: 'Andale Mono';">pan:</span> look like?</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)pan:(<span style="color: rgb(112, 61, 170);">UIPanGestureRecognizer</span> *)recognizer<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ((recognizer.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateChanged</span>) ||<br/>
+        (recognizer.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateEnded</span>)) {<br/>
+        <span style="color: rgb(0, 132, 0);">// cumulative distance gesture has moved</span><br/>
+        <span style="color: rgb(112, 61, 170);">CGPoint</span> translation = [recognizer <span style="color: rgb(61, 29, 129);">translationInView</span>:<span style="color: rgb(187, 44, 162);">self</span>];<br/>
+        <span style="color: rgb(0, 132, 0);">// move something in myself (a UIView) by</span><br/>
+        <span style="color: rgb(0, 132, 0);">// translation.x and translation.y</span><br/>
+        <span style="color: rgb(0, 132, 0);">// e.g. if i'm a graph and my origin is set</span><br/>
+        <span style="color: rgb(0, 132, 0);">// by a @property called origin</span><br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.origin = CGPointMake(<span style="color: rgb(187, 44, 162);">self</span>.origin.x + translation.x,</font></div>
+<div><font face="Andale Mono">                                  <span style="color: rgb(187, 44, 162);">self</span>.origin.y + translation.y);<br/>
+        <span style="color: rgb(0, 132, 0);">// reset cumulative distance to zero to get</span><br/>
+        <span style="color: rgb(0, 132, 0);">// the "incremental" movement of the gesture</span><br/>
+        [recognizer <span style="color: rgb(61, 29, 129);">setTranslation</span>:<span style="color: rgb(112, 61, 170);">CGPointZero</span> <span style="color: rgb(61, 29, 129);">inView</span>:<span style="color: rgb(187, 44, 162);">self</span>];<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIPinchGestureRecognizer</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGFloat</span><span style="font-family: 'Andale Mono';"> scale; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// not readonly (can reset per movement); starts at 1</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">) </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGFloat</span><span style="font-family: 'Andale Mono';"> velocity; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// readonly (scale factor per second)</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIRotationGestureRecognizer</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGFloat</span><span style="font-family: 'Andale Mono';"> rotation; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// not readonly; in radians</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">) CGFloat velocity; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// readonly; radians per second</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UISwipeGestureRecognizer</span><br/></div>
+<div>Set up to find certain swipe types, then look for Recognized state.</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UISwipeGestureRecognizerDirection</span><span style="font-family: 'Andale Mono';"> direction; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// what direction swipes you want</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSUInteger</span><span style="font-family: 'Andale Mono';"> numberOfTouchesRequired; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// # of fingers?</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITapGestureRecognizer</span><br/>
+Set up, then look for Recognized state.<font face="Andale Mono"><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">NSUInteger</span> numberOfTapsRequired; <span style="color: rgb(0, 132, 0);">// single tap or double tap or ...</span><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><span style="font-family: 'Andale Mono';"> numberOfTouchesRequired;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// require two finger tap?</span></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>When we create views, they want to be as generic as possible.</div>
+<div><br/></div>
+<div>If you uncomment <font face="Andale Mono">drawRect:</font> and don't put anything in there, you will have a performance hit.</div>
+<div><br/></div>
+<div>Putting <span style="color: rgb(120, 73, 42);"><font face="Andale Mono">#pragma mark - Initialization</font></span> groups code in the Xcode menu.</div>
+<div><br/></div>
+<div>Using Xcode to create a gesture recognizer: drag the gesture recognizer onto the View, then control+drag the gesture recognizer into the view controller implementation.</div>
+<div><br/></div>
+<div>Use <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">NSMutableParagraphStyle</font></span> to center text:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSMutableParagraphStyle</span> *paragraphStyle = [[<span style="color: rgb(112, 61, 170);">NSMutableParagraphStyle</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+paragraphStyle.<span style="color: rgb(112, 61, 170);">alignment</span> = <span style="color: rgb(61, 29, 129);">NSTextAlignmentCenter</span>;</font></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSAttributedString</span> *cornerText = [[<span style="color: rgb(112, 61, 170);">NSAttributedString</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithString</span>:<span style="color: rgb(209, 47, 27);">@"a"</span> <span style="color: rgb(61, 29, 129);">attributes</span>:<span style="color: rgb(39, 42, 216);">@{</span> <span style="color: rgb(112, 61, 170);">NSParagraphStyleAttributeName</span> : paragraphStyle <span style="color: rgb(39, 42, 216);">}</span>];</font><span style="font-size: 11px; font-family: Menlo;"><br/></span></div>
+<div><br/></div>
+<div>Draw text in a certain bounds:</div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// where to put it</span><br/>
+<span style="color: rgb(112, 61, 170);">CGRect</span> textBounds;<br/>
+textBounds.<span style="color: rgb(112, 61, 170);">origin</span> = <span style="color: rgb(61, 29, 129);">CGPointMake</span>([<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">cornerOffset</span>], [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">cornerOffset</span>]);<br/>
+textBounds.<span style="color: rgb(112, 61, 170);">size</span> = [cornerText <span style="color: rgb(61, 29, 129);">size</span>];<br/>
+<span style="color: rgb(0, 132, 0);">// tell it to draw it in the bounds</span><br/>
+[cornerText <span style="color: rgb(61, 29, 129);">drawInRect</span>:textBounds];</font><br/></div>
+<div><br/></div>
+<div>Adding a pinch gesture recognizer in code:</div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// in PlayingCardView.m</span><br/>
+<span style="color: rgb(0, 132, 0);">// public so you can tell controller to recognize this gesture</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)pinch:(<span style="color: rgb(112, 61, 170);">UIPinchGestureRecognizer</span> *)gesture<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ((gesture.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateChanged</span>) ||<br/>
+        (gesture.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateEnded</span>)) {<br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">faceCardScaleFactor</span> *= gesture.<span style="color: rgb(112, 61, 170);">scale</span>;<br/>
+        gesture.<span style="color: rgb(112, 61, 170);">scale</span> = <span style="color: rgb(39, 42, 216);">1.0</span>;<br/>
+    }<br/>
+}</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// in SuperCardViewController.m</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidLoad<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidLoad</span>];<br/></font>
+<div><font face="Andale Mono">    ...<br/>
+    <span style="color: rgb(0, 132, 0);">// handle the pinch</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">playingCardView</span> <span style="color: rgb(61, 29, 129);">addGestureRecognizer</span>:[[<span style="color: rgb(112, 61, 170);">UIPinchGestureRecognizer</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTarget</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">playingCardView</span> <span style="color: rgb(61, 29, 129);">action</span>:<span style="color: rgb(187, 44, 162);">@selector</span></font><font face="Andale Mono">(pinch:)]];<br/>
+}</font><br/>
+<div><br/></div>
+</div>
+<div>Draw something upside down:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)pushContextAndRotateUpsideDown<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">CGContextRef</span> context = <span style="color: rgb(61, 29, 129);">UIGraphicsGetCurrentContext</span>();<br/>
+    <span style="color: rgb(61, 29, 129);">CGContextSaveGState</span>(context);<br/>
+    <span style="color: rgb(61, 29, 129);">CGContextTranslateCTM</span>(context, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">bounds</span>.<span style="color: rgb(112, 61, 170);">size</span>.<span style="color: rgb(112, 61, 170);">width</span>, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">bounds</span>.<span style="color: rgb(112, 61, 170);">size</span>.<span style="color: rgb(112, 61, 170);">height</span>);<br/>
+    <span style="color: rgb(61, 29, 129);">CGContextRotateCTM</span>(context, <span style="color: rgb(120, 73, 42);">M_PI</span>);<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)popContext<br/>
+{<br/>
+    <span style="color: rgb(61, 29, 129);">CGContextRestoreGState</span>(<span style="color: rgb(61, 29, 129);">UIGraphicsGetCurrentContext</span>());<br/>
+}</font><br/></div>
+<div><br/></div>
+</body></html>
