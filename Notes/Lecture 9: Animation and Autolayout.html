@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-02 23:14:16 +0000"/><meta name="latitude" content="37.45232301847261"/><meta name="longitude" content="-122.1552165120789"/><meta name="updated" content="2014-03-03 00:40:05 +0000"/><title>Lecture 9: Animation and Autolayout</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Demo</b>
+<div><b><br/></b></div>
+<div>Lazy instantiation of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIDynamicItemBehavior</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIDynamicItemBehavior</span> *)animationOptions<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_animationOptions</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">_animationOptions</span> = [[<span style="color: rgb(112, 61, 170);">UIDynamicItemBehavior</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        <span style="color: rgb(79, 129, 135);">_animationOptions</span>.<span style="color: rgb(112, 61, 170);">allowsRotation</span> = <span style="color: rgb(187, 44, 162);">NO</span>;<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_animationOptions</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>If you have multiple <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIDynamicItemBehavior</span>: the lowest one on the tree "wins"; read the docs for it.</div>
+<div><br/></div>
+<div>Animation is not free! Might be better to define a boundary on the top of each row instead of calculating each one's motion individually.</div>
+<div><br/></div>
+<div>Action for pan gesture:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">IBAction</span>)pan:(<span style="color: rgb(112, 61, 170);">UIPanGestureRecognizer</span> *)sender {<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (sender.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateBegan</span>) {<br/>
+       <br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> <span style="color: rgb(187, 44, 162);">if</span> (sender.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateChanged</span>) {<br/>
+       <br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> <span style="color: rgb(187, 44, 162);">if</span> (sender.<span style="color: rgb(112, 61, 170);">state</span> == <span style="color: rgb(61, 29, 129);">UIGestureRecognizerStateEnded</span>) {<br/>
+       <br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Autolayout</b></div>
+<div><b><br/></b></div>
+<div>Setting <font color="#703DAA" face="Andale Mono">UIView</font> frames using rules ("constraints") rather than numbers.</div>
+<div><br/></div>
+<div>Why? Because many things affect the size of the area available to put views: rotation, 4 inch vs. 3.5 inch iPhone, embedding Controller's Views inside other Controllers (tab bars, navigation controllers, etc.)</div>
+<div><br/></div>
+<div>There's a very powerful API (<span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLayoutConstraint</span>) but we almost always set up these rules in Xcode 5 graphically.</div>
+<div><br/></div>
+<div>Inspect your controller, modify the Simulated Metrics to see what it looks like.</div>
+<div><br/></div>
+<div>How to set Autolayout rules:</div>
+<div><br/></div>
+<div><u>Method 1</u></div>
+<div><br/></div>
+<div>Snap to blue guide lines, then tell Xcode to make those constraints.</div>
+<div><br/></div>
+<div>Bottom of storyboard -&gt; Resolve Auto Layout Issues (Tie fighter button) -&gt; "Reset to Suggested Constraints in View Controller"</div>
+<div>Xcode will suggest you the best constraints/rules, but will only be good if you use the blue guide lines. If you don't, you'll get magic numbers -- and constraints with magic numbers are almost always bad.</div>
+<div><br/></div>
+<div>Can check your constraints by clicking the objects and clicking the Size Inspector. You'll see there are some Constraints that have been added.</div>
+<div><br/></div>
+<div><u>Method 2</u></div>
+<div><u><br/></u></div>
+<div>Use Align button on the bottom of the storyboard.</div>
+<div><br/></div>
+<div>After alignment, if your constraints are yellow, it means there's something wrong. There might be a dashed box that tells you where your thing should be. You can see the warning in the same place on the top right, or in the Document Outline -&gt; Misplaced Views.</div>
+<div><br/></div>
+<div>Solving the problem: Update Frame (change frame to match constraints); Update Constraints (change constraints to match frame -- usually bad).</div>
+<div><br/></div>
+<div>Can click on constraints to adjust Priority (to resolve conflicting constraints), or hit Delete to delete a constraint.</div>
+<div><br/></div>
+<div>Another problem might be Missing Constraints, which you can also fix in the Document Outline. This will add what it thinks the best constraint should be.</div>
+<div><br/></div>
+<div>Dragging things to new positions do not change the constraints. You can delete them by doing (1) Clear Constraints, (2) clicking and hitting Delete, (3) going to Size Inspector, hitting the cog and clicking Delete.</div>
+<div><br/></div>
+<div><u>Method 3</u></div>
+<div><u><br/></u></div>
+<div>Control-drag between two items you want a constraint relationship.</div>
+<div><br/></div>
+<div>Can control-drag between two items in the view, or an item and its superview, or from a thing to itself.</div>
+Control-dragging to itself: width, trailing space to container.
+<div><br/></div>
+<div>Black box appears asking what you want to fix between the two, e.g. Vertical Spacing, Right edge.</div>
+<div><br/></div>
+<div>Content Hugging Priority/Content Compression Resistance Priority: when things are resized, which views are okay with being compressed/stretched and which are not.</div>
+<div><br/></div>
+<div>
+<hr/>
+<b><br/></b></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Attributor autorotation.</div>
+<div><br/></div>
+<div>Rotating in iOS simulator: command + arrow</div>
+<div><br/></div>
+<div>Double click a constraint to see the details in a popup.</div>
+</body></html>
