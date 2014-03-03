@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-03 00:41:54 +0000"/><meta name="latitude" content="37.45231092736346"/><meta name="longitude" content="-122.1553027368353"/><meta name="updated" content="2014-03-03 06:48:32 +0000"/><title>Lecture 10: Multithreading, Scroll View</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Multithreading</b>
+<div><b><br/></b></div>
+<div>Mostly about "queues" in iOS: blocks/method calls are lined up in a queue, then pulled off and executed on an associated thread.</div>
+<div><br/></div>
+<div>Why multithread? To keep the main execution thread snappy, and to be able to handle blocking events (e.g. network calls).</div>
+<div><br/></div>
+<div>Main queue: all UI activity occurs on this queue. </div>
+<div>Non-UI activity that is at all time consuming must NOT occur on that queue -- we want our UI to be responsive.</div>
+<div>Blocks are pulled off and worked on in the main queue only when it is "quiet" (when all current touch events are done)</div>
+<div><br/></div>
+<div><u>Methods</u></div>
+<div><br/></div>
+<div>Executing a block on another queue:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">dispatch_queue_t</span> queue = ...;<br/>
+<span style="color: rgb(61, 29, 129);">dispatch_async</span>(queue, ^{ });</font><br/></div>
+<div><br/></div>
+<div>Getting the main queue:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">dispatch_queue_t</span> mainQ = <span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>();<br/>
+<span style="color: rgb(112, 61, 170);">NSOperationQueue</span> *mainQ = [NSOperationQueue mainQueue]; <span style="color: rgb(0, 132, 0);">// for object-oriented APIs</span><br/>
+<br/></font>Creating a queue (not the main queue):<font face="Andale Mono"><br/>
+<span style="color: rgb(112, 61, 170);">dispatch_queue_t</span> otherQ = <span style="color: rgb(61, 29, 129);">dispatch_queue_create</span>(<span style="color: rgb(209, 47, 27);">"name"</span>, <span style="color: rgb(187, 44, 162);">NULL</span>); <span style="color: rgb(0, 132, 0);">// name a const char *</span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// NULL = serial queue (one person comes out at a time)</span><br/>
+<br/></font>Invoking a method on the main queue:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)performSelectorOnMainThread:(<span style="color: rgb(187, 44, 162);">SEL</span>)aSelector<br/>
+                         withObject:(<span style="color: rgb(187, 44, 162);">id</span>)obj<br/>
+                      waitUntilDone:(<span style="color: rgb(187, 44, 162);">BOOL</span>)waitUntilDone;</font><br/>
+<span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">dispatch_async</span><font face="Andale Mono">(</font><span style="font-family: 'Andale Mono'; color: rgb(120, 73, 42);">dispatch_get_main_queue</span><font face="Andale Mono">(), ^{</font> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">/* call aMethod */</span> <font face="Andale Mono">});</font><br/></div>
+<div><br/></div>
+<div><u>Example: downloading a URL from the Internet</u></div>
+<div><br/></div>
+<div>Actually downloads the URL to a local file and lets you access the local file.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSURLRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSURLRequest</span> requestWithUrl:[<span style="color: rgb(112, 61, 170);">NSURL</span> urlWithString:<span style="color: rgb(209, 47, 27);">@"http://..."</span>]];<br/>
+<span style="color: rgb(112, 61, 170);">NSURLConfiguration</span> *configuration = ...;<br/>
+<span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = ...; <span style="color: rgb(0, 132, 0);">// manages a "session" of time</span><br/>
+<span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task; <span style="color: rgb(0, 132, 0);">// asks session to perform this task</span><br/>
+task = [session <span style="color: rgb(61, 29, 129);">downloadTaskWithRequest</span>:request<br/>
+                      <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSURL</span> *localfile, <span style="color: rgb(112, 61, 170);">NSURLResponse</span> *response, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+                          <span style="color: rgb(0, 132, 0);">// handling code here</span><br/>
+                      }];<br/>
+[task <span style="color: rgb(61, 29, 129);">resume</span>]; </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// it actually gets initialized as stalled</span></div>
+<div><br/></div>
+<div>If it's on the main queue:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [NSURLSession sessionWithConfiguration:configuration<br/>
+                                                      delegate:<span style="color: rgb(187, 44, 162);">nil </span></font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// don't want updates</span><font face="Andale Mono"><br/>
+                                                 delegateQueue:[NSOperationQueue mainQueue]];</font><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">delegateQueue</span> is the main queue, so our <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">completionHandler</span> will be on the main queue.</div>
+<div>We can do UI things directly in the block. Of course, if we are doing non-UI things too, they'd better be quick so we don't block the main queue.</div>
+<div><br/></div>
+<div>Off the main queue:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [NSURLSession sessionWithConfiguration:configuration];<br/></font></div>
+<div>You can't do UI stuff in the <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">completionHandler</span> unless you post a block (or call a method) back on the main queue:</div>
+<div><font face="Andale Mono"><span style="color: rgb(61, 29, 129);">dispatch_async</span>(<span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>(), ^{ <span style="color: rgb(0, 132, 0);">/* do UI things here */</span> });</font><font face="Andale Mono"><br/></font>or...<font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">performSelectorOnMainThread</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(doUIthings) <span style="color: rgb(61, 29, 129);">withObject</span>:<span style="color: rgb(187, 44, 162);">nil</span> <span style="color: rgb(61, 29, 129);">waitUntilDone</span>:<span style="color: rgb(187, 44, 162);">NO</span>];</font><font face="Menlo"><span style="font-size: 11px;"><br/></span></font></div>
+<div><br/></div>
+<div><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">dispatch_async</span> is thread-safe.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UIScrollView</u></span><br/></div>
+<div><b><br/></b></div>
+<div>You can put anything in a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span>, including another <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span>.</div>
+<div><br/></div>
+<div>Adding subviews to a normal <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>:</div>
+<div><font face="Andale Mono">subview.frame = ...<br/>
+[view addSubview:subview];</font><br/></div>
+<div><br/></div>
+<div>Adding subviews to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span>: must set the <span style="font-family: 'Andale Mono';">contentSize</span></div>
+<div><font face="Andale Mono">scrollView.contentSize = CGSizeMake(</font><font face="Andale Mono"><span style="color: rgb(39, 42, 216);">3000</span>, <span style="color: rgb(39, 42, 216);">2000</span>);</font><br/>
+<font face="Andale Mono">subview1.frame = CGRectMake(<span style="color: rgb(39, 42, 216);">2700</span>, <span style="color: rgb(39, 42, 216);">100</span>, <span style="color: rgb(39, 42, 216);">120</span>, <span style="color: rgb(39, 42, 216);">180</span>);<br/>
+[view addSubview:subview1];<br/>
+subview2.frame = CGRectMake(<span style="color: rgb(39, 42, 216);">50</span>, <span style="color: rgb(39, 42, 216);">100</span>, <span style="color: rgb(39, 42, 216);">2500</span>, <span style="color: rgb(39, 42, 216);">1600</span>);<br/>
+[view addSubview:subview2];</font><br/></div>
+<div><br/></div>
+<div>Getting the upper left corner of currently-showing area:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">CGPoint</span> upperLeftOfVisible = scrollView.contentOffset;</font><br/></div>
+<div><br/></div>
+<div>Getting bounds of currently-showing area:</div>
+<div><span style="font-family: 'Andale Mono';">scrollView.bounds</span><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"> </span></font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// in content area's coordinate system</span><br/></div>
+<div>What if we want it in the subview's coordinates?</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">CGRect</span> visibleRect = [scrollView convertRect:scrollView.bounds toView:subview];</font><br/></div>
+<div>What's the difference? Might be scaled (due to zooming), etc.</div>
+<div><br/></div>
+<div><u>Creating a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span></u></div>
+<div><br/></div>
+<div>Drag it out in your storyboard, or use <span style="font-family: 'Andale Mono';">alloc</span>/<span style="font-family: 'Andale Mono';">initWithFrame:</span>.</div>
+<div><br/></div>
+<div>You can also select a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> in your storyboard and choose "Embed In -&gt; Scroll View". Doesn't seem to do the right thing some of the time though (adds extra space, etc).</div>
+<div><br/></div>
+<div>You can add a "too big" <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> using <span style="font-family: 'Andale Mono';">addSubView:</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIImage</span> *image = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageNamed</span>:<span style="color: rgb(209, 47, 27);">@"bigimage.jpg"</span>];<br/>
+<span style="color: rgb(112, 61, 170);">UIImageView</span> *iv = [[<span style="color: rgb(112, 61, 170);">UIImageView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithImage</span>:image]; <span style="color: rgb(0, 132, 0);">// frame.size = image.size</span><br/>
+[<span style="color: rgb(112, 61, 170);">scrollView</span> addSubview:iv];</font><br/></div>
+<div>Add more subviews if you want. All of the subview' frames will be in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span>'s content area's coordinate system (that is, (0,0) in the upper left &amp; width and height of <span style="font-family: 'Andale Mono';">contentSize.width</span> &amp; <font face="Andale Mono">.height</font>).</div>
+<div><br/></div>
+<div>Don't forget to set the <span style="font-family: 'Andale Mono';">contentSize</span></div>
+<div><font face="Andale Mono">scrollView.contentSize = iv.bounds.size;</font><br/></div>
+<div><br/></div>
+<div><u>Scrolling</u></div>
+<div><br/></div>
+<div>Scrolling programmatically:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)scrollRectToVisible:(<span style="color: rgb(112, 61, 170);">CGRect</span>)aRect animated:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated;</font><br/></div>
+<div><br/></div>
+<div>Other things you can control:</div>
+<div>- Whether scrolling is enabled</div>
+<div>- Locking scroll direction to user's first "move"</div>
+<div>- Style of the scroll indicators: <span style="font-family: 'Andale Mono';">flashScrollIndicators</span></div>
+<div>- Whether the actual content is "inset" from the content area: <span style="font-family: 'Andale Mono';">contentInset</span></div>
+<div><br/></div>
+<div><u>Zooming</u></div>
+<div><br/></div>
+<div>All <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span>s have a <font face="Andale Mono">transform</font> property which is an affine transform (translate, scale, rotate).</div>
+<div>Scroll view simply modifies this transform when you zoom. This will affect the <span style="font-family: 'Andale Mono';">contentSize</span> and <span style="font-family: 'Andale Mono';">contentOffset</span>.</div>
+<div><br/></div>
+<div>Must set the minimum/maximum zoom scale:</div>
+<div><font face="Andale Mono">scrollView.minimumZoomScale = <span style="color: rgb(39, 42, 216);">0.5</span>; <span style="color: rgb(0, 132, 0);">// half its normal size</span><br/>
+scrollView.maximumZoomScale = <span style="color: rgb(39, 42, 216);">2.0</span>; <span style="color: rgb(0, 132, 0);">// twice its normal size</span></font><br/></div>
+<div><br/></div>
+<div>Must set a delegate method to specify which subview will have its scale changed when it zooms:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIView</span> *)viewForZoomingInScrollView:(<span style="color: rgb(112, 61, 170);">UIScrollView</span> *)sender;</font><br/></div>
+<div>If your scroll view only has one subview, return it here.<font face="Andale Mono"><br/></font></div>
+<div><br/></div>
+<div>Zooming programmatically:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(187, 44, 162);">float</span> zoomScale;<br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setZoomScale:(<span style="color: rgb(187, 44, 162);">float</span>)scale animated:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)zoomToRect:(CGRect)zoomRect animated(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated;</font><br/></div>
+<div>You'll probably want to animate it.</div>
+<div><br/></div>
+<div><u>Other delegate methods</u></div>
+<div><u><br/></u></div>
+<div>Notify you when zooming ends:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)scrollViewDidEndZooming:(<span style="color: rgb(112, 61, 170);">UIScrollView</span> *)sender<br/>
+                       withView:(<span style="color: rgb(112, 61, 170);">UIView</span> *)zoomView <span style="color: rgb(0, 132, 0);">// from delegate method above</span><br/>
+                        atScale:(<span style="color: rgb(112, 61, 170);">CGFloat</span>)scale;</font><br/></div>
+<div>If you redraw your view at the new scale, be sure to reset the transform back to identity.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Imaginarium: <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span> inside a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span> displays a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImage</span>.</div>
+<div><br/></div>
+<div>Can have a property without an instance variable. If you never use it, the compiler won't complain.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">UIImage</span> *image;<br/></font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)image<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>.<span style="color: rgb(112, 61, 170);">image</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setImage:(<span style="color: rgb(112, 61, 170);">UIImage</span> *)image<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>.<span style="color: rgb(112, 61, 170);">image</span> = image;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span> <span style="color: rgb(61, 29, 129);">sizeToFit</span>];<br/>
+}</font><span style="font-size: 11px; font-family: Menlo;"><br/></span></div>
+<div><br/></div>
+<div>Getting an image from a URL: (this is blocking!)</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageWithData</span>:[<span style="color: rgb(112, 61, 170);">NSData</span> <span style="color: rgb(61, 29, 129);">dataWithContentsOfURL</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span>]];</font><br/></div>
+<div><br/></div>
+<div>Remember to protect from images being <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">scrollView</span>.<span style="color: rgb(112, 61, 170);">contentSize</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> ? <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>.<span style="color: rgb(112, 61, 170);">size</span> : <span style="color: rgb(112, 61, 170);">CGSizeZero</span>;</font><br/></div>
+<div><br/></div>
+<div>Remember that <span style="font-family: 'Andale Mono';">prepareForSegue:</span> happens before your outlets get set, so in this case, <span style="font-family: 'Andale Mono';">prepareForSegue</span> calls <span style="font-family: 'Andale Mono';">setImageURL:</span> which calls <span style="font-family: 'Andale Mono';">setImage</span>, so <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">scrollView</span> won't even be set at that point! We have to add the <span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">contentSize</span> to <span style="font-family: 'Andale Mono';">setScrollView:</span> as well.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setScrollView:(<span style="color: rgb(112, 61, 170);">UIScrollView</span> *)scrollView<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_scrollView</span> = scrollView;<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">scrollView</span>.<span style="color: rgb(112, 61, 170);">contentSize</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> ? <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>.<span style="color: rgb(112, 61, 170);">size</span> : <span style="color: rgb(112, 61, 170);">CGSizeZero</span>;<br/>
+}</font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setImage:(<span style="color: rgb(112, 61, 170);">UIImage</span> *)image<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>.<span style="color: rgb(112, 61, 170);">image</span> = image;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span> <span style="color: rgb(61, 29, 129);">sizeToFit</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">scrollView</span>.<span style="color: rgb(112, 61, 170);">contentSize</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> ? <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>.<span style="color: rgb(112, 61, 170);">size</span> : <span style="color: rgb(112, 61, 170);">CGSizeZero</span>;<br/>
+}<br/></font></div>
+<div><br/></div>
+<div>Zooming in: set the scroll view's min and max zoom scale, set delegate to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span> -- remember to declare that you implement the <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">UIScrollViewDelegate</font></span> protocol.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setScrollView:(<span style="color: rgb(112, 61, 170);">UIScrollView</span> *)scrollView<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_scrollView</span> = scrollView;<br/>
+    <span style="color: rgb(79, 129, 135);">_scrollView</span>.<span style="color: rgb(112, 61, 170);">minimumZoomScale</span> = <span style="color: rgb(39, 42, 216);">0.2</span>;<br/>
+    <span style="color: rgb(79, 129, 135);">_scrollView</span>.<span style="color: rgb(112, 61, 170);">maximumZoomScale</span> = <span style="color: rgb(39, 42, 216);">2.0</span>;<br/>
+    <span style="color: rgb(79, 129, 135);">_scrollView</span>.<span style="color: rgb(112, 61, 170);">delegate</span> = <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">scrollView</span>.<span style="color: rgb(112, 61, 170);">contentSize</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> ? <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>.<span style="color: rgb(112, 61, 170);">size</span> : <span style="color: rgb(112, 61, 170);">CGSizeZero</span></font><font face="Andale Mono">;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>If you want to zoom, set the <span style="font-family: 'Andale Mono';">viewForZoomingInScrollView:</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIView</span> *)viewForZoomingInScrollView:(<span style="color: rgb(112, 61, 170);">UIScrollView</span> *)scrollView<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>How do we stop it from being blocked from the network call?</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setImageURL:(<span style="color: rgb(112, 61, 170);">NSURL</span> *)imageURL<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_imageURL</span> = imageURL;<br/>
+<span style="color: rgb(0, 132, 0);">//    self.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:self.imageURL]]; // will block!</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">startDownloadingImage</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)startDownloadingImage<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> = <span style="color: rgb(187, 44, 162);">nil</span>; <span style="color: rgb(0, 132, 0);">// clear out what's in imageView currently</span><br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span>) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSURLRequest</span> <span style="color: rgb(61, 29, 129);">requestWithURL</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span>];<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> *configuration = [<span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> <span style="color: rgb(61, 29, 129);">ephemeralSessionConfiguration</span>];<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [<span style="color: rgb(112, 61, 170);">NSURLSession</span> <span style="color: rgb(61, 29, 129);">sessionWithConfiguration</span>:configuration];<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task = [session <span style="color: rgb(61, 29, 129);">downloadTaskWithRequest</span>:request<br/>
+            <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSURL</span> *localFile, <span style="color: rgb(112, 61, 170);">NSURLResponse</span> *response, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+                <span style="color: rgb(187, 44, 162);">if</span> (!error) {<br/>
+                    <span style="color: rgb(187, 44, 162);">if</span> ([request.<span style="color: rgb(61, 29, 129);">URL</span> <span style="color: rgb(61, 29, 129);">isEqual</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span>]) {<br/>
+                        <span style="color: rgb(0, 132, 0);">// in case someone changed the image URL</span><br/>
+                        <span style="color: rgb(112, 61, 170);">UIImage</span> *image = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageWithData</span>:[<span style="color: rgb(112, 61, 170);">NSData</span> <span style="color: rgb(61, 29, 129);">dataWithContentsOfURL</span>:localFile]];<br/>
+                        <span style="color: rgb(61, 29, 129);">dispatch_async</span>(<span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>(), ^{<br/>
+                            <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> = image; <span style="color: rgb(0, 132, 0);">// has to be on main thread</span><br/>
+                        });<br/>
+                    }<br/>
+                }<br/>
+            }];<br/>
+        [task <span style="color: rgb(61, 29, 129);">resume</span>];<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>There's 3 kinds of <font face="Andale Mono">NSURLSessionConfiguration</font>:</div>
+<div>1. Ephemeral - download something, then done</div>
+<div>2. Default - downloading multiple files, otherwise keeping session active/doing multiple things</div>
+<div>3. Background - download file; even if user goes to another app/app dies, call me back when download happens</div>
+<div><br/></div>
+<div>Remember that things take time, and the state of the world can change in the middle -- so verify that when the thing finishes, the world still wants the same thing as before.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImage</span> is one of the few UIKit classes you can use off the main queue.</div>
+<div><br/></div>
+<div>The queue that does the <span style="font-family: 'Andale Mono';">completionHandler</span> is created right before it calls the handler.</div>
+<div><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">localFile</span> is only there for the duration of the block; if you want it to persist you should copy it. </div>
+<div><br/></div>
+<div>Can you abort a thread/a block on a queue? Once they start, they cannot be stopped, only stop themselves; e.g. when they recognize they're unnecessary.</div>
+<div><br/></div>
+<div>Now it's snappy, but we should add some feedback while it's loading. Just use a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActivityIndicatorView</span>. Can have two behaviors: Animating (starts off animating) and Hides When Stopped.</div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">spinner</span> <span style="color: rgb(61, 29, 129);">startAnimating</span>];<br/></font></div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">spinner</span> <span style="color: rgb(61, 29, 129);">stopAnimating</span>];</font><span style="font-size: 11px; font-family: Menlo;"><br/></span></div>
+<div><br/></div>
+<div>When you drag a view into another view, it becomes a subview -- watch out for that in the Document Outline. Remember that a view directly below another view on the Outline appears in front of it.</div>
+<div><br/></div>
+<div>When you do multitasking and use a <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">backgroundSessionConfiguration</span>, you have to use the version of <span style="font-family: 'Andale Mono';">[</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSURLSession</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">sessionWithConfiguration</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono';">]</span> that has a delegate.</div>
+</body></html>
