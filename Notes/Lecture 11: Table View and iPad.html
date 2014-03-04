@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-03 07:04:59 +0000"/><meta name="latitude" content="37.4523854259327"/><meta name="longitude" content="-122.1550426123773"/><meta name="updated" content="2014-03-04 03:59:42 +0000"/><title>Lecture 11: Table View and iPad</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</u><br/>
+<div><u><font face="Andale Mono"><br/></font></u></div>
+<div><font>Very important class for displaying data. </font>One-dimensional table, subclass of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScrollView</span>.</div>
+<div><br/></div>
+<div>Table can be static or dynamic (i.e. a list of items). Customizable via <font face="Andale Mono">dataSource</font> protocol, <font face="Andale Mono">delegate</font> protocol.</div>
+<div><br/></div>
+<div>Multi-dimensional tables can be displayed with a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> with multiple MVC's where View is <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>.</div>
+<div><br/></div>
+<div>Kinds of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>:</div>
+<div><span style="font-family: 'Andale Mono';">UITableViewStylePlain</span>: e.g. contacts</div>
+<div><span style="font-family: 'Andale Mono';">UITableViewStyleGrouped</span>: e.g. settings</div>
+<div><br/></div>
+<div><u>Parts</u></div>
+<div><br/></div>
+<div>Table header:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><span style="font-family: 'Andale Mono';"> *tableHeaderView;</span></div>
+<div><br/></div>
+<div>Table footer:</div>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><span style="font-family: 'Andale Mono';"> *tableFooterView;</span>
+<div><br/></div>
+<div>Table rows in between, grouped into sections.</div>
+<div>Each section has headers (used quite a bit) and footers (not really used).</div>
+<div>Each section has multiple table cells.</div>
+<div><br/></div>
+<div>Type of cell:</div>
+<div>Subtitle (has subtitle): <font face="Andale Mono">UITableViewCellStyleSubtitle</font></div>
+<div>Basic (no subtitle): <span style="font-family: 'Andale Mono';">UITableViewCellStyleDefault</span></div>
+<div>Right detail: <span style="font-family: 'Andale Mono';">UITableViewCellStyleValue1</span></div>
+<div>Left detail: <span style="font-family: 'Andale Mono';">UITableViewCellStyleValue2</span></div>
+<div><br/></div>
+<div><u>Configuration</u></div>
+<div><u><br/></u></div>
+<div>Drag it from the Object Palette into your storyboard: <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span> containing a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>.</div>
+<div><br/></div>
+<div>Usually you want to subclass <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span>.</div>
+<div><br/></div>
+<div>Can change style to Plain or Grouped.</div>
+<div><br/></div>
+<div>Can change Content to Dynamic Prototypes or Static Cells.</div>
+<div>For Static Cells, whatever you do in the storyboard is applied.</div>
+<div>For Dynamic Prototypes, the Prototype Cells are a template for what the loaded cells will look like. You can choose the #.</div>
+<div><br/></div>
+<div>You can change the cell's Style to e.g. Subtitle; add Accessories, etc.</div>
+<div>The most important attribute to set for a Cell is the Identifier.</div>
+<div><br/></div>
+<div><u>Protocols</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">delegate</font> is used to control how the table is displayed + how it reacts to touches etc.</div>
+<div><font face="Andale Mono">dataSource</font> provides the data that is displayed inside the cells.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span> automatically sets itself as its <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>'s <font face="Andale Mono">delegate</font> and <font face="Andale Mono">dataSource</font>.</div>
+<div><br/></div>
+<div>Has a property pointing to its <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">UITableView</span> *tableView;</font><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UITableViewDataSource</u></span><br/></div>
+<div><br/></div>
+<div>Important <span style="font-family: 'Andale Mono';">dataSource</span> methods:</div>
+<div>How many <font face="Andale Mono">section</font>s are in this table?</div>
+<div>How many <font face="Andale Mono">row</font>s in each <font face="Andale Mono">section</font>?</div>
+<div>Give me a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewCell</span> to use to draw each cell at a given row in a given section.</div>
+<div><br/></div>
+<div>Controlling what is drawn in each cell:</div>
+<div>Each row is drawn by its own instance of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewCell</span>. <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewDataSource</span> has a method to get that cell for a given row in a section:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UITableViewCell</span> *)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender<br/>
+         cellForRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// TODO:</span><br/>
+    <span style="color: rgb(0, 132, 0);">// 1. get a cell to use (instance of UITableViewCell)</span><br/>
+    <span style="color: rgb(0, 132, 0);">// 2. set @propertys on the cell to prepare it to display</span><br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">UITableViewCell</span> *cell;<br/>
+    <span style="color: rgb(0, 132, 0);">// reusable cells so we only have to use the # that fit on screen!</span><br/>
+    cell = [<span style="color: rgb(187, 44, 162);">self</span>.tableView dequeueReusableCellWithIdentifier:<span style="color: rgb(209, 47, 27);">@"Flickr Photo Cell"</span><br/>
+                                                forIndexPath:indexPath];<br/>
+    cell.textLabel.text = [<span style="color: rgb(187, 44, 162);">self</span> getMyTitleForRow:indexPath.row inSection:indexPath.section];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> cell;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>The cells in the table are reused -- when one goes off-screen, it gets put into a "reuse pool". The next time a cell is needed, it is grabbed from the reuse pool if available; otherwise, one will be put into the reuse pool if there's a prototype in the storyboard. If there's no prototype, the <span style="font-family: 'Andale Mono';">dequeue</span> method will return <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>.</div>
+<div><br/></div>
+<div>How many rows/sections are there? Use these <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewDataSource</span> methods:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSInteger</span>)numberOfSectionsInTableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender;<br/>
+- (<span style="color: rgb(112, 61, 170);">NSInteger</span>)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender numberOfRowsInSection:(<span style="color: rgb(112, 61, 170);">NSInteger</span>)section;</font></div>
+<div><br/></div>
+<div>The number of sections is 1 by default.</div>
+<div>There is no default for <span style="font-family: 'Andale Mono';">tableView:</span><span style="font-family: 'Andale Mono';">numberOfRowsInSection:</span>.</div>
+<div><br/></div>
+<div>You don't need any of the above methods for a static table -- just edit it directly in the storyboard.</div>
+<div><br/></div>
+<div>Other methods: getting headers/footers for sections, keeping the Model in sync with table edits (moving/deleting/inserting rows).</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UITableViewDelegate</u></span><br/></div>
+<div><br/></div>
+<div>Controls how the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span> is displayed, allows you to observe what the table view is doing.</div>
+<div><br/></div>
+<div>Important one is  "user did select a row". Usually we'd just segue, but if not... (e.g. on the iPad where the table might be on screen with what it updates)</div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// UITableViewDelegate method sent when row is selected</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender didSelectRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// do something based on information about my Model</span><br/>
+    <span style="color: rgb(0, 132, 0);">// corresponding to indexPath.row in indexPath.section</span></font><font face="Andale Mono"><br/>
+}</font></div>
+<div><br/></div>
+<div>Common for the <span style="font-family: 'Andale Mono';">dataSource</span> and <span style="font-family: 'Andale Mono';">delegate</span> to be the same object (i.e. the Controller of the MVC in which the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span> is part of the View).</div>
+<div><br/></div>
+<div>The little circled i on the table cell will not segue; instead, it will invoke this method:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender<br/>
+accessoryButtonTappedForRowWithIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// do something related to the row at indexPath,</span><br/>
+    <span style="color: rgb(0, 132, 0);">// but not the primary action associated with touching the row</span><br/>
+}</font><br/></div>
+<div>Maybe you'd provide some ancillary information.</div>
+<div><br/></div>
+<div>Lots more <span style="font-family: 'Andale Mono';">delegate</span> methods:</div>
+<div><font face="Andale Mono">will</font>/<font face="Andale Mono">did</font> methods for selecting/deselecting rows.</div>
+<div>Providing <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span> objects to draw section headers and footers.</div>
+<div>Handling editing rows (moving them around with touch gestures)</div>
+<div><font face="Andale Mono">willBegin</font>/<font face="Andale Mono">didEnd</font> notificatinos for editing (i.e. removing/moving) rows.<br/></div>
+<div>Copying/pasting rows.</div>
+<div><br/></div>
+<div><u>Segueing</u></div>
+<div><br/></div>
+<div>Segue from cells by control-dragging from the prototype cell. But how do we know what cell we're segueing from? Use <span style="font-family: 'Andale Mono';">indexPathForCell:</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(UIStoryBoardSegue *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSIndexPath</span> *indexPath = [<span style="color: rgb(187, 44, 162);">self</span>.tableView indexPathForCell:sender];<br/>
+    <span style="color: rgb(0, 132, 0);">// prepare segue.destinationController to display based on information</span><br/>
+    <span style="color: rgb(0, 132, 0);">// about my Model corresponding to indexPath.row in indexPath.section</span></font><font face="Andale Mono"><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Spinner</u></div>
+<div><u><br/></u></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span> has an "activity indicator" built in. It appears at the top of the table view, and pulling down on the table view and the refresh control will send its action to its target.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">UIRefreshControl</span> *refreshControl;</font></div>
+<div><br/></div>
+<div>Start it with  <font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)beginRefreshing;</font></div>
+<div>Stop it with  <font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)endRefreshing;</font><br/></div>
+<div><br/></div>
+<div>Shows up in the Document Outline when you set Refreshing in the Attribute Inspector to be Enabled. Then you can control-drag into your Controller implementation and add the target refresh action:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">IBAction</span>)refresh<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.refreshControl beginRefreshing];<br/>
+    <span style="color: rgb(112, 61, 170);">dispatch_queue_t</span> otherQ = <span style="color: rgb(61, 29, 129);">dispatch_queue_create</span>(<span style="color: rgb(209, 47, 27);">"Q"</span>, <span style="color: rgb(187, 44, 162);">NULL</span>);<br/>
+    <span style="color: rgb(61, 29, 129);">dispatch_async</span>(otherQ, ^{<br/>
+        <span style="color: rgb(0, 132, 0);">// do something in another thread</span><br/>
+        <span style="color: rgb(61, 29, 129);">dispatch_async</span>(<span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>(), ^{<br/>
+            [<span style="color: rgb(187, 44, 162);">self</span>.refreshControl endRefreshing];<br/>
+        });<br/>
+    });<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>What if your model changes?</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)reloadData;</font> causes the table view to call <span style="font-family: 'Andale Mono';">numberOfSectionsInTableView:</span> and <span style="font-family: 'Andale Mono';">numberOfRowsInSection:</span> all over again, then <span style="font-family: 'Andale Mono';">cellForRowAtIndexPath:</span> on each visible cell. Use this if your entire data structure changes.</div>
+<div><br/></div>
+<div>If only part of your Model changes, there are lighter-weight reloaders, such as:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)reloadRowsAtIndexPaths:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *)indexPaths</span></div>
+<div><font face="Andale Mono">              withRowAnimation:(<span style="color: rgb(112, 61, 170);">UITableViewRowAnimation</span>)animation;</font><br/></div>
+<div><br/></div>
+<div><u>Other methods</u></div>
+<div><br/></div>
+<div>Setting headers/footers for entire table.</div>
+<div>Controlling the look: separator style/color, default row height, etc.</div>
+<div>Getting cell info (cell for index path, index path for cell, visible cells, etc.)</div>
+<div>Scrolling to a row</div>
+<div>Selection management (allows multiple selection, getting selected row, etc.)</div>
+<div>Moving, inserting, and deleting rows, etc.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Universal applications</b></div>
+<div><b><br/></b></div>
+<div>A single app (single binary image) that will run on both iPhone and iPad.</div>
+<div><br/></div>
+<div>Has two different storyboards, usually with the same view controllers arranged in different ways. Can copy-paste between them.</div>
+<div><br/></div>
+<div><u>Creating</u></div>
+<div><br/></div>
+<div>When you create the project, pick Universal instead of iPhone or iPad.</div>
+<div><br/></div>
+<div>If you have an existing project, you can edit the Project Settings. When you select Universal, it asks to copy the storyboard over (not recommended). Instead, do File -&gt; New File -&gt; User Interface -&gt; Storyboard -&gt; Device Family: iPad. Put it in the same place as your other storyboard (usually Base.lproj). Then go to Project Settings, click iPad below Devices, and select the storyboard in your Main Interface.</div>
+<div><br/></div>
+<div><u>iPad UI idioms</u></div>
+<div><u><br/></u></div>
+<div>Has a couple more MVCs: split view, popover</div>
+<div><br/></div>
+<div>"Am I on an iPad?"</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">BOOL</span> iPad = ([[<span style="color: rgb(112, 61, 170);">UIDevice</span> <span style="color: rgb(61, 29, 129);">currentDevice</span>] <span style="color: rgb(61, 29, 129);">userInterfaceIdiom</span>] == <span style="color: rgb(61, 29, 129);">UIUserInterfaceIdiomPad</span>);</font></div>
+<div><br/></div>
+<div>Use this sparingly though -- might be better to check other things first (like whether you are in a split view or popover).</div>
+<div><br/></div>
+<div>You can also check to see if your MVC or another MVC are "on screen" now:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">view</span>.<span style="color: rgb(112, 61, 170);">window</span> == <span style="color: rgb(187, 44, 162);">nil</span>) { <span style="color: rgb(0, 132, 0);">/* I am not on screen */</span> }</font><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UISplitViewController</u></span><br/></div>
+<div><br/></div>
+<div>Has a Master View Controller (the "nav"/"sidebar") and a Detail View Controller (the "content").</div>
+<div><br/></div>
+<div>Designed to be at the top-level of your storyboard -- don't put inside a tab bar controller or navigation controller, though you can put either of those inside either side of the split view.</div>
+<div><br/></div>
+<div>Just drag it out to add to your storyboard, then delete the "free" Master and Detail it gives you. Then control-drag to each of the two sides (Master and Detail) from the split view.</div>
+<div><br/></div>
+<div>To access the Master and Detail MVCs:</div>
+<div><br/></div>
+<div>From a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UISplitViewController</span><span style="font-family: 'Andale Mono';"> *splitViewController;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">splitViewController</span>) { <span style="color: rgb(0, 132, 0);">/* I am in a UISplitViewController */</span> }</font></div>
+<div><br/></div>
+<div>In the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UISplitViewController</span>:<span style="font-size: 11px; font-family: Menlo;"><br/></span><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">copy</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *viewControllers;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// [0] is master, [1] is detail</span></div>
+<div>The property is not readonly, but the array is immutable so you have to set both Master and Detail together at once. Usually done by control-dragging in the storyboard, not in code.</div>
+<div><br/></div>
+<div>e.g. A Master VC wants to get ahold of the Detail VC of the Split View both are in:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIViewController</span> *detailVC = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">splitViewController</span>.<span style="color: rgb(112, 61, 170);">viewControllers</span>[<span style="color: rgb(39, 42, 216);">1</span>];</font><br/></div>
+<div>This returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> if the Master VC is not in a Split View.</div>
+<div><br/></div>
+<div>Requires its <span style="font-family: 'Andale Mono';">delegate</span> to be set, or in portrait mode, the Master will be inaccessible.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">assign</span>) <span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">UISplitViewControllerDelegate</span>&gt; delegate;</font><br/></div>
+<div>(<span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">assign</span> is like <font color="#BB2CA2" face="Andale Mono">weak</font> except it doesn't set to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> when it leaves the heap)</div>
+<div><br/></div>
+<div>Set this really early, like in <span style="font-family: 'Andale Mono';">awakeFromNib</span>! It also starts sending its <font face="Andale Mono">delegate</font> methods way before <span style="font-family: 'Andale Mono';">viewDidLoad</span> -- before your outlets are even set. Thankfully, the <span style="font-family: 'Andale Mono';">delegate</span> only has one responsibility, to control how the Master and Detail are presented when device rotation occurs.</div>
+<div><br/></div>
+<div>Never hide Master (will be tall and skinny in portrait):</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)splitViewController:(<span style="color: rgb(112, 61, 170);">UISplitViewController</span> *)sender<br/>
+   shouldHideViewController:(<span style="color: rgb(112, 61, 170);">UIViewController</span> *)vc<br/>
+              inOrientation:(<span style="color: rgb(112, 61, 170);">UIInterfaceOrientation</span>)orientation<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">NO</span>; <span style="color: rgb(0, 132, 0);">// never hide it</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Hide Master in portrait orientation only (the default):</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)splitViewController:(<span style="color: rgb(112, 61, 170);">UISplitViewController</span> *)sender<br/>
+   shouldHideViewController:(<span style="color: rgb(112, 61, 170);">UIViewController</span> *)vc<br/>
+              inOrientation:(<span style="color: rgb(112, 61, 170);">UIInterfaceOrientation</span>)orientation<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(120, 73, 42);">UIInterfaceOrientationIsPortrait</span>(orientation); <span style="color: rgb(0, 132, 0);">// hide in portrait</span></font><font face="Andale Mono"><br/>
+}</font><br/></div>
+<div>A bar button will cause the Master will slide out; clicking anywhere makes it disappear.</div>
+<div><br/></div>
+<div>How do you set this bar button? Need a <span style="font-family: 'Andale Mono';">delegate</span>. A good trick is putting the Detail in a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)splitViewController:(<span style="color: rgb(112, 61, 170);">UISplitViewController</span> *)sender<br/>
+     willHideViewController:(<span style="color: rgb(112, 61, 170);">UIViewController</span> *)master<br/>
+          withBarButtonItem:(<span style="color: rgb(112, 61, 170);">UIBarButtonItem</span> *)barButtonItem<br/>
+       forPopoverController:(<span style="color: rgb(112, 61, 170);">UIPopoverController</span> *)popover<br/>
+{<br/>
+    barButtonItem.<span style="color: rgb(112, 61, 170);">title</span> = master.<span style="color: rgb(112, 61, 170);">title</span>;<br/>
+    <span style="color: rgb(0, 132, 0);">// this next line would only work in the Detail</span><br/>
+    <span style="color: rgb(0, 132, 0);">// and only if it was in a UINavigationController</span><br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">navigationItem</span>.<span style="color: rgb(112, 61, 170);">leftBarButtonItem</span> = barButtonItem;<br/>
+}</font><br/></div>
+<div>Be careful to not allow navigation in both your Master and Detail though -- generally, don't allow navigation in your Detail; just use the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UINavigationController</span> for the bar button item.</div>
+<div><br/></div>
+<div>When it's time for the bar button to go away, this gets called in your <span style="font-family: 'Andale Mono';">delegate</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)splitViewController:(<span style="color: rgb(112, 61, 170);">UISplitViewController</span> *)sender<br/>
+     willShowViewController:(<span style="color: rgb(112, 61, 170);">UIViewController</span> *)master<br/>
+  invalidatingBarButtonItem:(<span style="color: rgb(112, 61, 170);">UIBarButtonItem</span> *)barButtonItem<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// this next line would only work in the Detail</span><br/>
+    <span style="color: rgb(0, 132, 0);">// and only if it was in a UINavigationController</span><br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">navigationItem</span>.<span style="color: rgb(112, 61, 170);">leftBarButtonItem</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Updating the Detail when the Master is touched? 2 ways of doing this...</div>
+<div><br/></div>
+<div>Target/Action: Master has a target action on itself; when it's touched, it finds its detail and sends a message.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">IBAction</span>)doit<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">id</span> detailViewController = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">splitViewController</span>.<span style="color: rgb(112, 61, 170);">viewControllers</span>[<span style="color: rgb(39, 42, 216);">1</span>];<br/>
+    [detailViewController setSomeProperty:...]; <span style="color: rgb(0, 132, 0);">// might want some Introspection</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Replace Segue: entirely replaces the Detail view controller, since segues are always new instances of view controllers. Kind of annoying because you might lose the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBarButtonItem</span> used for revealing the hidden Master, so we don't use it that much.</div>
+<div><br/></div>
+<div><u>Popovers</u></div>
+<div><u><br/></u></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIPopoverController</span> is not a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span>, but it has a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> that holds the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIViewController</span> that is inside it.</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">UIViewController</span> *contentViewController;</font><br/></div>
+<div><br/></div>
+<div>Usually wired in a storyboard.</div>
+<div><br/></div>
+<div>Creating a popover segue: in <span style="font-family: 'Andale Mono';">prepareForSegue:sender:</span>, the argument will have a specific type: <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIStoryBoardPopoverSegue</span>, which has a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> to get the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIPopoverController</span>.</div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIPopoverController</span> *)popoverController;<br/></font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([segue <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UIStoryboardPopoverSegue</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        <span style="color: rgb(112, 61, 170);">UIPopoverController</span> *popoverController = ((<span style="color: rgb(112, 61, 170);">UIStoryboardPopoverSegue</span> *)segue).<span style="color: rgb(112, 61, 170);">popoverController</span>;<br/>
+        ...<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>The view controller in the popover is a segue, so it is instantiated every time.</div>
+<div><br/></div>
+<div>The user dismisses a popover by touching anything outside of it, except one of the views in this array property in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIPopoverController</span>:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">copy</font></span><span style="font-family: 'Andale Mono';">) </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSArray </span><span style="font-family: 'Andale Mono';">*passthroughViews;</span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Dismissing a popover programmatically:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)dismissPopoverAnimated:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span><span style="font-family: 'Andale Mono';"> </span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Find out if a user dismissed a popover: use the <font face="Andale Mono">delegate</font> which will be sent this message:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)popoverControllerDidDismissPopover:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIPopoverController</span><span style="font-family: 'Andale Mono';"> *)sender;</span><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Shutterbug: <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span> containing a few hundred recent photos from Flickr</div>
+<div><br/></div>
+<div>Converting JSON results to <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSDictionary</span> *propertyListResults = [<span style="color: rgb(112, 61, 170);">NSJSONSerialization</span> <span style="color: rgb(61, 29, 129);">JSONObjectWithData</span>:jsonResults <span style="color: rgb(61, 29, 129);">options</span>:<span style="color: rgb(39, 42, 216);">0</span> <span style="color: rgb(61, 29, 129);">error</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];</font><br/></div>
+<div><br/></div>
+<div>Logging dictionaries:</div>
+<div><font face="Andale Mono"><span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"Flickr results = %@"</span>, propertyListResults);</font><br/></div>
+<div><br/></div>
+<div>Following dictionaries inside dictionaries:</div>
+<div><font face="Andale Mono">[propertyListResults <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(209, 47, 27);">@"photos.photo"</span>]</font><br/></div>
+<div><br/></div>
+<div>Difference between <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> and <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NULL</span>:</div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> means an object pointer is 0.</div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NULL</span> means a C pointer points to nothing.</div>
+<div><span style="font-family: 'Andale Mono';">&amp;</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil </span><span style="font-family: 'Andale Mono';">= </span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NULL</span><br/></div>
+<div><br/></div>
+<div>Can drag code + copy paste storyboards from one project to another.</div>
+<div><br/></div>
+<div>Creating own queue:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)fetchPhotos<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSURL</span> *url = [<span style="color: rgb(79, 129, 135);">FlickrFetcher</span> <span style="color: rgb(49, 89, 93);">URLforRecentGeoreferencedPhotos</span>];<br/>
+    <span style="color: rgb(112, 61, 170);">dispatch_queue_t</span> fetchQ = <span style="color: rgb(61, 29, 129);">dispatch_queue_create</span>(<span style="color: rgb(209, 47, 27);">"flickr fetcher"</span>, <span style="color: rgb(187, 44, 162);">NULL</span>);<br/>
+    <span style="color: rgb(61, 29, 129);">dispatch_async</span>(fetchQ, ^{<br/>
+        <span style="color: rgb(112, 61, 170);">NSData</span> *jsonResults = [<span style="color: rgb(112, 61, 170);">NSData</span> <span style="color: rgb(61, 29, 129);">dataWithContentsOfURL</span>:url];<br/>
+        <span style="color: rgb(112, 61, 170);">NSDictionary</span> *propertyListResults = [<span style="color: rgb(112, 61, 170);">NSJSONSerialization</span> <span style="color: rgb(61, 29, 129);">JSONObjectWithData</span>:jsonResults<br/>
+                                                                            <span style="color: rgb(61, 29, 129);">options</span>:<span style="color: rgb(39, 42, 216);">0</span><br/>
+                                                                              <span style="color: rgb(61, 29, 129);">error</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];<br/>
+        <span style="color: rgb(112, 61, 170);">NSArray</span> *photos = [propertyListResults <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(120, 73, 42);">FLICKR_RESULTS_PHOTOS</span>];<br/>
+        <span style="color: rgb(61, 29, 129);">dispatch_async</span>(<span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>(), ^{<br/>
+            <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photos</span> = photos;<br/>
+        });<br/>
+    });<br/>
+}</font><br/></div>
+<div>You don't have to use <font face="Andale Mono">weakSelf</font> here because we're not holding onto the block strongly.</div>
+</body></html>

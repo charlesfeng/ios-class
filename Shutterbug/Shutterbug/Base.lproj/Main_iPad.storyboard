@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B3116" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="xic-NJ-ieD">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+    </dependencies>
+    <scenes>
+        <!--Split View Controller-->
+        <scene sceneID="IpG-q8-Mpr">
+            <objects>
+                <splitViewController id="xic-NJ-ieD" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <connections>
+                        <segue destination="h9v-qo-4H2" kind="relationship" relationship="masterViewController" id="aNS-m2-KYU"/>
+                        <segue destination="cP5-4t-XCZ" kind="relationship" relationship="detailViewController" id="ogt-kI-BjM"/>
+                    </connections>
+                </splitViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6Me-I7-G9U" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-783" y="-476"/>
+        </scene>
+        <!--Just Posted Flickr PhotosTVC - Shutterbug-->
+        <scene sceneID="dts-Db-NOG">
+            <objects>
+                <tableViewController id="FW4-SS-con" customClass="JustPostedFlickrPhotosTVC" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Wf8-A8-oSI">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Flickr Photo Cell" textLabel="uM9-Qi-Agh" detailTextLabel="YIV-9F-vjV" style="IBUITableViewCellStyleSubtitle" id="O1B-OF-EPF">
+                                <rect key="frame" x="0.0" y="86" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="O1B-OF-EPF" id="rfa-Dh-dS4">
+                                    <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="uM9-Qi-Agh">
+                                            <rect key="frame" x="15" y="3" width="34" height="22"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="YIV-9F-vjV">
+                                            <rect key="frame" x="15" y="25" width="43" height="15"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="FW4-SS-con" id="cQo-zp-Avt"/>
+                            <outlet property="delegate" destination="FW4-SS-con" id="IvR-V9-REw"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Shutterbug" id="VJ3-AR-x0f"/>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="d79-3m-KhS">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <connections>
+                            <action selector="fetchPhotos" destination="FW4-SS-con" eventType="valueChanged" id="bkE-Y6-w82"/>
+                        </connections>
+                    </refreshControl>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Nny-qq-RSw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="770" y="-866"/>
+        </scene>
+        <!--Image View Controller-->
+        <scene sceneID="xNs-CX-6Qt">
+            <objects>
+                <viewController id="FYG-eO-HyV" customClass="ImageViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="z3B-rg-0Va"/>
+                        <viewControllerLayoutGuide type="bottom" id="eFe-1u-ysz"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="juL-h7-vAV">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Su3-Oo-9j3">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="cED-eN-RqG">
+                                        <rect key="frame" x="366" y="494" width="37" height="37"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Su3-Oo-9j3" firstAttribute="top" secondItem="juL-h7-vAV" secondAttribute="top" id="1R7-6u-of4"/>
+                            <constraint firstAttribute="bottom" secondItem="Su3-Oo-9j3" secondAttribute="bottom" id="3Zb-Fm-Y3c"/>
+                            <constraint firstAttribute="trailing" secondItem="Su3-Oo-9j3" secondAttribute="trailing" id="IGw-DZ-2KN"/>
+                            <constraint firstItem="Su3-Oo-9j3" firstAttribute="leading" secondItem="juL-h7-vAV" secondAttribute="leading" id="vG3-An-YR3"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="sS3-68-HGO"/>
+                    <connections>
+                        <outlet property="scrollView" destination="Su3-Oo-9j3" id="9Tj-7l-zau"/>
+                        <outlet property="spinner" destination="cED-eN-RqG" id="4YY-qc-9jh"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="cnj-f4-A4a" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1306" y="105"/>
+        </scene>
+        <!--Navigation Controller - Shutterbug-->
+        <scene sceneID="Pk7-ea-7tV">
+            <objects>
+                <navigationController title="Shutterbug" automaticallyAdjustsScrollViewInsets="NO" id="h9v-qo-4H2" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="CcW-qH-5rz">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="FW4-SS-con" kind="relationship" relationship="rootViewController" id="XZG-G7-jYU"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Saa-bK-4dp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="332" y="-866"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="wMi-Gh-bbS">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="cP5-4t-XCZ" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="mPU-ho-rIY">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="FYG-eO-HyV" kind="relationship" relationship="rootViewController" id="Q6i-Q0-u1W"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6qd-YL-xsu" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="332" y="105"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackOpaque"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination"/>
+    </simulatedMetricsContainer>
+</document>
