@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-04 03:59:59 +0000"/><meta name="latitude" content="37.4523854259327"/><meta name="longitude" content="-122.1550426123773"/><meta name="updated" content="2014-03-05 00:16:06 +0000"/><title>Lecture 12: Documents and Core Data</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Core Data</b>
+<div><b><br/></b></div>
+<div>Object-oriented database to store large amounts of data, or query it in a sophisticated manner.</div>
+<div><br/></div>
+<div>Way of creating an object graph backed by a database. Usually backed by SQL, but can also do XML or just in memory.</div>
+<div><br/></div>
+<div>How does it work?</div>
+<div>Create a visual mapping using Xcode tool between database and objects.</div>
+<div>Create and query for objects using object-oriented API.</div>
+<div>Access the "columns in the database table" using <span style="color: rgb(187, 44, 162);"><font face="Andale Mono">@interface</font></span>s on those objects.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Using Core Data</b></div>
+<div><br/></div>
+<div><u>Creating</u></div>
+<div><br/></div>
+<div>File -&gt; New file -&gt; Core Data -&gt; Data Model</div>
+<div><br/></div>
+<div>Naming convention: Model, NameOfApplication, (for multiple files) NamesThatCorrespondWithPurpose</div>
+<div><br/></div>
+<div><u>Components</u></div>
+<div><br/></div>
+<div>Entities &lt;=&gt; tables</div>
+<div>Attributes &lt;=&gt; properties on objects</div>
+<div>Relationships &lt;=&gt; joins: pointers to other properties in database</div>
+<div>Fetch properties &lt;=&gt; calculated way to have pointers to other properties</div>
+<div><br/></div>
+<div><u>Example</u></div>
+<div><u><br/></u></div>
+<div>Shutterbug application: Photos and Photographers</div>
+<div><br/></div>
+<div>Entities: Photo, Photographer</div>
+<div>Photo Attributes: title (String), photoURL (String), subtitle (String), thumbnailData (Binary Data), thumbnailURL (String), uploadDate (Date)</div>
+<div>Photographer: name (String)</div>
+<div>Relationships: whoTook (Photo) &lt;&lt;-&gt; photos (Photographer)</div>
+<div><br/></div>
+<div>Must set a Type. All properties will be objects of some sort: <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">NSString</font></span> if they're strings, <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span> if they're numbers</div>
+<div>Can even store big data blobs (e.g. images); you can have an optional switch that tells it to store it in a separate file.</div>
+<div><br/></div>
+<div>Editor Style: show the same thing, except in a graphical format.</div>
+<div>Can create Entities + Attributes directly from there; to edit Attributes you can adjust settings in the Attribute Inspector.</div>
+<div>Can create relationships by control-dragging.</div>
+<div><br/></div>
+<div><u>Relationships</u></div>
+<div><br/></div>
+<div>Relationships can have different names on each side. Type on each side can be To One or To Many.</div>
+<div>A To Many will be a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSet</span>. A To One is a <font color="#703DAA" face="Andale Mono">NSManagedObject</font><font face="Andale Mono">*</font> (the superclass for all objects the database).</div>
+<div>Delete Rule: what to do to the other side of the relationship when this side is deleted. Nullify means set the other side to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>; Cascade means delete every object it points to.</div>
+<div><br/></div>
+<div><u>Accessing data</u></div>
+<div><br/></div>
+<div>How do you access all of this in the code? Get a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span> by:</div>
+<div><br/></div>
+<div>1. Create a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> and ask for its <font face="Andale Mono">managedObjectContext</font> (a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>)</div>
+<div><br/></div>
+<div>2. Click the "Use Core Data" button when you create a project (only works with certain templates); then your <span style="font-family: 'Andale Mono';">AppDelegate</span> will have a <font face="Andale Mono">managedObjectContext</font> <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>. The Master-Detail template supports this.</div>
+<div><br/></div>
+<div>
+<hr/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UIManagedDocument</u></span><br/></div>
+<div><br/></div>
+<div>Inherits from <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIDocument</span> which provides a lot of mechanisms for the management of storage. Think of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> as simply a container for your Core Data database.</div>
+<div><br/></div>
+<div>You usually just create a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> and grab its <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span>.</div>
+<div><br/></div>
+<div><u>Creating a document</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSFileManager</span> *fileManager = [<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>];<br/>
+<span style="color: rgb(112, 61, 170);">NSURL</span> *documentsDirectory = [[fileManager <span style="color: rgb(61, 29, 129);">URLsForDirectory</span>:<span style="color: rgb(61, 29, 129);">NSDocumentDirectory</span> <span style="color: rgb(61, 29, 129);">inDomains</span>:<span style="color: rgb(61, 29, 129);">NSUserDomainMask</span>] <span style="color: rgb(61, 29, 129);">firstObject</span>];<br/>
+<span style="color: rgb(112, 61, 170);">NSString</span> *documentName = <span style="color: rgb(209, 47, 27);">@"MyDocument"</span>;<br/>
+<span style="color: rgb(112, 61, 170);">NSURL</span> *url = [documentsDirectory <span style="color: rgb(61, 29, 129);">URLByAppendingPathComponent</span>:documentName];<br/>
+<span style="color: rgb(112, 61, 170);">UIManagedDocument</span> *document = [[<span style="color: rgb(112, 61, 170);">UIManagedDocument</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFileURL</span>:url];</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div>This creates the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> instance, but does not open nor create the underlying file.</div>
+<div><br/></div>
+<div>We check if the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span>'s underlying file exists on disk:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">BOOL</span> fileExists = [[<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>] <span style="color: rgb(61, 29, 129);">fileExistsAtPath</span>:[url <span style="color: rgb(61, 29, 129);">path</span>]];</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>If it does exist, open the document:<font face="Andale Mono"><br/>
+[document <span style="color: rgb(61, 29, 129);">openWithCompletionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success){<br/>
+    <span style="color: rgb(0, 132, 0);">/* block to execute when open */</span><br/>
+}];<br/>
+<br/></font></div>
+<div>Otherwise, create the document:<font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">[document <span style="color: rgb(61, 29, 129);">saveToURL</span>:url </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// could (should) use document.fileURL property</span><font face="Andale Mono"><br/>
+   <span style="color: rgb(61, 29, 129);">forSaveOperation</span>:<span style="color: rgb(61, 29, 129);">UIDocumentSaveForCreating</span><br/>
+  <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success) {<br/>
+      <span style="color: rgb(0, 132, 0);">/* block to execute when create is done */</span><br/>
+  }];</font><br/></div>
+<div><br/></div>
+<div>Why do they have a <span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">completionHandler</span>? Because they are asynchronous (might take a bit of time; happens on its own queue). Gets called back on the main queue when it's done.</div>
+<div><br/></div>
+<div>Example:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">document</span> = [[<span style="color: rgb(112, 61, 170);">UIManagedDocument</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFileURL</span>:(<span style="color: rgb(112, 61, 170);">NSURL</span> *)url];<br/>
+<span style="color: rgb(187, 44, 162);">if</span> ([[<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>] <span style="color: rgb(61, 29, 129);">fileExistsAtPath</span>:[url <span style="color: rgb(61, 29, 129);">path</span>]]) {<br/>
+    [document <span style="color: rgb(61, 29, 129);">openWithCompletionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (success) [<span style="color: rgb(187, 44, 162);">self</span> documentIsReady];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (!success) <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"couldn't open document at %@"</span>, url);<br/>
+    }];<br/>
+} <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+    [document <span style="color: rgb(61, 29, 129);">saveToURL</span>:url <span style="color: rgb(61, 29, 129);">forSaveOperation</span>:<span style="color: rgb(61, 29, 129);">UIDocumentSaveForCreating</span> <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (success) [<span style="color: rgb(187, 44, 162);">self</span> documentIsReady];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (!success) <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"couldn't create document at %@"</span>, url);<br/>
+    }];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Once document is open/created, you can start using it -- but might want to check the <span style="font-family: 'Andale Mono';">documentState</span> when you do...</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)documentIsReady<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.document.documentState == UIDocumentStateNormal) {</font> <font face="Andale Mono"><br/>
+        <span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">document</span>.<span style="color: rgb(112, 61, 170);">managedObjectContext</span>;<br/>
+        <span style="color: rgb(0, 132, 0);">// start doing Core Data stuff with context</span><br/>
+    }<br/>
+}</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Other <span style="font-family: 'Andale Mono';">documentState</span>s:</div>
+<div><span style="font-family: 'Andale Mono';">UIDocumentStateClosed</span>: you haven't done the open or create yet</div>
+<div><span style="font-family: 'Andale Mono';">UIDocumentStateSavingError</span>: <span style="font-family: 'Andale Mono';">success</span> will be <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NO</span> in completion handler</div>
+<div><span style="font-family: 'Andale Mono';">UIDocumentStateEditingDisabled</span>: temporary situation, try again</div>
+<div><span style="font-family: 'Andale Mono';">UIDocumentStateInConflict</span>: e.g. some other device changed it via iCloud</div>
+<div><br/></div>
+<div><u>Saving the document</u></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span>s autosave themselves!</div>
+<div><br/></div>
+<div>However, to manually save (asynchronously):</div>
+<div><font face="Andale Mono">[<span style="color: rgb(79, 129, 135);">document</span> <span style="color: rgb(61, 29, 129);">saveToURL</span>:<span style="color: rgb(79, 129, 135);">document</span>.<span style="color: rgb(112, 61, 170);">fileURL</span> <span style="color: rgb(61, 29, 129);">forSaveOperation</span>:<span style="color: rgb(61, 29, 129);">UIDocumentSaveForOverwriting</span> <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success) {<br/>
+    <span style="color: rgb(0, 132, 0);">/* block to execute when save is done */</span></font><font face="Andale Mono"><br/>
+}];</font><br/></div>
+<div><br/></div>
+<div>This is a UIKit class and so this method must be called on the main queue.</div>
+<div><br/></div>
+<div><u>Closing the document</u></div>
+<div><br/></div>
+<div>Will automatically close when there's no more <font color="#BB2CA2" face="Andale Mono">strong</font> pointers to it.</div>
+<div><br/></div>
+<div>Can explicitly close (asynchronously):</div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">document</span> <span style="color: rgb(61, 29, 129);">closeWithCompletionHandler</span>:^(<span style="color: rgb(187, 44, 162);">BOOL</span> success) {<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!success) <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"failed to close document %@"</span>, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">document</span>.<span style="color: rgb(112, 61, 170);">localizedName</span>);<br/>
+}];<br/></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div>What's <span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">document</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">localizedName</span>?</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(112, 61, 170);">NSString</span> *localizedName; <span style="color: rgb(0, 132, 0);">// suitable for UI (but only valid once saved)</span><br/></font></div>
+<div><br/></div>
+<div>It auto-saves before closing.</div>
+<div><br/></div>
+<div>When you're in development mode, you might want to throw in some explicit saves if you're going to be hitting Stop in the Debugger all the time.</div>
+<div><br/></div>
+<div><u>Multiple instances of </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UIManagedDocument</u></span><u> on the same document</u></div>
+<div><u><br/></u></div>
+<div>This is perfectly legal, but understand they won't share an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span>. Changes in one will not be automatically be reflected in the other!</div>
+<div><br/></div>
+<div>Conflicting changes in two different <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span>s need to be resolved by you -- you have to refetch in other <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span>s after you make a change in one.</div>
+<div><br/></div>
+<div>Why would you want to do this? It's exceedingly rare to have two "writing" instances (watch out for conflicts if this is indeed the case), but a single writer + multiple readers is less rare. Just know when to refetch: you can watch (via "radio station") other documents' <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">managedObjectContext</span>s then refetch, or you can use a single <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> instance per actual document throughout.</div>
+<div><br/></div>
+<div>How would you watch a document's <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">managedObjectContext</span>?</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidAppear</span>:animated];<br/>
+    [center addObserver:<span style="color: rgb(187, 44, 162);">self</span><br/>
+               selector:<span style="color: rgb(187, 44, 162);">@selector</span>(contextChanged:)<br/>
+                   name:NSManagedObjectContextDidSaveNotification<br/>
+                 object:document.managedObjectContext];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillDisappear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [center removeObserver:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                      name:NSManagedObjectContextDidSaveNotification<br/>
+                    object:document.managedObjectContext];<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillDisappear</span>:animated];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">contextChanged:</span> method:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)contextChanged:(<span style="color: rgb(112, 61, 170);">NSNotification</span> *)notification<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// notification.userInfo object is an NSDictionary with the following keys:</span><br/>
+    NSInsertedObjectsKey <span style="color: rgb(0, 132, 0);">// an array of objects which were inserted</span><br/>
+    NSUpdatedObjectsKey  <span style="color: rgb(0, 132, 0);">// an array of objects whose attributes changed</span><br/>
+    NSDeletedObjectsKey  <span style="color: rgb(0, 132, 0);">// an array of objects which were deleted</span></font><font face="Andale Mono"><br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Merging changes: can either refetch or use the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span> method</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mergeChangesFromContextDidSaveNotification:(<span style="color: rgb(112, 61, 170);">NSNotification</span> *)notification;</font><br/></div>
+<div><br/></div>
+<div><u>Inserting objects</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = aDocument.</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">managedObjectContext</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSManagedObject</span> *photo = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSEntityDescription</span><span style="font-family: 'Andale Mono';"> insertNewObjectForEntityName:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Photo"</span></div>
+<div><font face="Andale Mono">                                                    inManagedObjectContext:context];</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div>This <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSEntityDescription</span> class method returns an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span> instance. All objects in the database are represented by <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span>s or subclasses thereof.</div>
+<div><br/></div>
+<div>Attributes of a newly-inserted object will start out <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> (unless you specify a default in Xcode)</div>
+<div><br/></div>
+<div><u>Accessing attributes with <span style="font-family: 'Andale Mono';">valueForKey:</span>/<span style="font-family: 'Andale Mono';">setValue:forKey:</span></u></div>
+<div><u><br/></u></div>
+<div>Use the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSKeyValueCoding</span> methods:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">id</span>)valueForKey:(<span style="color: rgb(112, 61, 170);">NSString</span> *)key;<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setValue:(<span style="color: rgb(187, 44, 162);">id</span>)value forKey:(<span style="color: rgb(112, 61, 170);">NSString</span> *)key;</font><br/></div>
+<div>Can also use <span style="font-family: 'Andale Mono';">valueForKeyPath:</span>/<span style="font-family: 'Andale Mono';">setValue:forKeyPath:</span>.<br/></div>
+<div><br/></div>
+<div>It will follow your relationships -- for example, if you set <span style="font-family: 'Andale Mono';">photo.whoTook</span>, then it will automatically update <span style="font-family: 'Andale Mono';">photographer.photos</span>! You do not have to set both sides of a relationship. Core Data maintains internal consistency.</div>
+<div><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">key</span> is a string, an Attribute name in your data mapping, e.g. <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"thumbnailURL"</span> or <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"title"</span>.</div>
+<div><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">value</span> is whatever is stored (or to be stored) in the database.</div>
+<div>Will be <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> if nothing has been stored yet (unless the Attribute has a default value in Xcode).</div>
+<div>All values are objects (numbers are booleans are both <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span> objects)</div>
+<div>Binary data values are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSData</span> objects.</div>
+<div>Date values are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDate</span> objects.</div>
+<div>"To-many" mapped relationships are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSet</span> objects (or <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOrderedSet</span> if ordered)</div>
+<div>Non-"to-many" relationships are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span>s.</div>
+<div><br/></div>
+<div>All of these changes are only happening in memory, until you save.</div>
+<div>Remember that <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIManagedDocument</span> autosaves.</div>
+<div>When the document is saved, the context is saved and your changes get written to the database.</div>
+<div>At that point, <span style="font-family: 'Andale Mono';">UIManagedDocumentDidSaveNotification</span> will be broadcast.</div>
+<div><br/>
+Core Data also has an incredible undo/redo (read about this yourself).<br/></div>
+<div><br/></div>
+<div>During development, be careful when you press "Stop" in Xcode -- sometimes autosave is pending.</div>
+<div><br/></div>
+<div><u>Generating subclasses of </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>NSManagedObject</u></span></div>
+<div><br/></div>
+<div>Calling <span style="font-family: 'Andale Mono';">valueForKey:</span>/<span style="font-family: 'Andale Mono';">setValue:forKey:</span> is pretty ugly -- there's no type-checking and you have a lot of literal strings in your code (<span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"thumbnailURL"</span>). What we really want to do is to set/get using <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s.</div>
+<div><br/></div>
+<div>We do this by creating a subclass of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span>, which will have <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s for each attribute in the database.</div>
+<div>Name the subclass the same as the Entity it matches.</div>
+<div><br/></div>
+<div>We can get Xcode to generate both the header file <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> entries and the corresponding implementation code!</div>
+<div>Select the Entities, then do Editor -&gt; Create NSManagedObject Subclass...</div>
+<div>Choose the Model and the Entities, select a location to store them, and done!</div>
+<div><br/></div>
+<div>Now when you insert an object into the database and it's returned, instead of being a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*</span>, it is now a <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photo</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">*</span>. Even the Relationships will be of the right class -- if they aren't, just generate again.</div>
+<div><br/></div>
+<div>Whenever you change your schema/add more properties, just keep on regenerating.</div>
+<div><br/></div>
+<div>If all you want to do is to declare something is a certain type, you can do</div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@class</span> <span style="font-family: 'Andale Mono';"><font color="#4F8187">Photo</font></span><span style="font-family: 'Andale Mono';">;</span><br/></div>
+<div><br/></div>
+<div>If something has a one-to-many relationship (e.g. <span style="font-family: 'Andale Mono';"><font color="#4F8187">Photographer</font></span><span style="font-family: 'Andale Mono';">.photos</span>) you'll also get a bunch of methods for adding/removing from that set ({<span style="font-family: 'Andale Mono';">add,remove}PhotosObject:</span>, <span style="font-family: 'Andale Mono';">{add,remove}Photos:</span>) as the relationship is an immutable <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSet</span>.</div>
+<div><br/></div>
+<div>What do the implementations look like? They just say <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@dynamic</span> for all the properties -- meaning "I know what I'm doing; don't generate a warning for this". <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span> actually <i>traps</i> any message sent to it, and by default tries to do <span style="font-family: 'Andale Mono';">valueForKey:</span>/<span style="font-family: 'Andale Mono';">setValue:forKey:</span>. Only if those fail does it return an error "does not understand selector".</div>
+<div><br/></div>
+<div><u>Accessing attributes with dot notation</u></div>
+<div><br/></div>
+<div>Create an instance of the <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photo</span> Entity in the database:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = document.<span style="color: rgb(112, 61, 170);">managedObjectContext</span>;<br/>
+<span style="color: rgb(79, 129, 135);">Photo</span> *photo = [NSEntityDescription insertNewObjectForEntityForName:<span style="color: rgb(209, 47, 27);">@"Photo"</span><br/>
+                                             inManagedObjectContext:context];</font><br/></div>
+<div><br/></div>
+<div>Set the attributes in our <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photo</span>:</div>
+<div><font face="Andale Mono">photo.title = [flickrData objectForKey:<span style="color: rgb(120, 73, 42);">FLICKR_PHOTO_TITLE</span>];</font><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSString</span> *myThumbnail = photo.thumbnailURL;<br/>
+photo.lastViewedDate = [NSDate date];<br/>
+photo.whoTook = ...; <span style="color: rgb(0, 132, 0);">// a Photographer object we created or got by querying</span><br/>
+photo.whoTook.name = <span style="color: rgb(209, 47, 27);">@"Charles"</span>; <span style="color: rgb(0, 132, 0);">// multiple dots will follow relationships!</span><br/></font></div>
+<div><br/></div>
+<div>The information will automatically be saved into our document by Core Data.</div>
+<div><br/></div>
+<div><u>Adding code to </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>NSManagedObject</u></span><u> subclasses</u></div>
+<div><u><br/></u></div>
+<div>What if we wanted to add a class method or two to the <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s added by Xcode, or to derive new <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s based on ones in the database (e.g. a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImage</span> based on a URL in the database)?</div>
+<div><br/></div>
+<div>If you change your <span style="font-family: 'Andale Mono';">Photo.m</span> or <span style="font-family: 'Andale Mono';">Photographer.m</span>, it'll be rewritten the next time you regenerate!</div>
+<div><br/></div>
+<div>We get around this using an Objective-C feature called "categories" -- syntax for adding to a class without subclassing it, or even having to have access to the code of the class.</div>
+<div><br/></div>
+<div>Examples:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span>'s <span style="font-family: 'Andale Mono';">drawAtPoint:</span> method is added by UIKit (since it's an UI method) even though <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSAttributedString</span> is in Foundation.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSIndexPath</span>'s <span style="font-family: 'Andale Mono';">row</span> and <span style="font-family: 'Andale Mono';">section</span> properties (used in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>-related code) are added by UIKit too, even though <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSIndexPath</span> is also in Foundation.</div>
+<div><br/></div>
+<div>Syntax:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@interface</span> Photo (AddOn)<br/>
+- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)image;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <span style="color: rgb(187, 44, 162);">BOOL</span> isOld;<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>Implementation:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@implementation</span> Photo (AddOn)<br/>
+- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)image <span style="color: rgb(0, 132, 0);">// image is not an attribute, but photoURL is</span><br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSData</span> *imageData = [NSData dataWithContentsOfURL:<span style="color: rgb(187, 44, 162);">self</span>.photoURL];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageWithData</span>:imageData];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">BOOL</span>)isOld <span style="color: rgb(0, 132, 0);">// whether this Photo was uploaded more than a day ago</span><br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [<span style="color: rgb(187, 44, 162);">self</span>.uploadDate timeIntervalSinceNow] &gt; -<span style="color: rgb(39, 42, 216);">24</span>*<span style="color: rgb(39, 42, 216);">60</span>*<span style="color: rgb(39, 42, 216);">60</span>;<br/>
+}<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>Categories have their own <span style="font-family: 'Andale Mono';">.h</span> and <span style="font-family: 'Andale Mono';">.m</span> files (usually <span style="font-family: 'Andale Mono';">ClassName+PurposeOfExtension.[mh]</span>)</div>
+<div>Categories cannot have instance variables.</div>
+<div><br/></div>
+<div>Other examples:</div>
+<div>Adding <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s to an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span> subclass to make accessing <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span> attributes more cleanly.</div>
+<div>Adding <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>s to convert <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSData</span>s to whatever the bits represent.</div>
+<div><br/></div>
+<div>Any class can have a category added to it! Just don't overuse/abuse this mechanism.</div>
+<div><br/></div>
+<div>Can you overwrite a method that already exists? Don't do it.</div>
+<div><br/></div>
+<div>Just import the header file wherever you want to use it, and you're good.</div>
+<div><br/></div>
+<div>Creation is the most common category:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@implementation</span> Photo (Create)<br/>
++ (<span style="color: rgb(79, 129, 135);">Photo</span> *)photoWithFlickrData:(<span style="color: rgb(112, 61, 170);">NSDictionary</span> *)flickrData<br/>
+        inManagedObjectContext:(<span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *)context<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">Photo</span> *photo = ...; <span style="color: rgb(0, 132, 0);">// see if a Photo for that Flickr data is already in the database</span><br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!photo) {<br/>
+        photo = [NSEntityDescription insertNewObjectForEntityForName:<span style="color: rgb(209, 47, 27);">@"Photo"</span><br/>
+                                              inManagedObjectContext:context];<br/>
+        <span style="color: rgb(0, 132, 0);">// initialize the photo from the Flickr data</span><br/>
+        <span style="color: rgb(0, 132, 0);">// perhaps even create other database objects (like the Photographer)</span><br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> photo;<br/>
+}<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div>Creating categories:</div>
+<div>File -&gt; New File -&gt; Cocoa Touch -&gt; Objective-C category</div>
+<div>Name the Category and set the Category on...</div>
+<div>Will create your <span style="font-family: 'Andale Mono';">ClassName+CategoryName.[mh]</span></div>
+<div><br/></div>
+<div>You can also just make your own files and it'll know it's a category by the syntax.</div>
+<div><br/></div>
+<div><u>Deleting objects</u></div>
+<div><u><br/></u></div>
+<div>Really easy:</div>
+<div><font face="Andale Mono">[aDocument.managedObjectContext deleteObject:photo];</font><br/></div>
+<div><br/></div>
+<div>Make sure that the rest of your objects in the database are in a sensible state after this. </div>
+<div>Relationships will be updated for you (if you set Delete Rule for relationship attributes properly).</div>
+<div>Don't keep any <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span> pointers to <span style="font-family: 'Andale Mono';">photo</span> after you delete it (set to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>)!</div>
+<div><br/></div>
+<div>You can put a <span style="font-family: 'Andale Mono';">prepareForDeletion</span> method in a category of a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span> subclass:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@implementation</span> Photo (Deletion)<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForDeletion<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// we don't need to set our whoTook to nil or anything here</span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">    // (that will happen automatically)</span><br/>
+    <span style="color: rgb(0, 132, 0);">// but if Photographer had, for example, a "number of photos taken" attribute,</span><br/>
+    <span style="color: rgb(0, 132, 0);">// we might adjust it down by one here (e.g. self.whoTook.photoCount--)</span><br/>
+}<br/>
+<span style="color: rgb(187, 44, 162);">@end</span></font><br/></div>
+<div><br/></div>
+<div><u>Querying objects</u></div>
+<div><u><br/></u></div>
+<div>Use a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span>.</div>
+<div><br/></div>
+<div>Need four things:</div>
+<div>1. Entity to fetch (required) -- everything returned must be of the same Entity, e.g. <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photo</span></div>
+<div>2. How many objects to fetch at a time and/or maximum to fetch (optional, default: all). For a table view, you might only need a really small batch size.</div>
+<div>3. <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSortDescriptor</span>s to specify the order in which the array of fetched objects are returned</div>
+<div>4. <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</span> specifying which of those Entities to fetch (optional, default: all)</div>
+<div><br/></div>
+<div>Creating a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span>:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><font face="Andale Mono"> *request = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> fetchRequestWithEntityName:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Photo"</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><font face="Andale Mono">request.fetchBatchSize = <span style="color: rgb(39, 42, 216);">20</span>;<br/>
+request.fetchLimit = <span style="color: rgb(39, 42, 216);">100</span>;<br/>
+request.sortDescriptors = <span style="color: rgb(39, 42, 216);">@[</span>sortDescriptor<span style="color: rgb(39, 42, 216);">]</span>;<br/>
+request.predicate = ...;</font><br/></div>
+<div>Will fetch 20 at a time and stop fetching after it had fetched 100.<br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>NSSortDescriptor</u></span></div>
+<div><br/></div>
+<div>Describes what to sort by.<br/></div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSSortDescriptor</span> *sortDescriptor = [<span style="color: rgb(112, 61, 170);">NSSortDescriptor</span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(61, 29, 129);">    sortDescriptorWithKey</span>:<span style="color: rgb(209, 47, 27);">@"title"</span><br/>
+                <span style="color: rgb(61, 29, 129);">ascending</span>:<span style="color: rgb(187, 44, 162);">YES</span></font></div>
+<div><span style="font-family: 'Andale Mono';"><font color="#BB2CA2">                 </font></span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">selector</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@selector</span><span style="font-family: 'Andale Mono';">(localizedStandardCompare:)];</span></div>
+<div><br/></div>
+<div><span style="color: rgb(61, 29, 129); font-family: 'Andale Mono';">selector</span><span style="font-family: 'Andale Mono';">:</span> is a "method" (conceptually) sent to each object to compare it to others.</div>
+<div>Some of these methods might be smart, e.g. they can happen on the database side.</div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">localizedStandardCompare:</span> is for ordering strings like the Finder on the Mac does (very common).</div>
+<div><span style="font-family: 'Andale Mono';">compare:</span> works for some non-string things like dates.<br/></div>
+<div><br/></div>
+<div>Why is <span style="font-family: 'Andale Mono';">request.sortDescriptors</span> an array? So you can sort first using one key, then, within that sort, by another (e.g. last name, first name)</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</u><br/></div>
+<div><br/></div>
+<div>Looks like creating an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span>, but the contents have semantic meaning.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSString</span> *serverName = <span style="color: rgb(209, 47, 27);">@"flickr-5"</span>;<br/>
+<span style="color: rgb(112, 61, 170);">NSPredicate</span> *predicate = [<span style="color: rgb(112, 61, 170);">NSPredicate</span> <span style="color: rgb(61, 29, 129);">predicateWithFormat</span>:<span style="color: rgb(209, 47, 27);">@"thumbnailURL contains %@"</span>, serverName];</font><br/></div>
+<div><br/></div>
+<div>Other examples:</div>
+<div><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">@"uniqueId = %@"</span>, [flickrInfo objectForKey:<span style="color: rgb(209, 47, 27);">@"id"</span>] <span style="color: rgb(0, 132, 0);">// unique photo in database</span><br/>
+<span style="color: rgb(209, 47, 27);">@"name contains[c] %@"</span>, (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// matches name case insensitively</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">@"viewed &gt; %@"</span>, (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDate</span><span style="font-family: 'Andale Mono';"> *)</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// viewed is a Date attribute</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">@"whoTook.name = %@"</span>, (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// photo search by photog's name</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">@"any photos.title contains %@"</span>, (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><font face="Andale Mono"> *) </font><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// photog search by photo</span></div>
+<div><br/></div>
+<div>Core Data is very efficient, though certain queries are faster than others that accomplish the same goals.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSCompoundPredicate</u><br/></div>
+<div><br/></div>
+<div>Can use AND and OR inside a predicate string, e.g.</div>
+<div><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"(name = %@) OR </span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">(title = %@)</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">"</span></div>
+<div><br/></div>
+<div>Can combine <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</span> objects into <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSCompoundPredicate</span>:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSArray</span><span style="font-family: 'Andale Mono';"> *array</span><span style="font-family: 'Andale Mono';"> = </span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">@[</span><span style="font-family: 'Andale Mono';">predicate1, predicate2</span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">]</span><span style="font-family: 'Andale Mono';">;</span><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</span><span style="font-family: 'Andale Mono';"> *predicate</span><span style="font-family: 'Andale Mono';"> = [</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSCompoundPredicate</span><span style="font-family: 'Andale Mono';"> andPredicateWithSubpredicates:array];</span></div>
+<div><br/></div>
+<div>This will become "<span style="font-family: 'Andale Mono';">predicate1</span> AND <span style="font-family: 'Andale Mono';">predicate2</span>". Can also use OR.</div>
+<div><br/></div>
+<div><u>Key Value Coding</u></div>
+<div><u><br/></u></div>
+<div>Can do predicates like <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"photos.@count &gt; 5</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">"</span> (photographers with more than 5 photos). <span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@count</span> is a function executed in the database itself and works as long as the thing to the left is a set.</div>
+<div><br/></div>
+<div>All this stuff works on dictionaries, arrays, and sets too:</div>
+<div><font face="Andale Mono">[propertyListResults valueForKeyPath:</font><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"photos.photo.@avg.latitude"</span><span style="font-family: 'Andale Mono';">]</span></div>
+<div>returns the average latitude of all of the photos in the results</div>
+<div><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"photos.photo.title.length"</span> would return an array of the lengths of the titles of the photos.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSExpression</u><br/></div>
+<div><br/></div>
+<div>Can do sophisticated data gathering from the database to get an array of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span>s.</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSFetchRequest</span> *request = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> fetchRequestWithEntityName:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"..."</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><font face="Andale Mono">[request setResultType:NSDictionaryRequestType];<br/>
+[request setPropertiesToFetch:<span style="color: rgb(39, 42, 216);">@[</span><span style="color: rgb(209, 47, 27);">@"name"</span>, expression, etc<span style="color: rgb(39, 42, 216);">]</span>];</font><br/></div>
+<div><br/></div>
+<div><u>Querying</u></div>
+<div><u><br/></u></div>
+<div>Query for all <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photographer</span>s:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><font face="Andale Mono"> *request = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> fetchRequestWithEntityName:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Photographer"</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><br/></div>
+<div>... who have taken a photo in the last 24 hours ...<font face="Andale Mono"><span style="color: rgb(112, 61, 170);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSDate</span> *yesterday = [<span style="color: rgb(112, 61, 170);">NSDate</span> <span style="color: rgb(61, 29, 129);">dateWithTimeIntervalSinceNow</span>:-<span style="color: rgb(39, 42, 216);">24</span>*<span style="color: rgb(39, 42, 216);">60</span>*<span style="color: rgb(39, 42, 216);">60</span>];<br/>
+request.predicate = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</span><span style="font-family: 'Andale Mono';"> predicateWithFormat:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"any photos.uploadDate &gt; %@"</span><span style="font-family: 'Andale Mono';">, yesterday];</span></div>
+<div><br/></div>
+<div>... sorted by the <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photographer</span>'s name ...</div>
+<div><font face="Andale Mono">request.sortDescriptors = <span style="color: rgb(39, 42, 216);">@[</span>[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSortDescriptor</span><span style="font-family: 'Andale Mono';"> sortDescriptorWithKey:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"name"</span> <span style="font-family: 'Andale Mono';">ascending:</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">YES</span><span style="font-family: 'Andale Mono';">]</span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">]</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><br/></div>
+<div>Executing the fetch:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = aDocument.managedObjectContext;<br/>
+<span style="color: rgb(112, 61, 170);">NSError</span> *error;<br/>
+<span style="color: rgb(112, 61, 170);">NSArray</span> *photographers = [context executeFetchRequest:request error:&amp;error];</font><br/></div>
+<div><br/></div>
+<div>Returns <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> if there is an error (check the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span> for details). If you don't care why it fails you can pass <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NULL</span> for <span style="font-family: 'Andale Mono';">error</span>.</div>
+<div>Returns an empty array if there are no matches.</div>
+<div>Returns an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span> of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span>s (or subclasses thereof) if there were any matches.</div>
+<div><br/></div>
+<div>The above fetch does not necessary fetch any actual data -- could be an array of "as yet unfaulted" objects, waiting for you to access their attributes.</div>
+<div>If you did ...</div>
+<div><span style="font-family: Menlo; color: rgb(187, 44, 162);">for</span><span style="font-family: Menlo;"> (Photographer *photographer </span><span style="font-family: Menlo; color: rgb(187, 44, 162);">in</span><span style="font-family: Menlo;"> photographers) {<br/>
+    NSLog(</span><span style="font-family: Menlo; color: rgb(209, 47, 27);">@"fetched photographer %@"</span><span style="font-family: Menlo;">, photographer);<br/>
+}</span><br/></div>
+<div>... you might not see the names of the photographers in the output (just "unfaulted object"). If you do this instead ...</div>
+<div><span style="font-family: Menlo; color: rgb(187, 44, 162);">for</span><span style="font-family: Menlo;"> (Photographer *photographer </span><span style="font-family: Menlo; color: rgb(187, 44, 162);">in</span><span style="font-family: Menlo;"> photographers) {<br/>
+    NSLog(</span><span style="font-family: Menlo; color: rgb(209, 47, 27);">@"fetched photographer named %@"</span><span style="font-family: Menlo;">, photographer.name);<br/>
+}</span><br/></div>
+<div>... you will fault all the <span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';">Photographer</span>s in from the database as you're actually accessing the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span>'s data.</div>
+<div><br/></div>
+<div><u>Thread safety</u></div>
+<div><u><br/></u></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span> is not thread safe, but usually Core Data access is fast enough so multithreading is rarely needed. But for thread-safe access:</div>
+<div><br/></div>
+<div><font face="Andale Mono">[context performBlock:^{ <span style="color: rgb(0, 132, 0);">// or performBlockAndWait:</span><br/>
+    <span style="color: rgb(0, 132, 0);">// do stuff with context in its safe queue (where it was created)</span><br/>
+}];</font><br/></div>
+<div><br/></div>
+<div>The "safe queue" might be the main queue, so you're not necessary getting "multithreaded".</div>
+<div><br/></div>
+<div><u>Other stuff to look at</u></div>
+<div><u><br/></u></div>
+<div>Optimistic locking (<span style="font-family: 'Andale Mono';">deleteConflictsForObject:</span>)</div>
+<div>Rolling back unsaved changes</div>
+<div>Undo/Redo</div>
+<div>Staleness (how long after a fetch until a refetch is required)</div>
+</body></html>
