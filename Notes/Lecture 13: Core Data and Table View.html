@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="15.51646423339844"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-05 00:16:11 +0000"/><meta name="latitude" content="37.45217421118696"/><meta name="longitude" content="-122.1854023674508"/><meta name="updated" content="2014-03-06 07:13:00 +0000"/><title>Lecture 13: Core Data and Table View</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div><b>Core Data</b></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u><br/></u></span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>NSFetchedResultsController</u></span><br/></div>
+<div><br/></div>
+<div>Hooks an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span> up to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span>, so anything it's fetching is automatically in the table view.</div>
+<div><br/></div>
+<div>Usually will have a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsController</span> <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> in your <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span>. It will be hooked up to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span> that returns the data you want to show in your table. Then, use it to answer all your <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewDataSource</span> protocol's questions.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSUInteger</span>)numberOfSectionsInTableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [[<span style="color: rgb(187, 44, 162);">self</span>.fetchedResultsController sections] count];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSUInteger</span>)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender numberOfRowsInSection:(<span style="color: rgb(112, 61, 170);">NSUInteger</span>)section<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [[[<span style="color: rgb(187, 44, 162);">self</span>.fetchedResultsController sections] objectAtIndex:section] numberOfObjects];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Very important method... <span style="font-family: 'Andale Mono';">objectAtIndexPath:</span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObject</span><span style="font-family: 'Andale Mono';"> *)objectAtIndexPath:(</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSIndexPath</span> <span style="font-family: 'Andale Mono';">*)indexPath;</span></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Example:<font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UITableViewCell</span> *)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)sender cellForRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">UITableViewCell</span> *cell = ...;<br/>
+    <span style="color: rgb(112, 61, 170);">NSManagedObject</span> *managedObject = <span style="color: rgb(0, 132, 0);">// or, e.g. Photo *photo = (Photo *) ...</span><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.fetchedResultsController objectAtIndexPath:indexPath];<br/>
+    <span style="color: rgb(0, 132, 0);">// load up the cell based on properties of the managedObject</span><br/>
+    <span style="color: rgb(0, 132, 0);">// of course, if you had a custom subclass, you'd be using dot notation</span><br/>
+    <span style="color: rgb(187, 44, 162);">return</span> cell;<br/>
+}<br/></font></div>
+<div><br/></div>
+<div>Creating: initialize with a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span> </div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><font face="Andale Mono"> *request = [</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> fetchRequestWithEntityName:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Photo"</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><span style="font-family: 'Andale Mono';">request.sortDescriptors = </span><font face="Andale Mono"><span style="color: rgb(39, 42, 216);">@[</span></font><font face="Andale Mono">[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSortDescriptor</span><span style="font-family: 'Andale Mono';"> sortDescriptorWithKey:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"title"</span><span style="font-family: 'Andale Mono';">...]</span><span style="font-family: 'Andale Mono'; color: rgb(39, 42, 216);">]</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><span style="font-family: 'Andale Mono';">request.predicate = </span><font face="Andale Mono">[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSPredicate</span><span style="font-family: 'Andale Mono';"> predicateWithFormat:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"whoTook.name = %@"</span><span style="font-family: 'Andale Mono';">, photogName];</span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsController</span><font face="Andale Mono"> *frc = [[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsController</span><span style="font-family: 'Andale Mono';"> alloc]</span></div>
+<div><font face="Andale Mono">    initWithFetchRequest:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> *)request</span></div>
+<div><font face="Andale Mono">    managedObjectContext:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span><span style="font-family: 'Andale Mono';"> *)context</span></div>
+<div><font face="Andale Mono">      sectionNameKeyPath:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)keyThatSaysWhichSectionEachManagedObjectIsIn</span></div>
+<div><font face="Andale Mono">               cacheName:[<span style="color: rgb(209, 47, 27);">@"MyPhotoCache"</span>]];</font></div>
+<div><br/></div>
+<div>Cache is for caching on disk -- be sure that any <span style="font-family: 'Andale Mono';">cacheName</span> you use is always associated with exactly the same request. It's okay to specify <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> for the <span style="font-family: 'Andale Mono';">cacheName</span> (no caching of fetch results).<br/></div>
+<div>For section headers, give a key for <span style="font-family: 'Andale Mono';">sectionNameKeyPath</span>. The <span style="font-family: 'Andale Mono';">sortDescriptor</span> must match up with the <span style="font-family: 'Andale Mono';">keyThatSaysWhichSection...</span>. The results must sort such that all objects in the first section come first, second second, etc.</div>
+<div><br/></div>
+<div>NSFRC also "watches" changes in Core Data and auto-updates the table using a key-value observing mechanism. When it notices a change, it sends a message like this to its <span style="font-family: 'Andale Mono';">delegate</span>:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)controller:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsController</span><span style="font-family: 'Andale Mono';"> *)controller</span></div>
+<div><font face="Andale Mono">   didChangeObject:(<span style="color: rgb(187, 44, 162);">id</span>)anObject<br/>
+       atIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+     forChangeType:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsChangeType</span><span style="font-family: 'Andale Mono';">)type</span></div>
+<div><font face="Andale Mono">      newIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)newIndexPath<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// supposed to call UITableView methods to update rows</span><br/>
+    <span style="color: rgb(0, 132, 0);">// but to make it easier, use our</span><br/>
+    <span style="color: rgb(0, 132, 0);">// CoreDataTableViewController subclass!</span><br/>
+}</font><br/></div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">CoreDataTableViewController</span>: just a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span> that adds a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSFetchedResultsController</span> as a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span>. Whenever you set it, it'll immediately start using it to fill the contents of its <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span>.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>When you make a schema, be sure to pick the right Entities and Attributes to support the UI you want to build.</div>
+<div><br/></div>
+<div><u>Looking up/creating object in database</u></div>
+<div><u><br/></u></div>
+<div>Perform a request on a unique key; create object if it doesn't exist; handle error if one is returned or there is more than one match.</div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(79, 129, 135);">Photo</span> *)photoWithFlickrInfo:(<span style="color: rgb(112, 61, 170);">NSDictionary</span> *)photoDictionary<br/>
+        inManagedObjectContext:(<span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *)context<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">Photo</span> *photo = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">NSString</span> *unique = photoDictionary[<span style="color: rgb(120, 73, 42);">FLICKR_PHOTO_ID</span>];<br/>
+    <span style="color: rgb(112, 61, 170);">NSFetchRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSFetchRequest</span> <span style="color: rgb(61, 29, 129);">fetchRequestWithEntityName</span>:<span style="color: rgb(209, 47, 27);">@"Photo"</span>];<br/>
+    request.<span style="color: rgb(61, 29, 129);">predicate</span> = [<span style="color: rgb(112, 61, 170);">NSPredicate</span> <span style="color: rgb(61, 29, 129);">predicateWithFormat</span>:<span style="color: rgb(209, 47, 27);">@"unique = %@"</span>, unique];<br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">NSError</span> *error;<br/>
+    <span style="color: rgb(112, 61, 170);">NSArray</span> *matches = [context <span style="color: rgb(61, 29, 129);">executeFetchRequest</span>:request <span style="color: rgb(61, 29, 129);">error</span>:&amp;error];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!matches || error || [matches <span style="color: rgb(61, 29, 129);">count</span>] &gt; <span style="color: rgb(39, 42, 216);">1</span>) {<br/>
+        <span style="color: rgb(0, 132, 0);">// handle error</span><br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> <span style="color: rgb(187, 44, 162);">if</span> ([matches <span style="color: rgb(61, 29, 129);">count</span>]) {<br/>
+        <span style="color: rgb(0, 132, 0);">// photo found; return photo</span><br/>
+        photo = [matches <span style="color: rgb(61, 29, 129);">firstObject</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        <span style="color: rgb(0, 132, 0);">// create photo</span><br/>
+        photo = [<span style="color: rgb(112, 61, 170);">NSEntityDescription</span> <span style="color: rgb(61, 29, 129);">insertNewObjectForEntityForName</span>:<span style="color: rgb(209, 47, 27);">@"Photo"</span><br/>
+                                              <span style="color: rgb(61, 29, 129);">inManagedObjectContext</span>:context];<br/>
+        photo.<span style="color: rgb(79, 129, 135);">unique</span> = unique;<br/>
+        photo.<span style="color: rgb(79, 129, 135);">title</span> = [photoDictionary <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(120, 73, 42);">FLICKR_PHOTO_TITLE</span>];<br/>
+        photo.<span style="color: rgb(79, 129, 135);">subtitle</span> = [photoDictionary <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(120, 73, 42);">FLICKR_PHOTO_DESCRIPTION</span>];<br/>
+        photo.<span style="color: rgb(79, 129, 135);">imageURL</span> = [[<span style="color: rgb(79, 129, 135);">FlickrFetcher</span> <span style="color: rgb(49, 89, 93);">URLforPhoto</span>:photoDictionary <span style="color: rgb(49, 89, 93);">format</span>:<span style="color: rgb(49, 89, 93);">FlickrPhotoFormatLarge</span>] <span style="color: rgb(61, 29, 129);">absoluteString</span>];<br/>
+       <br/>
+        <span style="color: rgb(112, 61, 170);">NSString</span> *photographerName = [photoDictionary <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(120, 73, 42);">FLICKR_PHOTO_OWNER</span>];<br/>
+        photo.<span style="color: rgb(79, 129, 135);">whoTook</span> = [<span style="color: rgb(79, 129, 135);">Photographer</span> <span style="color: rgb(49, 89, 93);">photographerWithName</span>:photographerName<br/>
+                                    <span style="color: rgb(49, 89, 93);">inManagedObjectContext</span>:context];<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span></font> <font face="Andale Mono">photo;<br/>
+}</font><br/></div>
+<div><u><br/></u></div>
+<div><u>Using </u><span style="font-family: 'Andale Mono';"><u>CoreDataTableViewController</u></span></div>
+<div><u><br/></u></div>
+<div>If someone gives you an object, you have a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSManagedObjectContext</span>. On the top level though, when you're showing all the data, you don't have it yet.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setManagedObjectContext:(<span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *)managedObjectContext<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_managedObjectContext</span> = managedObjectContext;<br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">NSFetchRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSFetchRequest</span> <span style="color: rgb(61, 29, 129);">fetchRequestWithEntityName</span>:<span style="color: rgb(209, 47, 27);">@"Photographer"</span>];<br/>
+    request.<span style="color: rgb(61, 29, 129);">predicate</span> = <span style="color: rgb(187, 44, 162);">nil</span>; <span style="color: rgb(0, 132, 0);">// give me all of them</span><br/>
+    request.<span style="color: rgb(61, 29, 129);">sortDescriptors</span> = <span style="color: rgb(39, 42, 216);">@[</span>[<span style="color: rgb(112, 61, 170);">NSSortDescriptor</span> <span style="color: rgb(61, 29, 129);">sortDescriptorWithKey</span>:<span style="color: rgb(209, 47, 27);">@"name"</span><br/>
+                                                              <span style="color: rgb(61, 29, 129);">ascending</span>:<span style="color: rgb(187, 44, 162);">YES</span><br/>
+                                                               <span style="color: rgb(61, 29, 129);">selector</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(localizedStandardCompare:)]<span style="color: rgb(39, 42, 216);">]</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> = [[<span style="color: rgb(112, 61, 170);">NSFetchedResultsController</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFetchRequest</span>:request<br/>
+                                                                        <span style="color: rgb(61, 29, 129);">managedObjectContext</span>:managedObjectContext<br/>
+                                                                          <span style="color: rgb(61, 29, 129);">sectionNameKeyPath</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                                                   <span style="color: rgb(61, 29, 129);">cacheName</span>:<span style="color: rgb(187, 44, 162);">nil</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>The only thing we don't have is the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewCell</span> info -- title etc. Add this method:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UITableViewCell</span> *)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)tableView cellForRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">UITableViewCell</span> *cell = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">tableView</span> <span style="color: rgb(61, 29, 129);">dequeueReusableCellWithIdentifier</span>:<span style="color: rgb(209, 47, 27);">@"Photographer Cell"</span>];<br/>
+   <br/>
+    <span style="color: rgb(79, 129, 135);">Photographer</span> *photographer = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> <span style="color: rgb(61, 29, 129);">objectAtIndexPath</span>:indexPath];<br/>
+   <br/>
+    cell.<span style="color: rgb(112, 61, 170);">textLabel</span>.<span style="color: rgb(112, 61, 170);">text</span> = photographer.<span style="color: rgb(79, 129, 135);">name</span>;<br/>
+    cell.<span style="color: rgb(112, 61, 170);">detailTextLabel</span>.<span style="color: rgb(112, 61, 170);">text</span> = [<span style="color: rgb(112, 61, 170);">NSSTring</span> <span style="color: rgb(61, 29, 129);">stringWithFormat</span>:<span style="color: rgb(209, 47, 27);">@"%d photos"</span>, [photographer.<span style="color: rgb(79, 129, 135);">photos</span> <span style="color: rgb(61, 29, 129);">count</span>]];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> cell;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Application delegate</u></div>
+<div><u><br/></u></div>
+<div>Watching what's going on at the highest level of your application: has launched, entering background, entering foreground, quitting application, etc.</div>
+<div><br/></div>
+<div>We want Flickr fetches (when they're done downloading), if they finish when the application is no longer running or is in the background, to launch our application and tell us.</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)startFlickrFetch<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadSession</span> <span style="color: rgb(61, 29, 129);">getTasksWithCompletionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSArray</span> *dataTasks, <span style="color: rgb(112, 61, 170);">NSArray</span> *uploadTasks, <span style="color: rgb(112, 61, 170);">NSArray</span> *downloadTasks) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (![downloadTasks <span style="color: rgb(61, 29, 129);">count</span>]) {<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadSession</span> <span style="color: rgb(61, 29, 129);">downloadTaskWithURL</span>:[<span style="color: rgb(79, 129, 135);">FlickrFetcher</span> <span style="color: rgb(49, 89, 93);">URLforRecentGeoreferencedPhotos</span>]];<br/>
+            task.<span style="color: rgb(112, 61, 170);">taskDescription</span> = <span style="color: rgb(120, 73, 42);">FLICKR_FETCH</span>;<br/>
+            [task <span style="color: rgb(61, 29, 129);">resume</span>];<br/>
+        } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+            <span style="color: rgb(187, 44, 162);">for</span> (<span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task <span style="color: rgb(187, 44, 162);">in</span> downloadTasks) [task <span style="color: rgb(61, 29, 129);">resume</span>];<br/>
+        }<br/>
+    }];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSURLSession</span> *)flickrDownloadSession <span style="color: rgb(0, 132, 0);">// the NSURLSession we will use to fetch Flickr data in the background</span><br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_flickrDownloadSession</span>) {<br/>
+        <span style="color: rgb(187, 44, 162);">static</span> <span style="color: rgb(112, 61, 170);">dispatch_once_t</span> onceToken;<br/>
+        <span style="color: rgb(120, 73, 42);">dispatch_once</span>(&amp;onceToken, ^{<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> *urlSessionConfig = [<span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> <span style="color: rgb(61, 29, 129);">backgroundSessionConfiguration</span>:<span style="color: rgb(120, 73, 42);">FLICKR_FETCH</span>];<br/>
+            urlSessionConfig.<span style="color: rgb(112, 61, 170);">allowsCellularAccess</span> = <span style="color: rgb(187, 44, 162);">NO</span>; <span style="color: rgb(0, 132, 0);">// for example</span><br/>
+            <span style="color: rgb(79, 129, 135);">_flickrDownloadSession</span> = [<span style="color: rgb(112, 61, 170);">NSURLSession</span> <span style="color: rgb(61, 29, 129);">sessionWithConfiguration</span>:urlSessionConfig<br/>
+                                                                   <span style="color: rgb(61, 29, 129);">delegate</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                                                              <span style="color: rgb(61, 29, 129);">delegateQueue</span>:<span style="color: rgb(187, 44, 162);">nil</span>];<br/>
+        });<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_flickrDownloadSession</span>;<br/>
+}</font><br/></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSArray</span> *)flickrPhotosAtURL:(<span style="color: rgb(112, 61, 170);">NSURL</span> *)url<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSData</span> *flickrJSONData = [<span style="color: rgb(112, 61, 170);">NSData</span> <span style="color: rgb(61, 29, 129);">dataWithContentsOfURL</span>:url];<br/>
+    <span style="color: rgb(112, 61, 170);">NSDictionary</span> *flickrPropertyList = [<span style="color: rgb(112, 61, 170);">NSJSONSerialization</span> <span style="color: rgb(61, 29, 129);">JSONObjectWithData</span>:flickrJSONData<br/>
+                                                                       <span style="color: rgb(61, 29, 129);">options</span>:<span style="color: rgb(39, 42, 216);">0</span><br/>
+                                                                         <span style="color: rgb(61, 29, 129);">error</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [flickrPropertyList <span style="color: rgb(61, 29, 129);">valueForKeyPath</span>:<span style="color: rgb(120, 73, 42);">FLICKR_RESULTS_PHOTOS</span>];<br/>
+}<br/>
+<br/>
+<span style="color: rgb(120, 73, 42);">#pragma mark - NSURLSessionDownloadDelegate<br/></span><br/>
+<span style="color: rgb(0, 132, 0);">// required by the protocol</span><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)URLSession:(<span style="color: rgb(112, 61, 170);">NSURLSession</span> *)session<br/>
+      downloadTask:(<span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *)downloadTask<br/>
+didFinishDownloadingToURL:(<span style="color: rgb(112, 61, 170);">NSURL</span> *)localFile<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([downloadTask.<span style="color: rgb(112, 61, 170);">taskDescription</span> <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(120, 73, 42);">FLICKR_FETCH</span>]) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span>;<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (context) {<br/>
+            <span style="color: rgb(112, 61, 170);">NSArray</span> *photos = [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">flickrPhotosAtURL</span>:localFile];<br/>
+            [context <span style="color: rgb(61, 29, 129);">performBlock</span>:^{<br/>
+                [<span style="color: rgb(79, 129, 135);">Photo</span> <span style="color: rgb(49, 89, 93);">loadPhotosFromFlickrArray</span>:photos <span style="color: rgb(49, 89, 93);">intoManagedObjectContext</span>:context];<br/>
+                [context <span style="color: rgb(61, 29, 129);">save</span>:<span style="color: rgb(187, 44, 162);">NULL</span>]; <span style="color: rgb(0, 132, 0);">// don't have to do this, but it doesn't hurt</span><br/>
+            }];<br/>
+        } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+            [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">flickrDownloadTasksMightBeComplete</span>];<br/>
+        }</font></div>
+<div><font face="Andale Mono">    }</font></div>
+<div><font face="Andale Mono">}</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)flickrDownloadTasksMightBeComplete<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadBackgroundURLSessionCompletionHandler</span>) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadSession</span> <span style="color: rgb(61, 29, 129);">getTasksWithCompletionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSArray</span> *dataTasks, <span style="color: rgb(112, 61, 170);">NSArray</span> *uploadTasks, <span style="color: rgb(112, 61, 170);">NSArray</span> *downloadTasks) {<br/>
+            <span style="color: rgb(0, 132, 0);">// we're doing this check for other downloads just to be theoretically "correct"</span><br/>
+            <span style="color: rgb(0, 132, 0);">//  but we don't actually need it (since we only ever fire off one download task at a time)</span><br/>
+            <span style="color: rgb(0, 132, 0);">// in addition, note that getTasksWithCompletionHandler: is ASYNCHRONOUS</span><br/>
+            <span style="color: rgb(0, 132, 0);">//  so we must check again when the block executes if the handler is still not nil</span><br/>
+            <span style="color: rgb(0, 132, 0);">//  (another thread might have sent it already in a multiple-tasks-at-once implementation)</span><br/>
+            <span style="color: rgb(187, 44, 162);">if</span> (![downloadTasks <span style="color: rgb(61, 29, 129);">count</span>]) {  <span style="color: rgb(0, 132, 0);">// any more Flickr downloads left?</span><br/>
+                <span style="color: rgb(0, 132, 0);">// nope, then invoke flickrDownloadBackgroundURLSessionCompletionHandler (if it's still not nil)</span><br/>
+                <span style="color: rgb(187, 44, 162);">void</span> (^completionHandler)() = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadBackgroundURLSessionCompletionHandler</span>;<br/>
+                <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrDownloadBackgroundURLSessionCompletionHandler</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+                <span style="color: rgb(187, 44, 162);">if</span> (completionHandler) {<br/>
+                    completionHandler();<br/>
+                }<br/>
+            } <span style="color: rgb(0, 132, 0);">// else other downloads going, so let them call this method when they finish</span><br/>
+        }];<br/>
+    }<br/>
+}</font><font face="Andale Mono"><br/></font></div>
+<div><br/></div>
+<div><u>Posting a notification</u></div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">//  PhotoDatabaseAvailability.h</span><br/></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#define PhotoDatabaseAvailabilityNotification @</span><span style="color: rgb(209, 47, 27);">"PhotoDatabaseAvailabilityNotification"</span><span style="color: rgb(120, 73, 42);"><br/>
+#define PhotoDatabaseAvailabilityContext @</span><span style="color: rgb(209, 47, 27);">"Context"</span><br/></font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><span style="color: rgb(0, 132, 0);"><font face="Andale Mono">//  PhotomaniaAppDelegate.m</font></span><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setPhotoDatabaseContext:(<span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *)photoDatabaseContext<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_photoDatabaseContext</span> = photoDatabaseContext;<br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">NSDictionary</span> *userInfo = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span> ? <span style="color: rgb(39, 42, 216);">@{</span> <span style="color: rgb(120, 73, 42);">PhotoDatabaseAvailabilityContext</span> : <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span> <span style="color: rgb(39, 42, 216);">}</span> : <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">postNotificationName</span>:<span style="color: rgb(120, 73, 42);">PhotoDatabaseAvailabilityNotification</span><br/>
+                                                        <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                                                      <span style="color: rgb(61, 29, 129);">userInfo</span>:userInfo];<br/>
+}</font><span style="font-size: 11px; font-family: Menlo; color: rgb(0, 132, 0);"><br/></span></div>
+<div><br/></div>
+<div><u>Listening to a radio station</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)awakeFromNib<br/>
+{<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">addObserverForName</span>:<span style="color: rgb(120, 73, 42);">PhotoDatabaseAvailabilityNotification</span><br/>
+                                                       <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                        <span style="color: rgb(61, 29, 129);">queue</span>:<span style="color: rgb(187, 44, 162);">nil</span> <span style="color: rgb(0, 132, 0);">// whatever queue I'm on now</span><br/>
+                                                   <span style="color: rgb(61, 29, 129);">usingBlock</span>:^(<span style="color: rgb(112, 61, 170);">NSNotification</span> *note) {<br/>
+                                                       <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">managedObjectContext</span> = note.<span style="color: rgb(61, 29, 129);">userInfo</span>[<span style="color: rgb(120, 73, 42);">PhotoDatabaseAvailabilityContext</span>];<br/>
+                                                   }];<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Cleaning your database out</u></div>
+<div><u><br/></u></div>
+<div>Hold the home key down on the device; click delete on the application.</div>
+<div><br/></div>
+<div><u>Background fetches</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">// this is called occasionally by the system WHEN WE ARE NOT THE FOREGROUND APPLICATION</span><br/>
+<span style="color: rgb(0, 132, 0);">// in fact, it will LAUNCH US if necessary to call this method</span><br/>
+<span style="color: rgb(0, 132, 0);">// the system has lots of smarts about when to do this, but it is entirely opaque to us</span><br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)application:(<span style="color: rgb(112, 61, 170);">UIApplication</span> *)application performFetchWithCompletionHandler:(<span style="color: rgb(187, 44, 162);">void</span> (^)(<span style="color: rgb(112, 61, 170);">UIBackgroundFetchResult</span>))completionHandler<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// in lecture, we relied on our background flickrDownloadSession to do the fetch by calling [self startFlickrFetch]</span><br/>
+    <span style="color: rgb(0, 132, 0);">// that was easy to code up, but pretty weak in terms of how much it will actually fetch (maybe almost never)</span><br/>
+    <span style="color: rgb(0, 132, 0);">// that's because there's no guarantee that we'll be allowed to start that discretionary fetcher when we're in the background</span><br/>
+    <span style="color: rgb(0, 132, 0);">// so let's simply make a non-discretionary, non-background-session fetch here</span><br/>
+    <span style="color: rgb(0, 132, 0);">// we don't want it to take too long because the system will start to lose faith in us as a background fetcher and stop calling this as much</span><br/>
+    <span style="color: rgb(0, 132, 0);">// so we'll limit the fetch to BACKGROUND_FETCH_TIMEOUT seconds (also we won't use valuable cellular data)</span><br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span>) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> *sessionConfig = [<span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> <span style="color: rgb(61, 29, 129);">ephemeralSessionConfiguration</span>];<br/>
+        sessionConfig.<span style="color: rgb(112, 61, 170);">allowsCellularAccess</span> = <span style="color: rgb(187, 44, 162);">NO</span>;<br/>
+        sessionConfig.<span style="color: rgb(112, 61, 170);">timeoutIntervalForRequest</span> = <span style="color: rgb(120, 73, 42);">BACKGROUND_FLICKR_FETCH_TIMEOUT</span>; <span style="color: rgb(0, 132, 0);">// want to be a good background citizen!</span><br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [<span style="color: rgb(112, 61, 170);">NSURLSession</span> <span style="color: rgb(61, 29, 129);">sessionWithConfiguration</span>:sessionConfig];<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLRequest</span> *request = [[<span style="color: rgb(112, 61, 170);">NSURLRequest</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithURL</span>:[<span style="color: rgb(79, 129, 135);">FlickrFetcher</span> <span style="color: rgb(49, 89, 93);">URLforRecentGeoreferencedPhotos</span>]];<br/>
+        <span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task = [session <span style="color: rgb(61, 29, 129);">downloadTaskWithRequest</span>:request<br/>
+                                                        <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSURL</span> *localFile, <span style="color: rgb(112, 61, 170);">NSURLResponse</span> *response, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+                                                            <span style="color: rgb(187, 44, 162);">if</span> (error) {<br/>
+                                                                <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"Flickr background fetch failed: %@"</span>, error.<span style="color: rgb(61, 29, 129);">localizedDescription</span>);<br/>
+                                                                completionHandler(<span style="color: rgb(61, 29, 129);">UIBackgroundFetchResultNoData</span>);<br/>
+                                                            } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+                                                                [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">loadFlickrPhotosFromLocalURL</span>:localFile<br/>
+                                                                                       <span style="color: rgb(49, 89, 93);">intoContext</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span><br/>
+                                                                               <span style="color: rgb(49, 89, 93);">andThenExecuteBlock</span>:^{<br/>
+                                                                                   completionHandler(<span style="color: rgb(61, 29, 129);">UIBackgroundFetchResultNewData</span>);<br/>
+                                                                               }<br/>
+                                                                 ];<br/>
+                                                            }<br/>
+                                                        }];<br/>
+        [task <span style="color: rgb(61, 29, 129);">resume</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        completionHandler(<span style="color: rgb(61, 29, 129);">UIBackgroundFetchResultNoData</span>); <span style="color: rgb(0, 132, 0);">// no app-switcher update if no database!</span></font><font face="Andale Mono"><br/>
+    }<br/>
+}</font><br/></div>
+<div><u><br/></u></div>
+<div>When things happen in the background, some background URL things are called:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)application:(<span style="color: rgb(112, 61, 170);">UIApplication</span> *)application handleEventsForBackgroundURLSession:(<span style="color: rgb(112, 61, 170);">NSString</span> *)identifier completionHandler:(<span style="color: rgb(187, 44, 162);">void</span> (^)())completionHandler;</font><br/></div>
+<div><br/></div>
+<div>Simulating background fetch: in Debug menu, or can Edit Scheme on the Application on the top left -&gt; Options -&gt; Launch due to a background fetch event. Can create a new Scheme for this.</div>
+<div><br/></div>
+<div><u>Fetching in foreground</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">flickrForegroundFetchTimer</span> = [<span style="color: rgb(112, 61, 170);">NSTimer</span> <span style="color: rgb(61, 29, 129);">scheduledTimerWithTimeInterval</span>:<span style="color: rgb(120, 73, 42);">FOREGROUND_FLICKR_FETCH_INTERVAL</span><br/>
+                                                                           <span style="color: rgb(61, 29, 129);">target</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                                                                         <span style="color: rgb(61, 29, 129);">selector</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(startFlickrFetch:)<br/>
+                                                                         <span style="color: rgb(61, 29, 129);">userInfo</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                                          <span style="color: rgb(61, 29, 129);">repeats</span>:<span style="color: rgb(187, 44, 162);">YES</span>];</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)startFlickrFetch:(<span style="color: rgb(112, 61, 170);">NSTimer</span> *)timer <span style="color: rgb(0, 132, 0);">// NSTimer target/action always takes an NSTimer as an argument</span><br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">startFlickrFetch</span>];<br/>
+}</font></div>
+</body></html>
