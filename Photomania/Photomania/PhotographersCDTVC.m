@@ -9,6 +9,7 @@
 #import "PhotographersCDTVC.h"
 #import "Photographer.h"
 #import "PhotoDatabaseAvailability.h"
+#import "PhotosByPhotographerCDTVC.h"
 
 @implementation PhotographersCDTVC
 
@@ -51,6 +52,39 @@
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%d photos", (int)[photographer.photos count]];
     
     return cell;
+}
+
+#pragma mark - Navigation
+
+- (void)prepareViewController:(id)vc forSegue:(NSString *)segueIdentifier fromIndexPath:(NSIndexPath *)indexPath
+{
+    Photographer *photographer = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    if ([vc isKindOfClass:[PhotosByPhotographerCDTVC class]]) {
+        PhotosByPhotographerCDTVC *pbpcdtvc = (PhotosByPhotographerCDTVC *)vc;
+        pbpcdtvc.photographer = photographer;
+    }
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSIndexPath *indexPath = nil;
+    if ([sender isKindOfClass:[UITableViewCell class]]) {
+        indexPath = [self.tableView indexPathForCell:sender];
+    }
+    [self prepareViewController:segue.destinationViewController
+                       forSegue:segue.identifier
+                  fromIndexPath:indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id detailvc = [self.splitViewController.viewControllers lastObject];
+    if ([detailvc isKindOfClass:[UINavigationController class]]) {
+        detailvc = [((UINavigationController *)detailvc).viewControllers firstObject];
+        [self prepareViewController:detailvc
+                           forSegue:nil
+                      fromIndexPath:indexPath];
+    }
 }
 
 @end

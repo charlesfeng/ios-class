@@ -9,7 +9,6 @@
 #import "PhotomaniaViewController.h"
 
 @interface PhotomaniaViewController ()
-
 @end
 
 @implementation PhotomaniaViewController

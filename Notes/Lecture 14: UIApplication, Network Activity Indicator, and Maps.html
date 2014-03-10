@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-09 23:04:15 +0000"/><meta name="latitude" content="37.45243365665375"/><meta name="longitude" content="-122.1550541722056"/><meta name="updated" content="2014-03-10 08:03:36 +0000"/><title>Lecture 14: UIApplication, Network Activity Indicator, and Maps</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<div><span style="color: rgb(112, 61, 170);"><font face="Andale Mono"><u>UIApplication</u></font></span><br/></div>
+<div><br/></div>
+<div>Only one instance in your application. Different from your Application Delegate (the thing that handles all the messages from iOS).</div>
+<div><br/></div>
+<div>Almost never need it, but can give you some interesting (very global) information.</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIApplication</span> *myApplication = <span style="color: rgb(61, 29, 129);">[</span><span style="color: rgb(112, 61, 170);">UIApplication</span> <span style="color: rgb(61, 29, 129);">sharedApplication];</span></font><br/></div>
+<div><br/></div>
+<div>Network activity indicator: </div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">getter=is...</span>) networkActivityIndicatorVisible;</font><br/></div>
+<div>When set to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span>, a little spinner will appear in the status bar. <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">NO</span> means turn it off.</div>
+<div><br/></div>
+<div>Might be difficult to use this property correctly since it's global and a boolean -- what if you have multiple threads using the network at the same time? Will have to layer mechanism for that on top of the property yourself. But important to use this so people get a feel for when they're using data.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Set minimum background fetch interval:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">[[</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIApplication</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">sharedApplication</span><span style="font-family: 'Andale Mono';">] setMinimumBackgroundFetchInterval:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSTimeInterval</span><span style="font-family: 'Andale Mono';">)interval];</span></div>
+<div>Default is <font face="Andale Mono">UIApplicationBackgroundFetchIntervalNever</font>; minimum is <span style="font-family: 'Andale Mono';">UIApplicationBackgroundFetchIntervalMinimum</span>.</div>
+<div><br/></div>
+<div>User can also turn off your application's ability to run in the background, which you can check with</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBackgroundRefreshStatus</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">backgroundRefreshStatus;</span></div>
+<div>This property can also be "Restricted" where it's not allowed to run but the user has no control either -- e.g. parental controls, corporate restrictions, etc.</div>
+<div><br/></div>
+<div>Is this what Facebook etc. use to send you a message? No, they use Push Notifications (little JSON packets).</div>
+<div><br/></div>
+<div>When you are given the opportunity to fetch in the background, do a normal fetch (a normal, ephemeral URL session fetch), not a background session URL fetch. Background session URL fetches are discretionary -- iOS can refuse if in background. In our code:</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> *sessionConfig = [<span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> <span style="color: rgb(61, 29, 129);">ephemeralSessionConfiguration</span>];<br/>
+sessionConfig.<span style="color: rgb(112, 61, 170);">allowsCellularAccess</span> = <span style="color: rgb(187, 44, 162);">NO</span>;<br/>
+sessionConfig.<span style="color: rgb(112, 61, 170);">timeoutIntervalForRequest</span> = <span style="color: rgb(120, 73, 42);">BACKGROUND_FLICKR_FETCH_TIMEOUT</span>; <span style="color: rgb(0, 132, 0);">// want to be a good background citizen!</span><br/>
+<span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [<span style="color: rgb(112, 61, 170);">NSURLSession</span> <span style="color: rgb(61, 29, 129);">sessionWithConfiguration</span>:sessionConfig];<br/>
+<span style="color: rgb(112, 61, 170);">NSURLRequest</span> *request = [[<span style="color: rgb(112, 61, 170);">NSURLRequest</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithURL</span>:[<span style="color: rgb(79, 129, 135);">FlickrFetcher</span> <span style="color: rgb(49, 89, 93);">URLforRecentGeoreferencedPhotos</span>]];<br/>
+<span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task = [session <span style="color: rgb(61, 29, 129);">downloadTaskWithRequest</span>:request<br/>
+                                                <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSURL</span> *localFile, <span style="color: rgb(112, 61, 170);">NSURLResponse</span> *response, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+                                                    <span style="color: rgb(187, 44, 162);">if</span> (error) {<br/>
+                                                        <span style="color: rgb(61, 29, 129);">NSLog</span>(<span style="color: rgb(209, 47, 27);">@"Flickr background fetch failed: %@"</span>, error.<span style="color: rgb(61, 29, 129);">localizedDescription</span>);<br/>
+                                                        completionHandler(<span style="color: rgb(61, 29, 129);">UIBackgroundFetchResultNoData</span>);<br/>
+                                                    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+                                                        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">loadFlickrPhotosFromLocalURL</span>:localFile<br/>
+                                                                               <span style="color: rgb(49, 89, 93);">intoContext</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photoDatabaseContext</span><br/>
+                                                                       <span style="color: rgb(49, 89, 93);">andThenExecuteBlock</span>:^{<br/>
+                                                                           completionHandler(<span style="color: rgb(61, 29, 129);">UIBackgroundFetchResultNewData</span>);<br/>
+                                                                       }<br/>
+                                                         ];<br/>
+                                                    }<br/>
+                                                }];<br/>
+[task <span style="color: rgb(61, 29, 129);">resume</span></font><font face="Andale Mono">];</font><br/></div>
+<div><br/></div>
+<div>What if your UI needs to get updated when you're in the background? Your main queue is actually running at this point -- so you can do things the same way. The only difference between foreground/background is which app is active, not which is the main queue.</div>
+<div><br/></div>
+<div>When you create a new controller, first think about its public API.</div>
+<div><br/></div>
+<div>Use code snippets! </div>
+<div><br/></div>
+<div>Whenever you have a public model setter, you're almost always going to use the setter to update your view when someone sets your model:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setPhotographer:(<span style="color: rgb(79, 129, 135);">Photographer</span> *)photographer<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_photographer</span> = photographer;<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">title</span> = photographer.<span style="color: rgb(79, 129, 135);">name</span>;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">setupFetchedResultsController</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)setupFetchedResultsController<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSManagedObjectContext</span> *context = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photographer</span>.<span style="color: rgb(61, 29, 129);">managedObjectContext</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (context) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSFetchRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSFetchRequest</span> <span style="color: rgb(61, 29, 129);">fetchRequestWithEntityName</span>:<span style="color: rgb(209, 47, 27);">@"Photo"</span>];<br/>
+        request.<span style="color: rgb(61, 29, 129);">predicate</span> = [<span style="color: rgb(112, 61, 170);">NSPredicate</span> <span style="color: rgb(61, 29, 129);">predicateWithFormat</span>:<span style="color: rgb(209, 47, 27);">@"whoTook = %@"</span>, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photographer</span>];<br/>
+        request.<span style="color: rgb(61, 29, 129);">sortDescriptors</span> = <span style="color: rgb(39, 42, 216);">@[</span>[<span style="color: rgb(112, 61, 170);">NSSortDescriptor</span> <span style="color: rgb(61, 29, 129);">sortDescriptorWithKey</span>:<span style="color: rgb(209, 47, 27);">@"title"</span><br/>
+                                                                  <span style="color: rgb(61, 29, 129);">ascending</span>:<span style="color: rgb(187, 44, 162);">YES</span><br/>
+                                                                   <span style="color: rgb(61, 29, 129);">selector</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(localizedStandardCompare:)]<span style="color: rgb(39, 42, 216);">]</span>;<br/>
+       <br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> = [[<span style="color: rgb(112, 61, 170);">NSFetchedResultsController</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFetchRequest</span>:request<br/>
+                                                                            <span style="color: rgb(61, 29, 129);">managedObjectContext</span>:context<br/>
+                                                                              <span style="color: rgb(61, 29, 129);">sectionNameKeyPath</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                                                       <span style="color: rgb(61, 29, 129);">cacheName</span>:<span style="color: rgb(187, 44, 162);">nil</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Setting the correct table cell attributes in a Table View:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UITableViewCell</span> *)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)tableView cellForRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">UITableViewCell</span> *cell = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">tableView</span> <span style="color: rgb(61, 29, 129);">dequeueReusableCellWithIdentifier</span>:<span style="color: rgb(209, 47, 27);">@"Photo Cell"</span>];<br/>
+   <br/>
+    <span style="color: rgb(79, 129, 135);">Photo</span> *photo = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> <span style="color: rgb(61, 29, 129);">objectAtIndexPath</span>:indexPath];<br/>
+    cell.<span style="color: rgb(112, 61, 170);">textLabel</span>.<span style="color: rgb(112, 61, 170);">text</span> = photo.<span style="color: rgb(79, 129, 135);">title</span>;<br/>
+    cell.<span style="color: rgb(112, 61, 170);">detailTextLabel</span>.<span style="color: rgb(112, 61, 170);">text</span> = photo.<span style="color: rgb(79, 129, 135);">subtitle</span>;<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> cell;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Getting navigation working in a Table View:</div>
+<div><br/></div>
+<div><span style="font-size: 11px; font-family: Menlo; color: rgb(120, 73, 42);">#pragma mark - Navigation<br/></span><br/>
+<font face="Andale Mono">- (</font><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">void</span>)prepareViewController:(<span style="color: rgb(187, 44, 162);">id</span>)vc forSegue:(<span style="color: rgb(112, 61, 170);">NSString</span> *)segueIdentifier fromIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">Photo</span> *photo = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">fetchedResultsController</span> <span style="color: rgb(61, 29, 129);">objectAtIndexPath</span>:indexPath];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([vc <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UIViewController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        <span style="color: rgb(79, 129, 135);">ImageViewController</span> *ivc = (<span style="color: rgb(79, 129, 135);">ImageViewController</span> *)vc;<br/>
+        ivc.<span style="color: rgb(79, 129, 135);">imageURL</span> = [<span style="color: rgb(112, 61, 170);">NSURL</span> <span style="color: rgb(61, 29, 129);">URLWithString</span>:photo.<span style="color: rgb(79, 129, 135);">imageURL</span>];<br/>
+        ivc.<span style="color: rgb(112, 61, 170);">title</span> = photo.<span style="color: rgb(79, 129, 135);">title</span>;<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSIndexPath</span> *indexPath = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([sender <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UITableViewCell</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        indexPath = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">tableView</span> <span style="color: rgb(61, 29, 129);">indexPathForCell</span>:sender];<br/>
+    }<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span><br/>
+                       <span style="color: rgb(49, 89, 93);">forSegue</span>:segue.<span style="color: rgb(112, 61, 170);">identifier</span><br/>
+                  <span style="color: rgb(49, 89, 93);">fromIndexPath</span>:indexPath];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)tableView:(<span style="color: rgb(112, 61, 170);">UITableView</span> *)tableView didSelectRowAtIndexPath:(<span style="color: rgb(112, 61, 170);">NSIndexPath</span> *)indexPath<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">id</span> detailvc = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">splitViewController</span>.<span style="color: rgb(112, 61, 170);">viewControllers</span> <span style="color: rgb(61, 29, 129);">lastObject</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([detailvc <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UINavigationController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        detailvc = [((<span style="color: rgb(112, 61, 170);">UINavigationController</span> *)detailvc).<span style="color: rgb(112, 61, 170);">viewControllers</span> <span style="color: rgb(61, 29, 129);">firstObject</span>];<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:detailvc<br/>
+                           <span style="color: rgb(49, 89, 93);">forSegue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                      <span style="color: rgb(49, 89, 93);">fromIndexPath</span>:indexPath];<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Popover segue is a normal segue. Create a new View Controller. Change the size of the View. 600 is the widest you can make a popover. You can make it any height you want.</div>
+<div><br/></div>
+<div>Be sure to keep track whether you have a popover already or not:</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">weak</span>, <span style="color: rgb(187, 44, 162);">atomic</span>) <span style="color: rgb(112, 61, 170);">UIPopoverController</span> *urlPopoverController;</font><br/></div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span> <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">URLViewController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        <span style="color: rgb(79, 129, 135);">URLViewController</span> *urlvc = (<span style="color: rgb(79, 129, 135);">URLViewController</span> *)segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span>;<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> ([segue <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UIStoryboardPopoverSegue</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+            <span style="color: rgb(112, 61, 170);">UIStoryboardPopoverSegue</span> *popoverSegue = (<span style="color: rgb(112, 61, 170);">UIStoryboardPopoverSegue</span> *)segue;<br/>
+            <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">urlPopoverController</span> = popoverSegue.<span style="color: rgb(112, 61, 170);">popoverController</span>;<br/>
+        }<br/>
+        urlvc.<span style="color: rgb(79, 129, 135);">url</span> = <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span>;<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">BOOL</span>)shouldPerformSegueWithIdentifier:(<span style="color: rgb(112, 61, 170);">NSString</span> *)identifier sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([identifier <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(209, 47, 27);">@"Show URL"</span>]) {<br/>
+        <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">urlPopoverController</span> ? <span style="color: rgb(187, 44, 162);">NO</span> : (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span> ? <span style="color: rgb(187, 44, 162);">YES</span> : <span style="color: rgb(187, 44, 162);">NO</span>);<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        <span style="color: rgb(187, 44, 162);">return</span> [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">shouldPerformSegueWithIdentifier</span>:identifier <span style="color: rgb(61, 29, 129);">sender</span>:sender];<br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>If you have two buttons in the same bar, even with a popover controller it'll still allow you to click -- pass through views. Be sure to fix this.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Core Location</b></div>
+<div><b><br/></b></div>
+<div>Framework for managing location and heading. No user-interface.</div>
+<div><br/></div>
+<div>Basic object is a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocation</span> with </div>
+<div><font color="#BB2CA2" face="Andale Mono">@property</font>s <span style="font-family: 'Andale Mono';">coordinate</span>, <span style="font-family: 'Andale Mono';">altitude</span>, <span style="font-family: 'Andale Mono';">horizontal</span>/<span style="font-family: 'Andale Mono';">verticalAccuracy</span>, <span style="font-family: 'Andale Mono';">timestamp</span>, <span style="font-family: 'Andale Mono';">speed</span>, <span style="font-family: 'Andale Mono';">course</span></div>
+<div><br/></div>
+<div><u>Coordinates</u></div>
+<div><br/></div>
+<div>Where (approximately) is this location?</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';"> coordinate;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef</span> {<br/>
+    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> latitude;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// a double</span></div>
+<div><font face="Andale Mono">    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> longitude;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// a double</span></div>
+<div><font face="Andale Mono">} </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono"><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDistance</span><span style="font-family: 'Andale Mono';"> altitude;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// meters</span></div>
+<div>Negative value means "below sea level"</div>
+<div><br/></div>
+<div><u>Accuracy</u></div>
+<div><u><br/></u></div>
+<div>How close to that latitude/longitude is the actual location?</div>
+<div><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationAccuracy</span><span style="font-family: 'Andale Mono';"> horizontalAccuracy;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// meters</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationAccuracy</span><span style="font-family: 'Andale Mono';"> verticalAccuracy;</span> <span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// meters</span></div>
+<div>Negative value means the coordinate or altitude (respectively) is invalid.</div>
+<div><br/></div>
+<div>Specify accuracy using a constant:</div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyBestForNavigation</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// phone should be plugged into power</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyBest</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyNearestTenMeters</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyHundredMeters</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyKilometer</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">kCLLocationAccuracyThreeKilometers</span></div>
+<div>The more accuracy you request, the more battery will be used.</div>
+<div><br/></div>
+<div><u>Other properties</u></div>
+<div><br/></div>
+<div>Instantaneous speed:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationSpeed</span><span style="font-family: 'Andale Mono';"> speed; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// meters/second</span><br/></div>
+<div>Useful as "advisory information" when in a vehicle. Negative value means invalid.</div>
+<div><br/></div>
+<div>
+<div>Course:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDirection</span><span style="font-family: 'Andale Mono';"> course; </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// in degrees, 0 is north cw</span><br/></div>
+<div>Not all devices can deliver this info. Negative value means invalid. </div>
+</div>
+<div><br/></div>
+<div>
+<div>Time stamp:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDate</span><span style="font-family: 'Andale Mono';"> *timestamp;</span><br/></div>
+<div>Pay attention to these since locations will be delivered on an inconsistent time basis.</div>
+</div>
+<div><br/></div>
+<div>Distance between <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocation</span>s:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationAccuracy</span><span style="font-family: 'Andale Mono';">)distanceFromLocation:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocation </span><span style="font-family: 'Andale Mono';">*) otherLocation; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// meters</span><br/></div>
+<div><br/></div>
+<div><u>Getting</u></div>
+<div><u><br/></u></div>
+<div>Almost always from a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span> (sent to you via its <span style="font-family: 'Andale Mono';">delegate</span>)</div>
+<div><br/></div>
+<div>1. Check to see if the hardware you are on/user supports the kind of location updating you want.</div>
+<div>2. Create a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span> instance and set the delegate to receive updates</div>
+<div>3. Configure the manager according to what kind of location updating you want</div>
+<div>4. Start the manager monitoring for location changes</div>
+<div><br/></div>
+<div>Kinds of location monitoring:</div>
+<div>- Accuracy-based continual updates</div>
+<div>- Updates only when "significant" changes in location occur</div>
+<div>- Region-based updates (walk by dry cleaner, says "oh you're at a dry cleaner")</div>
+<div>- Heading monitoring</div>
+<div><br/></div>
+<div>Checking to see what your hardware can do (this is important):</div>
+<div><font face="Andale Mono">+ (CLAuthorizationStatus)authorizationStatus; <span style="color: rgb(0, 132, 0);">// Authorized, Denied, or Restricted</span><br/>
++ (<span style="color: rgb(187, 44, 162);">BOOL</span>)locationServicesEnabled; <span style="color: rgb(0, 132, 0);">// user has enabled location services for your app</span><br/>
++ (<span style="color: rgb(187, 44, 162);">BOOL</span>)significantLocationChangeMonitoringAvailable;<br/>
++ (<span style="color: rgb(187, 44, 162);">BOOL</span>)isMonitoringAvailableForClass:(Class)regionCLass; <span style="color: rgb(0, 132, 0);">// [CLBeacon/CLCircularRegion class]</span><br/>
++ (<span style="color: rgb(187, 44, 162);">BOOL</span>)isRangingAvailable; <span style="color: rgb(0, 132, 0);">// can tell how far it is from beacons</span></font><br/></div>
+<div><br/></div>
+<div>Can ask <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span> for current location, but we never do that -- use its <span style="font-family: 'Andale Mono';">delegate</span>.</div>
+<div><br/></div>
+<div>Accuracy-based continuous location monitoring:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationAccuracy</span><span style="font-family: 'Andale Mono';"> desiredAccuracy; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// set this as low as will work for you</span><br/></div>
+<div>Limiting updates to only occurring if change in location exceeds a certain distance:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDistance</span><span style="font-family: 'Andale Mono';"> distanceFilter;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// don't tell me unless user goes this far</span><br/></div>
+<div><br/></div>
+<div>Starting and stopping normal position monitoring:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startUpdatingLocation;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)stopUpdatingLocation;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Turn updating off when your application is not going to consume the changes!</div>
+<div><br/></div>
+<div>Get notified via the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span>'s <span style="font-family: 'Andale Mono';">delegate</span>:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)locationManager:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span><span style="font-family: 'Andale Mono';"> *)manager didUpdateLocations:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *)locations;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// of CLLocation</span></div>
+<div><br/></div>
+<div>Similar API for heading (<span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLHeading</span> etc)</div>
+<div><br/></div>
+<div><u>Error reporting</u></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)locationManager:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span><span style="font-family: 'Andale Mono';"> *)manager didFailWithError:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *)error;</span></div>
+<div><br/></div>
+<div>Not always a fatal thing, so pay attention to this delegate method. Examples:</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">kCLErrorLocationUnknown</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// likely temporary; keep waiting</span></div>
+<span style="font-family: 'Andale Mono';">kCLErrorDenied</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// user refused to allow your app to receive updates</span><span style="font-family: 'Andale Mono';"><br/>
+kCLErrorHeadingFailure</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// too much local magnetic interference; keep waiting</span></div>
+<div><br/></div>
+<div><u>Background updates</u></div>
+<div><br/></div>
+<div>Getting updates in the background is possible, but be careful (because updates can be power hungry). There are very cool ways to coalesce and defer location update reporting. Have to enable backgrounding (in the same area of your project settings as background fetch).</div>
+<div><br/></div>
+<div>There are two ways to get location notifications on a coarser scale without doing that:</div>
+<div><br/></div>
+<div>(1) Significant location change monitoring in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span>.</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startMonitoringSignificantLocationChanges;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)stopMonitoringSignificantLocationChanges;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Turn updating off when your application is not going to consume the changes.</div>
+<div>You don't have any control over the definition of "significant".</div>
+<div><br/></div>
+<div>Get notified via the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span>'s <span style="font-family: 'Andale Mono';">delegate</span>, same as for accuracy-based updating if your application is running.</div>
+<div><br/></div>
+<div>This works even if your application is not running: you'll get launched and your Application Delegate will receive the message <span style="font-family: 'Andale Mono';">application:didFinishLaunchingWithOptions:</span> with an options dictionary that contains <span style="font-family: 'Andale Mono';">UIApplicationLaunchOptionsLocationKey</span>.</div>
+<div><br/></div>
+<div>Then just create a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span> (if you don't have one) and get the latest location via</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocation</span><span style="font-family: 'Andale Mono';"> *location;</span><br/></div>
+<div><br/></div>
+<div>If you are running in the background, don't take over a few seconds.</div>
+<div><br/></div>
+<div>(2) Region-based location monitoring in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span>.</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startMonitoringForRegion:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span><span style="font-family: 'Andale Mono';"> *)region; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// CLCircularRegion/CLBeaconRegion</span></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)stopMonitoringForRegion;</span><span style="font-family: 'Andale Mono';">(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span><span style="font-family: 'Andale Mono';"> *)region;</span></div>
+</div>
+<div><span style="font-family: 'Andale Mono';">alloc</span> and <font face="Andale Mono">initWithCenter:radius:identifier:</font> a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLCircularRegion</span> to monitor an area.</div>
+<div>Beacons are detecting when you are near another device; new in iOS 7.</div>
+<div><br/></div>
+<div>There's a limit to how many of these you can have: ~40 per app.</div>
+<div><br/></div>
+<div>Get notified via the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span>'s <span style="font-family: 'Andale Mono';">delegate</span>:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)locationManager:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span><span style="font-family: 'Andale Mono';"> *)manager didEnterRegion:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span><span style="font-family: 'Andale Mono';"> *)region;</span></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)locationManager:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span><span style="font-family: 'Andale Mono';"> *)manager didExitRegion:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span><span style="font-family: 'Andale Mono';"> *)region;</span></div>
+<span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)locationManager:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationManager</span><span style="font-family: 'Andale Mono';"> *)manager monitoringDidFailForRegion:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span><span style="font-family: 'Andale Mono';"> *)region withError:</span><span style="font-family: 'Andale Mono';">(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *)error</span><span style="font-family: 'Andale Mono';">;</span>
+<div><br/></div>
+<div>Also works if your application is not running. The set of monitored regions persists across application termination/launch. </div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSSet</span><span style="font-family: 'Andale Mono';"> *monitoredRegions; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// property on CLLocationManager</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLRegion</span>s are tracked by name.</div>
+<div>
+<div><br/></div>
+<div>There are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLCircularRegion</span> monitoring size limits:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDistance</span><span style="font-family: 'Andale Mono';"> maximumRegionMonitoringDistance;</span></div>
+</div>
+<div><br/></div>
+<div>Beacon regions can also detect range from a beacon:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startRangingBeaconsInRegion:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLBeaconRegion</span><span style="font-family: 'Andale Mono';"> *)beaconRegion;</span></div>
+<div>Delegate method  <span style="font-family: 'Andale Mono';">locationManager:didRangeBeacons:inRegion:</span> gives you <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLBeacon</span> objects, which tell you proximity (e.g. <span style="font-family: 'Andale Mono';">CLProximityImmediate</span>/<font face="Andale Mono">Near</font>/<span style="font-family: 'Andale Mono';">Far</span>)</div>
+<div><br/></div>
+<div>To be a beacon is a bit more involved: they're identified by a globally unique UUID (that you generate). Check out <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CBPeripheralManager</span> (core Bluetooth framework)</div>
+</body></html>
