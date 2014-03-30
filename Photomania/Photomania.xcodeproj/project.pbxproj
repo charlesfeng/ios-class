@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC40AA24184D64FC00BA3ACF /* AddPhotoViewController.strings in Resources */ = {isa = PBXBuildFile; fileRef = EC40AA26184D64FC00BA3ACF /* AddPhotoViewController.strings */; };
+		EC40AA2B184D665200BA3ACF /* Entities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EC40AA2D184D665200BA3ACF /* Entities.strings */; };
 		EC6061561834541A00E18FAB /* PhotosByPhotographerMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EC6061551834541A00E18FAB /* PhotosByPhotographerMapViewController.m */; };
 		EC606158183454B800E18FAB /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC606157183454B800E18FAB /* MapKit.framework */; };
 		EC60615B183455D500E18FAB /* Photo.m in Sources */ = {isa = PBXBuildFile; fileRef = EC60615A183455D500E18FAB /* Photo.m */; };
@@ -53,6 +55,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EC40AA1E184D60C100BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main_iPhone.strings; sourceTree = "<group>"; };
+		EC40AA1F184D60C100BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main_iPad.strings; sourceTree = "<group>"; };
+		EC40AA20184D60C100BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		EC40AA21184D60C100BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		EC40AA25184D64FC00BA3ACF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file; name = Base; path = Base.lproj/AddPhotoViewController.strings; sourceTree = "<group>"; };
+		EC40AA27184D650700BA3ACF /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/AddPhotoViewController.strings; sourceTree = "<group>"; };
+		EC40AA28184D650800BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = file; name = fr; path = fr.lproj/AddPhotoViewController.strings; sourceTree = "<group>"; };
+		EC40AA2C184D665200BA3ACF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file; name = Base; path = Base.lproj/Entities.strings; sourceTree = "<group>"; };
+		EC40AA2E184D665E00BA3ACF /* fr */ = {isa = PBXFileReference; lastKnownFileType = file; name = fr; path = fr.lproj/Entities.strings; sourceTree = "<group>"; };
 		EC6061541834541A00E18FAB /* PhotosByPhotographerMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotosByPhotographerMapViewController.h; sourceTree = "<group>"; };
 		EC6061551834541A00E18FAB /* PhotosByPhotographerMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotosByPhotographerMapViewController.m; sourceTree = "<group>"; };
 		EC606157183454B800E18FAB /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -288,6 +299,8 @@
 		ECFA69B1182B5C4200A3A8A0 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				EC40AA2D184D665200BA3ACF /* Entities.strings */,
+				EC40AA26184D64FC00BA3ACF /* AddPhotoViewController.strings */,
 				EC875149182B183B00619DE9 /* Main_iPhone.storyboard */,
 				EC87514C182B183B00619DE9 /* Main_iPad.storyboard */,
 			);
@@ -361,6 +374,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = EC87512B182B183B00619DE9;
 			productRefGroup = EC875135182B183B00619DE9 /* Products */;
@@ -381,6 +395,8 @@
 				EC87514E182B183B00619DE9 /* Main_iPad.storyboard in Resources */,
 				EC875153182B183B00619DE9 /* Images.xcassets in Resources */,
 				EC87514B182B183B00619DE9 /* Main_iPhone.storyboard in Resources */,
+				EC40AA2B184D665200BA3ACF /* Entities.strings in Resources */,
+				EC40AA24184D64FC00BA3ACF /* AddPhotoViewController.strings in Resources */,
 				EC875142182B183B00619DE9 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -442,10 +458,30 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		EC40AA26184D64FC00BA3ACF /* AddPhotoViewController.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EC40AA25184D64FC00BA3ACF /* Base */,
+				EC40AA27184D650700BA3ACF /* en */,
+				EC40AA28184D650800BA3ACF /* fr */,
+			);
+			name = AddPhotoViewController.strings;
+			sourceTree = "<group>";
+		};
+		EC40AA2D184D665200BA3ACF /* Entities.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EC40AA2C184D665200BA3ACF /* Base */,
+				EC40AA2E184D665E00BA3ACF /* fr */,
+			);
+			name = Entities.strings;
+			sourceTree = "<group>";
+		};
 		EC875140182B183B00619DE9 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				EC875141182B183B00619DE9 /* en */,
+				EC40AA20184D60C100BA3ACF /* fr */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -454,6 +490,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				EC87514A182B183B00619DE9 /* Base */,
+				EC40AA1E184D60C100BA3ACF /* fr */,
 			);
 			name = Main_iPhone.storyboard;
 			sourceTree = "<group>";
@@ -462,6 +499,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				EC87514D182B183B00619DE9 /* Base */,
+				EC40AA1F184D60C100BA3ACF /* fr */,
 			);
 			name = Main_iPad.storyboard;
 			sourceTree = "<group>";
@@ -470,6 +508,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				EC875163182B183B00619DE9 /* en */,
+				EC40AA21184D60C100BA3ACF /* fr */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

@@ -84,27 +84,6 @@
     return YES;
 }
 
-#pragma mark - View Controller Lifecycle
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    if (![[self class] canAddPhoto]) {
-        [self fatalAlert:@"Sorry, this device cannot add a photo."];
-    } else { // should check that location services are enabled first
-        [self.locationManager startUpdatingLocation];
-    }
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-
-    // this will happen when we leave heap, but just to be sure ...
-    [self.locationManager stopUpdatingLocation];
-}
-
 #pragma mark - Location
 
 - (CLLocationManager *)locationManager
@@ -126,6 +105,44 @@
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     self.locationErrorCode = error.code;
+}
+
+#pragma mark - Alerts
+
+#define ALERT_NO_PHOTO_TAKEN NSLocalizedStringFromTable(@"ALERT_NO_PHOTO_TAKEN", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but had not taken a photo at that point.")
+
+#define ALERT_CANT_ADD_PHOTO NSLocalizedStringFromTable(@"ALERT_CANT_ADD_PHOTO", @"AddPhotoViewController", @"Alert message delivered when there is something that prevents the user from adding a new photo to the database that the user can do nothing about.")
+
+#define ALERT_TITLE_REQUIRED NSLocalizedStringFromTable(@"ALERT_TITLE_REQUIRED", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but had not specified a title for the photo, which is required.")
+#define ALERT_LOCATION_UNKNOWN_YET NSLocalizedStringFromTable(@"ALERT_LOCATION_UNKNOWN_YET", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but the controller had not (yet) found the location the photo was taken.")
+#define ALERT_LOCATION_SERVICES_DISABLED NSLocalizedStringFromTable(@"ALERT_LOCATION_SERVICES_DISABLED", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but the location the photo was taken could not be found because the user needs to enable location services in the Settings application.")
+#define ALERT_LOCATION_NETWORK_DISABLED NSLocalizedStringFromTable(@"ALERT_LOCATION_NETWORK_DISABLED", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but the location the photo was taken could not be found maybe because the user has no network connection active.")
+#define ALERT_LOCATION_UNKNOWN NSLocalizedStringFromTable(@"ALERT_LOCATION_UNKNOWN", @"AddPhotoViewController", @"User tried to dismiss modal controller to add a photo, but the controller cannot figure out the location the photo was taken.")
+
+#define ALERT_TITLE_ADD_PHOTO NSLocalizedStringFromTable(@"ALERT_TITLE_ADD_PHOTO", @"AddPhotoViewController", @"Title of an alert that appears when there is a problem adding a photo to the database.")
+#define ALERT_DISMISS_BUTTON NSLocalizedStringFromTable(@"ALERT_DISMISS_BUTTON", @"AddPhotoViewController", @"Text on button which dismisses an alert which explained a problem adding a photo to the database.")
+
+- (void)alert:(NSString *)msg
+{
+    [[[UIAlertView alloc] initWithTitle:ALERT_TITLE_ADD_PHOTO // @"Add Photo"
+                                message:msg
+                               delegate:nil
+                      cancelButtonTitle:nil
+                      otherButtonTitles:ALERT_DISMISS_BUTTON, nil] show];
+}
+
+- (void)fatalAlert:(NSString *)msg
+{
+    [[[UIAlertView alloc] initWithTitle:ALERT_TITLE_ADD_PHOTO
+                                message:msg
+                               delegate:self // we're going to cancel when dismissed
+                      cancelButtonTitle:nil
+                      otherButtonTitles:ALERT_DISMISS_BUTTON, nil] show];
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    [self cancel];
 }
 
 #pragma mark - Navigation
@@ -160,21 +177,21 @@
 {
     if ([identifier isEqualToString:UNWIND_SEGUE_IDENTIFIER]) {
         if (!self.image) {
-            [self alert:@"No photo taken!"];
+            [self alert:ALERT_NO_PHOTO_TAKEN]; // @"No photo taken!"
             return NO;
         } else if (![self.titleTextField.text length]) {
-            [self alert:@"Title required!"];
+            [self alert:ALERT_TITLE_REQUIRED]; // @"Title required!"
             return NO;
         } else if (!self.location) {
             switch (self.locationErrorCode) {
                 case kCLErrorLocationUnknown:
-                    [self alert:@"Couldn't figure out where this photo was taken (yet)."]; break;
+                    [self alert:ALERT_LOCATION_UNKNOWN_YET]; break; // @"Couldn't figure out where this photo was taken (yet)."
                 case kCLErrorDenied:
-                    [self alert:@"Location Services disabled under Privacy in Settings application."]; break;
+                    [self alert:ALERT_LOCATION_SERVICES_DISABLED]; break; // @"Location Services disabled under Privacy in Settings application."
                 case kCLErrorNetwork:
-                    [self alert:@"Can't figure out where this photo is being taken.  Verify your connection to the network."]; break;
+                    [self alert:ALERT_LOCATION_NETWORK_DISABLED]; break; // @"Can't figure out where this photo is being taken.  Verify your connection to the network."
                 default:
-                    [self alert:@"Cant figure out where this photo is being taken, sorry."]; break;
+                    [self alert:ALERT_LOCATION_UNKNOWN]; break; // @"Cant figure out where this photo is being taken, sorry."
             }
             return NO;
         } else { // should check imageURL too to be sure we could write the file
@@ -185,29 +202,25 @@
     }
 }
 
-#pragma mark - Alerts
+#pragma mark - View Controller Lifecycle
 
-- (void)alert:(NSString *)msg
+- (void)viewDidAppear:(BOOL)animated
 {
-    [[[UIAlertView alloc] initWithTitle:@"Add Photo"
-                               message:msg
-                              delegate:nil
-                     cancelButtonTitle:nil
-                      otherButtonTitles:@"OK", nil] show];
+    [super viewDidAppear:animated];
+    
+    if (![[self class] canAddPhoto]) {
+        [self fatalAlert:ALERT_CANT_ADD_PHOTO]; // @"Sorry, this device cannot add a photo."
+    } else { // should check that location services are enabled first
+        [self.locationManager startUpdatingLocation];
+    }
 }
 
-- (void)fatalAlert:(NSString *)msg
+- (void)viewWillDisappear:(BOOL)animated
 {
-    [[[UIAlertView alloc] initWithTitle:@"Add Photo"
-                                message:msg
-                               delegate:self // we're going to cancel when dismissed
-                      cancelButtonTitle:nil
-                      otherButtonTitles:@"OK", nil] show];
-}
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    [self cancel];
+    [super viewWillDisappear:animated];
+    
+    // this will happen when we leave heap, but just to be sure ...
+    [self.locationManager stopUpdatingLocation];
 }
 
 #pragma mark - Image Properties
@@ -267,12 +280,23 @@
 
 #pragma mark - Filter Image
 
+#define ALERT_CANT_FILTER_WITHOUT_PHOTO NSLocalizedStringFromTable(@"ALERT_CANT_FILTER_WITHOUT_PHOTO", @"AddPhotoViewController", @"Alert given to user when they try to filter a photo, but they haven't even taken a photo yet.")
+
+#define FILTER_ACTION_SHEET_TITLE NSLocalizedStringFromTable(@"FILTER_ACTION_SHEET_TITLE", @"AddPhotoViewController", @"Title of Filter Image action sheet.")
+
+#define FILTER_ACTION_SHEET_CANCEL NSLocalizedStringFromTable(@"FILTER_ACTION_SHEET_CANCEL", @"AddPhotoViewController", @"Action sheet choice which cancels filtering an image.")
+
+#define FILTER_CHROME NSLocalizedStringFromTable(@"FILTER_CHROME", @"AddPhotoViewController", @"Action sheet choice for applying a chrome filter to a photo taken by the user.")
+#define FILTER_BLUR NSLocalizedStringFromTable(@"FILTER_BLUR", @"AddPhotoViewController", @"Action sheet choice for applying a blurring filter to a photo taken by the user.")
+#define FILTER_NOIR NSLocalizedStringFromTable(@"FILTER_NOIR", @"AddPhotoViewController", @"Action sheet choice for applying a noir filter to a photo taken by the user.")
+#define FILTER_FADE NSLocalizedStringFromTable(@"FILTER_FADE", @"AddPhotoViewController", @"Action sheet choice for applying a fade filter to a photo taken by the user.")
+
 - (IBAction)filterImage
 {
     if (!self.image) {
-        [self alert:@"You must take a photo first!"];
+        [self alert:ALERT_CANT_FILTER_WITHOUT_PHOTO]; // @"You must take a photo first!"
     } else {
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Filter Image"
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:FILTER_ACTION_SHEET_TITLE // @"Filter Image"
                                                                  delegate:self
                                                         cancelButtonTitle:nil
                                                    destructiveButtonTitle:nil
@@ -281,7 +305,7 @@
         for (NSString *filter in [self filters]) {
             [actionSheet addButtonWithTitle:filter];
         }
-        [actionSheet addButtonWithTitle:@"Cancel"]; // put at bottom (don't do at all on iPad)
+        [actionSheet addButtonWithTitle:FILTER_ACTION_SHEET_CANCEL]; // put at bottom (don't do at all on iPad)
         
         [actionSheet showInView:self.view]; // different on iPad
     }
@@ -296,10 +320,10 @@
 
 - (NSDictionary *)filters
 {
-    return @{ @"Chrome" : @"CIPhotoEffectChrome",
-              @"Blur" : @"CIGaussianBlur",
-              @"Noir" : @"CIPhotoEffectNoir",
-              @"Fade" : @"CIPhotoEffectFade" };
+    return @{ FILTER_CHROME : @"CIPhotoEffectChrome", // @"Chrome"
+              FILTER_BLUR : @"CIGaussianBlur", // @"BLUR"
+              FILTER_NOIR : @"CIPhotoEffectNoir", // @"Noir"
+              FILTER_FADE : @"CIPhotoEffectFade" }; // @"Fade"
 }
 
 @end

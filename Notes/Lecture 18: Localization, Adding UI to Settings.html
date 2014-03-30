@@ -1,3 +1,213 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-30 05:30:34 +0000"/><meta name="latitude" content="37.45232239518426"/><meta name="longitude" content="-122.1551605805809"/><meta name="updated" content="2014-03-30 05:30:45 +0000"/><title>Lecture 18: Localization, Adding UI to Settings</title></head><body/></html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-30 05:30:34 +0000"/><meta name="latitude" content="37.45232239518426"/><meta name="longitude" content="-122.1551605805809"/><meta name="updated" content="2014-03-30 06:51:21 +0000"/><title>Lecture 18: Localization, Adding UI to Settings</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Internationalization</b>
+<div><b><br/></b></div>
+<div>Two steps:</div>
+<div>1. Internationalization (i18n)</div>
+<div>2. Localization (l10n)</div>
+<div><br/></div>
+<div>Internationalization: process of making strings externally editable (from storyboard or code)</div>
+<div>Also involves using certain "formatting" classes for things like dates, numbers, etc.</div>
+<div>You (the developer) get to do this work.</div>
+<div><br/></div>
+<div>Localization: process of editing those externalized strings (and then QA'ing the result) for a given language.</div>
+<div>Usually hire a localization company to do this work.</div>
+<div><br/></div>
+<div>Two things that you need to localize: your storyboard and the little strings in your application.</div>
+<div><br/></div>
+<div><u>Storyboards</u></div>
+<div><u><br/></u></div>
+<div>For storyboard, just change the strings, and let Auto Layout resize everything.</div>
+<div><br/></div>
+<div>First step: registering localizable languages.</div>
+<div>Project pane -&gt; Info tab to add Localizations.</div>
+<div><br/></div>
+<div>If you click "Use Base Internationalization" the strings in your storyboards will be extracted into editable .strings files (one for each language).</div>
+<div>"Base" is the "localization" that has all the default storyboard strings etc; all the other ones will modify the strings. If you forget to modify a string, the Base localization will come through.</div>
+<div>Now if you select a storyboard, you can see the .strings files for non-Base storyboards.</div>
+<div><br/></div>
+<div><u>Other strings in your app (alert strings etc)</u></div>
+<div><u><br/></u></div>
+<div>Replace them with a variant of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocalizedString</span>...</div>
+<div><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSString</font> *NSLocalizedStringWithDefaultValue(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *key, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *table, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *bundle, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *defaultValue, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *comment); </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// comment is for localizers</span></div>
+<div>All arguments must be literal strings, not variables.</div>
+<div><br/></div>
+<div>Also <span style="font-family: 'Andale Mono';">NSLocalizedStringFromTableBundle()</span> (<span style="font-family: 'Andale Mono';">defaultValue</span> is the <span style="font-family: 'Andale Mono';">key</span>) and <span style="font-family: 'Andale Mono';">NSLocalizedStringFromTable()</span> (<span style="font-family: 'Andale Mono';">defaultvalue</span> is the <span style="font-family: 'Andale Mono';">key</span> and uses <span style="font-family: 'Andale Mono';">mainBundle</span>) and  <span style="font-family: 'Andale Mono';">NSLocalizedString()</span> (<span style="font-family: 'Andale Mono';">defaultValue</span> is <span style="font-family: 'Andale Mono';">key</span>; <span style="font-family: 'Andale Mono';">mainBundle</span>; table <span style="font-family: 'Andale Mono';">Localizable.strings</span>)</div>
+<div><br/></div>
+<div>Example: change <span style="color: rgb(209, 47, 27);"><font face="Andale Mono">@"hello"</font></span> to <font face="Andale Mono"><span style="color: rgb(120, 73, 42);">NSLocalizedString</span>(<span style="color: rgb(209, 47, 27);">@"hello"</span>, <span style="color: rgb(209, 47, 27);">@"Greeting at start of application."</span>)</font>.</div>
+<div><br/></div>
+<div>What these macros do: they send the method to <span style="font-family: 'Andale Mono';">[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSBundle</span><span style="font-family: 'Andale Mono';"> mainBundle]</span> (or the specified bundle if macro takes one):</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">)localizedStringForKey:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">)key</span></div>
+<div><span style="font-family: 'Andale Mono';">                              value:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">)defaultValue</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// if nil, will be key</span></div>
+<div><span style="font-family: 'Andale Mono';">              localizedStringForKey:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">)key</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// if nil, Localizable.strings</span></div>
+<div><br/></div>
+<div>Once you have used <span style="color: rgb(120, 73, 42); font-family: 'Andale Mono';">NSLocalizedString</span> and its variants to eliminate literal strings, you can use the command line utility  <span style="font-family: 'Andale Mono';">genstrings</span> to generate <span style="font-family: 'Andale Mono';">.strings</span> files from <span style="font-family: 'Andale Mono';">.m</span> files.</div>
+<div><font face="Andale Mono">&gt; cd &lt;directory where all your .m files are&gt;</font></div>
+<div><font face="Andale Mono">&gt; genstrings *.m</font></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div>Example: <span style="font-family: 'Andale Mono'; color: rgb(120, 73, 42);">NSLocalizedString</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"hello"</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Greeting at start of application."</span><span style="font-family: 'Andale Mono';">)</span></div>
+<div>would generate an entry in <span style="font-family: 'Andale Mono';">Localizable.strings</span> which looks like this...</div>
+<div><span style="font-family: 'Andale Mono';">/* Greeting at start of application. */</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">"hello" = "hello";</span></div>
+<div><br/></div>
+<div>Drag the <span style="font-family: 'Andale Mono';">.strings</span> into Xcode and then inspect to Localize.</div>
+<div>Hit the button "Localize" in the File Inspector on the <span style="font-family: 'Andale Mono';">.strings</span> to localize.</div>
+<div><br/></div>
+<div>Resources are drawn from a "bundle" using the user's locale.</div>
+<div>Inside a bundle, there will be "<span style="font-family: 'Andale Mono';">.lproj</span>" directories (e.g. <font face="Andale Mono">en.lproj</font>, <span style="font-family: 'Andale Mono';">fr.lproj</span>, etc.).</div>
+<div>Inside these <span style="font-family: 'Andale Mono';">.lproj</span> directories, there will be <span style="font-family: 'Andale Mono';">.strings</span> files, images, sounds, etc.</div>
+<div>When you get a path to a file from a bundle, it tries top-level first, then searches <span style="font-family: 'Andale Mono';">.lproj</span>s (depending on the language the user has chosen for his system in the Settings app).</div>
+<div><br/></div>
+<div>Bundles can be associated with a framework or an application.</div>
+<div><br/></div>
+<div>Using <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSBundle</span> API to get a resource (e.g. an image or sound):</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSBundle</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">bundle = [</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSBundle</span><span style="font-family: 'Andale Mono';"> bundleForClass:[</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span><span style="font-family: 'Andale Mono';"> class]];</span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *</span><span style="font-family: 'Andale Mono';">path = [bundle pathForResource:</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"speedlimit"</span><span style="font-family: 'Andale Mono';"><font color="#703DAA"> </font></span><span style="font-family: 'Andale Mono';">ofType</span><span style="font-family: 'Andale Mono';"><font color="#703DAA">:</font></span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"jpg"</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">];</span></div>
+<div><span style="font-family: 'Andale Mono';">bundleForClass:</span> knows whether that class came from a framework or just with the application.</div>
+<div><br/></div>
+<div>Debugging: set the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUserDefault</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">NSShowNonLocalizedStrings</span> to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span> and a message will be logged to the console whenever these <span style="color: rgb(120, 73, 42); font-family: 'Andale Mono';">NSLocalizedString</span> methods cannot find a string.</div>
+<div><br/></div>
+<div>If changes you make to <span style="font-family: 'Andale Mono';">.strings</span> files don't seem to be appearing, try Build Clean.</div>
+<div><br/></div>
+<div><u>Locales</u></div>
+<div><u><br/></u></div>
+<div>Dates and numbers are written in different formats in different Locales.</div>
+<div><br/></div>
+<div>The <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocale</span> class encapsulates the locale the user has chosen in Settings. It knows all about date and number formats (independent of the language that is currently set).</div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocale</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';">*)currentLocale;</span></div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocale</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';">*)autoupdatingCurrentLocale; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// watch NSCurrentLocaleDidChangeNotification</span></div>
+<div>Usually you don't need to access this directly because you'll use a formatter which is looking at it.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>NSNumberFormatter</u></span><br/></div>
+<div><br/></div>
+<div>Displaying numbers:</div>
+<div>Shouldn't use <span style="font-family: 'Andale Mono';">[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> stringWithFormat:</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"%g"</span><span style="font-family: 'Andale Mono';">]</span> for user-visible floats.</div>
+<div>Instead, use this <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumberFormatter</span> class method:<br/></div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';">*)localizedStringFromNumber:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span><span style="font-family: 'Andale Mono';"> *)number</span></div>
+<div><span style="font-family: 'Andale Mono';">              </span><span style="font-family: 'Andale Mono';">numberStyle:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumberFormatterStyle</span><span style="font-family: 'Andale Mono';">)style</span></div>
+<div>Example styles: <span style="font-family: 'Andale Mono';">NSNumberFormatterDecimalStyle</span> or <span style="font-family: 'Andale Mono';">CurrencyStyle</span> or <span style="font-family: 'Andale Mono';">SpellOutStyle</span></div>
+<div><br/></div>
+<div><br/></div>
+<div>Parsing numbers:</div>
+<div>Shouldn't use <span style="font-family: 'Andale Mono';">intValue</span> to parse a number typed in by the user; use:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumberFormatter </span><span style="font-family: 'Andale Mono';">*formatter = [[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumberFormatter</span><span style="font-family: 'Andale Mono';"> alloc] init];</span></div>
+<div><span style="font-family: 'Andale Mono';">[formatter setNumberStyle:NSNumberFormatterDecimalStyle];</span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span><span style="font-family: 'Andale Mono';"> *parsedNumber = [formatter numberFromString:userInputtedString];</span></div>
+<div>Note that this will return <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span> if a number of the proper format is not found.</div>
+<div>That can be valuable to differentiate from the user entering "zero" for example.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDateFormatter</u><br/></div>
+<div><br/></div>
+<div>Dates are rather complicated to display properly.</div>
+<div><br/></div>
+<div>Calendars - not all locales use the Gregorian calendar that we do. Look at <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSCalendar</span>.</div>
+<div><br/></div>
+<div>Date components - what is a "month" (calendar dependent) Look at <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDateComponents</span>.</div>
+<div><br/></div>
+<div>If you have in mind something like MM/DD/YY, check out</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';">*)dateFormatFromTemplate:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)template</span></div>
+<div><span style="font-family: 'Andale Mono';">                             </span><span style="font-family: 'Andale Mono';">options:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUInteger</span><span style="font-family: 'Andale Mono';">)options</span></div>
+<div><span style="font-family: 'Andale Mono';">                              </span><span style="font-family: 'Andale Mono';">locale:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocale </span><span style="font-family: 'Andale Mono';">*)locale;</span></div>
+</div>
+<div><br/></div>
+<div>Simple date formatting:</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';">*)localizedStringFromDate:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)template</span></div>
+<div><span style="font-family: 'Andale Mono';">                           </span> <span style="font-family: 'Andale Mono';">dateStyle:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDateFormatterStyle</span><span style="font-family: 'Andale Mono';">)dateStyle</span></div>
+<div><span style="font-family: 'Andale Mono';">                            timeStyle</span><span style="font-family: 'Andale Mono';">:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDateFormatterStyle</span><span style="font-family: 'Andale Mono';">)timeStyle;</span></div>
+</div>
+<div>Example styles: <font face="Andale Mono">NSDateFormatterShortStyle</font> or <span style="font-family: 'Andale Mono';">MediumStyle</span> or <span style="font-family: 'Andale Mono';">LongStyle</span> or <font face="Andale Mono">FullStyle</font></div>
+<div><br/></div>
+<div><u>Searching in strings</u></div>
+<div><u><br/></u></div>
+<div>Do not use plain <span style="font-family: 'Andale Mono';">rangeOfString:</span> if you are looking around in user-inputted strings. Instead, use:</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRange</span><span style="font-family: 'Andale Mono';">)rangeOfString:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString</span><span style="font-family: 'Andale Mono';"> *)useEnteredSubstring</span></div>
+<div><span style="font-family: 'Andale Mono';">                 options:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSStringCompareOptions</span><span style="font-family: 'Andale Mono';">)options</span></div>
+<div><span style="font-family: 'Andale Mono';">                   range</span><span style="font-family: 'Andale Mono';">:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSRange</span><span style="font-family: 'Andale Mono';">)rangeToSearchIn</span></div>
+<span style="font-family: 'Andale Mono';">                  locale</span><span style="font-family: 'Andale Mono';">:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSLocale </span><span style="font-family: 'Andale Mono';">*)locale;</span></div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImage</u><br/></div>
+<div><br/></div>
+<div>The method <span style="font-family: 'Andale Mono';">imageNamed:</span> does the right thing.</div>
+<div>It looks in the right <span style="font-family: 'Andale Mono';">.lproj</span>.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>When you localize a storyboard, you get a file containing strings like</div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">/* Class = "IBUILabel"; text = "Title"; ObjectID = "GDg-LX-NP7"; */</span><br/>
+<span style="color: rgb(209, 47, 27);">"GDg-LX-NP7.text"</span> = <span style="color: rgb(209, 47, 27);">"Title"</span>;</font><br/></div>
+<div><br/></div>
+<div>Find Object IDs in the Identity Inspector.<br/></div>
+<div><br/></div>
+<div>A good way to localize as a developer is to add spaces between letters:</div>
+<div><font face="Andale Mono"><span style="color: rgb(0, 132, 0);">/* Class = "IBUINavigationItem"; title = "Shutterbug"; ObjectID = "2Nd-fj-gow"; */</span><br/>
+<span style="color: rgb(209, 47, 27);">"2Nd-fj-gow.title"</span> = <span style="color: rgb(209, 47, 27);">"S.h.u.t.t.e.r.b.u.g"</span>;</font><br/></div>
+<div><br/></div>
+<div>Use <span style="color: rgb(120, 73, 42);"><font face="Andale Mono">#define</font></span>s for localized strings in code;</div>
+<div><span style="color: rgb(120, 73, 42); font-family: 'Andale Mono';">#define ALERT_CANT_ADD_PHOTO NSLocalizedStringFromTable(@</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">"</span><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">ALERT_CANT_ADD_PHOTO"</span><span style="color: rgb(120, 73, 42);">,</span><span style="color: rgb(120, 73, 42);"> @</span><span style="color: rgb(209, 47, 27);">"AddPhotoViewController"</span><span style="color: rgb(120, 73, 42);">,</span></font><span style="color: rgb(120, 73, 42); font-family: 'Andale Mono';"> @</span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">"Message given to user if the user tries to add a photo but there is an unrecoverable problem."</span><span style="color: rgb(120, 73, 42); font-family: 'Andale Mono';">)</span></div>
+<div><br/></div>
+<div>Usually put <span style="font-family: 'Andale Mono';">.strings</span> files into View. Click Localize in File Inspector; make current one Base, check all Localizations in File Inspector and update.</div>
+<div><br/></div>
+<div>How do you localize an entity name?</div>
+<div><font face="Andale Mono">[[<span style="color: rgb(112, 61, 170);">NSBundle</span> <span style="color: rgb(61, 29, 129);">mainBundle</span>] <span style="color: rgb(61, 29, 129);">localizedStringForKey</span>:newfrc.<span style="color: rgb(112, 61, 170);">fetchRequest</span>.<span style="color: rgb(61, 29, 129);">entity</span>.<span style="color: rgb(61, 29, 129);">name</span><br/>
+                                       <span style="color: rgb(61, 29, 129);">value</span>:newfrc.<span style="color: rgb(112, 61, 170);">fetchRequest</span>.<span style="color: rgb(61, 29, 129);">entity</span>.<span style="color: rgb(61, 29, 129);">name</span><br/>
+                                       <span style="color: rgb(61, 29, 129);">table</span>:<span style="color: rgb(209, 47, 27);">@"Entities"</span>]</font><br/></div>
+<div>Then make an New File -&gt; Resources -&gt; Strings File <span style="font-family: 'Andale Mono';">Entities.strings</span> containing:</div>
+<div><font face="Andale Mono"><span style="color: rgb(209, 47, 27);">"Photographer"</span> = <span style="color: rgb(209, 47, 27);">"P.h.o.t.o.g.r.a.p.h.e.r"</span>;</font><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Settings</b></div>
+<div><b><br/></b></div>
+<div>A little bit of UI for your application in the Settings application.</div>
+<div><br/></div>
+<div>Use this sparingly (if at all). Appropriate only for very rarely used settings or default behavior -- you don't want to make your users ever have to go here for normal use of your application.</div>
+<div><br/></div>
+<div>These settings appear in your application via <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUserDefaults</span>. Specify the UI and the associated defaults in a property list file.</div>
+<div><br/></div>
+<div>New File -&gt; Resources -&gt; Settings Bundle. Build using a property list.</div>
+<div><br/></div>
+<div>Should localize settings, but it's not very well supported in Xcode.</div>
+<div><font face="Andale Mono">Settings.bundle</font> -&gt; <font face="Andale Mono">en.lproj</font> -&gt; <font face="Andale Mono">Root.strings</font></div>
+<div>Each language has a strings file for each Settings page (<font face="Andale Mono">Root.strings</font> localizes the <font face="Andale Mono">Root.plist</font> page of the settings).</div>
+<div><br/></div>
+<div>How do you make a <span style="font-family: 'Andale Mono';">fr.lproj</span> folder? Show Package Contents on <font face="Andale Mono">Settings.bundle</font>, then manually create one.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Getting the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSUserDefaults</span> <span style="font-family: 'Andale Mono';">elasticity</span>:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)resetElasticity<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSNumber</span> *elasticity = [[<span style="color: rgb(112, 61, 170);">NSUserDefaults</span> <span style="color: rgb(61, 29, 129);">standardUserDefaults</span>] <span style="color: rgb(61, 29, 129);">valueForKey</span>:<span style="color: rgb(209, 47, 27);">@"Settings_Elasticity"</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (elasticity) {<br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">elastic</span>.<span style="color: rgb(112, 61, 170);">elasticity</span> = [elasticity <span style="color: rgb(61, 29, 129);">floatValue</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">elastic</span>.<span style="color: rgb(112, 61, 170);">elasticity</span> = <span style="color: rgb(39, 42, 216);">1.0</span>;<br/>
+    }<br/>
+}</font></div>
+<div>If no one's gone into Settings, it's not set, so be sure to check.</div>
+<div><br/></div>
+<div>What if someone changes it when the app is running? Add another radio station.</div>
+<div><font face="Andale Mono">[[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">addObserverForName</span>:<span style="color: rgb(112, 61, 170);">NSUserDefaultsDidChangeNotification</span><br/>
+                                                  <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                   <span style="color: rgb(61, 29, 129);">queue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                              <span style="color: rgb(61, 29, 129);">usingBlock</span>:^(<span style="color: rgb(112, 61, 170);">NSNotification</span> *note) {<br/>
+                                                  [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">resetElasticity</span>];<br/>
+                                              }];</font><br/></div>
+<div><br/></div>
+<div>Granularity of a slider depends on whether it's a Float or an Int and the number of points there actually are.</div>
+<div><br/></div>
+<div>Go to file system: right click -&gt; Show In Finder</div>
+<div><br/></div>
+<div>Settings you want to use on a regular basis should be set within your app.</div>
+</body></html>

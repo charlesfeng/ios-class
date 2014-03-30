@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC40AA30184D688200BA3ACF /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EC40AA2F184D688200BA3ACF /* Settings.bundle */; };
 		EC540E27183D918500533F84 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC540E26183D918500533F84 /* Foundation.framework */; };
 		EC540E29183D918500533F84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC540E28183D918500533F84 /* CoreGraphics.framework */; };
 		EC540E2B183D918500533F84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC540E2A183D918500533F84 /* UIKit.framework */; };
@@ -35,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EC40AA2F184D688200BA3ACF /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		EC540E23183D918500533F84 /* Bouncer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bouncer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC540E26183D918500533F84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EC540E28183D918500533F84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -116,6 +118,7 @@
 			children = (
 				EC540E3E183D918600533F84 /* BouncerViewController.h */,
 				EC540E3F183D918600533F84 /* BouncerViewController.m */,
+				EC40AA2F184D688200BA3ACF /* Settings.bundle */,
 				EC540E41183D918600533F84 /* Images.xcassets */,
 				EC540E2D183D918600533F84 /* Supporting Files */,
 			);
@@ -234,6 +237,7 @@
 			files = (
 				EC540E3D183D918600533F84 /* Main_iPad.storyboard in Resources */,
 				EC540E42183D918600533F84 /* Images.xcassets in Resources */,
+				EC40AA30184D688200BA3ACF /* Settings.bundle in Resources */,
 				EC540E3A183D918600533F84 /* Main_iPhone.storyboard in Resources */,
 				EC540E31183D918600533F84 /* InfoPlist.strings in Resources */,
 			);
@@ -475,6 +479,7 @@
 				EC540E5A183D918600533F84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EC540E5B183D918600533F84 /* Build configuration list for PBXNativeTarget "BouncerTests" */ = {
 			isa = XCConfigurationList;
@@ -483,6 +488,7 @@
 				EC540E5D183D918600533F84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
