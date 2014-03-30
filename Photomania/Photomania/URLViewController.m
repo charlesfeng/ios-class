@@ -2,14 +2,14 @@
 //  URLViewController.m
 //  Photomania
 //
-//  Created by Charles Feng on 3/10/14.
-//  Copyright (c) 2014 Charles Feng. All rights reserved.
+//  Created by CS193p Instructor.
+//  Copyright (c) 2013 Stanford University. All rights reserved.
 //
 
 #import "URLViewController.h"
 
 @interface URLViewController ()
-@property (strong, nonatomic) IBOutlet UITextView *urlTextView;
+@property (weak, nonatomic) IBOutlet UITextView *urlTextView;
 @end
 
 @implementation URLViewController
@@ -20,7 +20,7 @@
     [self updateUI];
 }
 
-- (void)viewDidLoad
+- (void)viewDidLoad // updateUI here in case our url property was set before outlets loaded
 {
     [super viewDidLoad];
     [self updateUI];

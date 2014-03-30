@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="6"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-29 23:57:25 +0000"/><meta name="latitude" content="37.56576525453354"/><meta name="longitude" content="-122.328766572647"/><meta name="updated" content="2014-03-30 04:17:08 +0000"/><title>Lecture 16: Modal Segues, Text Fields, Alerts, and Action Sheets</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Modal View Controllers</b>
+<div><b><br/></b></div>
+<div>A way of segueing that takes over the screen until it's canceled. Can have multiple levels of modals.</div>
+<div><br/></div>
+<div>Example: Contacts application; tapping + adds a new contact which takes over the whole screen. Not a push; no back button (only Cancel). On iPads usually appears as a popover.</div>
+<div><br/></div>
+<div>Considerations:</div>
+<div>- Can be rather disconcerting to the user, so use this carefully.</div>
+<div>- Often overused; if going Back makes sense at all times use a push segue instead.</div>
+<div><br/></div>
+<div><u>How do we set a Modal segue up?</u></div>
+<div><br/></div>
+<div>Control-drag from a button to another View Controller, pick segue type "Modal".</div>
+<div>If you need to present a Modal VC not from a button, use a manual segue.</div>
+<div><br/></div>
+<div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<font color="#703DAA">UIStoryboardSegue</font></font><span style="font-family: 'Andale Mono';"> *)segue sender:(<font color="#BB2CA2">id</font></span><span style="font-family: 'Andale Mono';">)sender</span></div>
+<div><font face="Andale Mono">{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([segue.identifier isEqualToString:</font><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"GoToMyModalVC"</span><span style="font-family: 'Andale Mono';">]) {</span></div>
+<div><font face="Andale Mono">        </font><span style="font-family: 'Andale Mono';">MyModalVC *vc =</span> <span style="font-family: 'Andale Mono';">segue.destinationViewController;;</span></div>
+<div><font face="Andale Mono">        <span style="color: rgb(0, 132, 0);">// set up the vc to run here</span><br/>
+    }<br/>
+}</font></div>
+</div>
+<div><br/></div>
+<div>When the Modal appears, it can disappear (so <span style="font-family: 'Andale Mono';">viewDidDisappear</span> is called)</div>
+<div><br/></div>
+<div><u>Hearing back from a Modal segued-to View Controller</u></div>
+<div><u><br/></u></div>
+<div>Have the segued-to View Controller "segue back" using an "unwind segue".</div>
+<div>They're the only segue that do not instantiate a new VC.</div>
+<div>Limited to VCs that "presented" the VC that is segueing back.</div>
+<div>Normally used with modal, but can also be used with push.</div>
+<div><br/></div>
+<div>Most important thing: specify the action that is called on the presenting View Controller.</div>
+<div>
+<div><font face="Andale Mono"><br/>
+- (<font color="#703DAA">IBAction</font></font><span style="font-family: 'Andale Mono';">)done:</span><font face="Andale Mono">(<font color="#703DAA">UIStoryboardSegue</font></font><span style="font-family: 'Andale Mono';"> *)segue</span></div>
+<div><font face="Andale Mono">{</font></div>
+<div><font face="Andale Mono">   </font> <span style="font-family: 'Andale Mono';">MyModalVC *vc = (MyModalVC *)</span><span style="font-family: 'Andale Mono';">sourceViewController;</span></div>
+<div><font face="Andale Mono">    <span style="color: rgb(0, 132, 0);">// get results out of vc, which I presented</span><br/>
+}</font></div>
+</div>
+<div><br/></div>
+<div>Control-drag from some UI in the presented view controller's scene to the green icon in the presented view controller's scene. Select the method (<span style="font-family: 'Andale Mono';">done:</span> above) you want to use to unwind.</div>
+<div><br/></div>
+<div>When the UI is activated, the method will be called and the modally presented view controller will automatically dismiss.</div>
+<div><br/></div>
+<div>The presented view controller will be sent <span style="font-family: 'Andale Mono';">prepareForSegue:sender:</span> before <span style="font-family: 'Andale Mono';">done:</span> gets called.</div>
+<div><br/></div>
+<div>You need the unwind segue's identifier too -- the only place to do that is in the document outline.</div>
+<div><br/></div>
+<div><u>Dismissing view controllers from code</u></div>
+<div><u><br/></u></div>
+<div>Send to the presenting view controller:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)dismissViewControllerAnimated:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><span style="font-family: 'Andale Mono';">)animated completion:((</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><span style="font-family: 'Andale Mono';">)(^)(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">void</span><span style="font-family: 'Andale Mono';">))block;</span></div>
+<div><u><br/></u></div>
+<div>Modal view controller dismissing themselves is usually frowned upon, but sometimes happens on cancel. Do it like</div>
+<div><span style="font-family: 'Andale Mono';">[self.presentingViewController dismissViewControllerAnimated:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span><span style="font-family: 'Andale Mono';"> ...];</span></div>
+<div><br/></div>
+<div>Usually we just make cancel buttons unwind.</div>
+<div><br/></div>
+<div><u>How does it animate onto the screen?</u></div>
+<div><u><br/></u></div>
+<div>Depends on the property in the view controller that is being put up modally:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIModalTransitionStyle</span><span style="font-family: 'Andale Mono';"> modalTransitionStyle;</span></div>
+<div><span style="font-family: 'Andale Mono';">UIModalTransitionStyleCoverVertical </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// slides up/down</span></div>
+<span style="font-family: 'Andale Mono';">UIModalTransitionStyleFlipHorizontal </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// flips current VC over</span><span style="font-family: 'Andale Mono';"><br/>
+UIModalTransitionStyleCrossDissolve </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// fade out/in</span><span style="font-family: 'Andale Mono';"><br/>
+UIModalTransitionStylePartialCurl </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// only if presenter is full screen</span>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>What about iPad? Might not look good for a presented view to take up the entire screen. Set a property in the modal VC:</div>
+<div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIModalPresentationStyle</span><span style="font-family: 'Andale Mono';"> modalPresentationStyle;</span></div>
+<div><span style="font-family: 'Andale Mono';">UIModalPresentationFullScreen </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// full screen anyway (always on iPhone/iPod touch)</span></div>
+<span style="font-family: 'Andale Mono';">UIModalPresentationPageSheet </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// full screen height, but portrait width even if landscape</span><span style="font-family: 'Andale Mono';"><br/>
+UIModalPresentationFormSheet </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// centered on the screen</span><span style="font-family: 'Andale Mono';"><br/>
+UIModalPresentationCurrentContext </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// popover in parent context</span><br/></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';"><br/></span></div>
+<div>It's also possible for the presenting VC to control these things using <span style="font-family: 'Andale Mono';">definesPresentationContext</span>.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>UITextField</u></span><br/></div>
+<div><br/></div>
+<div>In between <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UILabel</span> and  <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextView</span>:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UILabel</span> not editable; can be attributed text but static.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextView</span> fully editable; all fonts + colors</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> can have target actions (since it's a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIControl</span>) but usually just one line of text. The user usually just provides the text. Kind of an editable <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UILabel</span>.</div>
+<div><br/></div>
+<div>The keyboard appears when you click on it. Can also make it the first responder by sending it the <font face="Andale Mono">becomeFirstResponder</font> message. To make the keyboard go away, send it <span style="font-family: 'Andale Mono';">resignFirstResponder</span>.</div>
+<div><br/></div>
+<div>Delegate can get involved with Return key, etc.</div>
+<div><br/></div>
+<div>Sent when return key is pressed:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)textFieldShouldReturn:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField </span><span style="font-family: 'Andale Mono';">*)sender; </span></div>
+<div>Oftentimes, you will <span style="font-family: 'Andale Mono';">[sender </span><span style="font-family: 'Andale Mono';">resignFirstResponder]</span> in this method.</div>
+<div>Return whether to do normal processing when Return key is pressed (e.g. target/action).</div>
+<div><br/></div>
+<div>Sent when editing has ended (when text field resigns being first responder):</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)textFieldDidEndEditing:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField </span><span style="font-family: 'Andale Mono';">*)sender; </span><br/></div>
+<div><br/></div>
+<div>Finding out when the text changes: sign up for the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNotification</span></div>
+<div><span style="font-family: 'Andale Mono';">UITextFieldTextDidChangeNotification</span><br/></div>
+<div><br/></div>
+<div><u>Keyboard</u></div>
+<div><u><br/></u></div>
+<div>Controlling the appearance of the keyboard:</div>
+<div>Set the properties defined in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextInputTraits</span> protocol (which <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> implements)</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextAutocapitalizationType</span><span style="font-family: 'Andale Mono';"> autocapitalizationType;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// words, sentences, etc</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextAutocorrectionType</span><span style="font-family: 'Andale Mono';"> autocorrectionType;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// UITextAutocorrectionTypeYES/NO</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIReturnKeyType</span><span style="font-family: 'Andale Mono';"> returnKeyType;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// Go, Search, Goog,e Done, etc</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property BOOL </span><span style="font-family: 'Andale Mono';">secureTextEntry;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// for passwords</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span> <span style="font-family: 'Andale Mono';"><font color="#703DAA">UIKeyboardType </font></span><span style="font-family: 'Andale Mono';">keyboardType;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// ASCII, URL, PhonePad, etc</span><br/></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';"><br/></span></div>
+<div>Keyboard comes up over other views, so you may need to adjust your view positioning (especially to keep the text field itself visible). Maybe scroll your view up?</div>
+<div><br/></div>
+<div>React to the <span style="font-family: 'Andale Mono';">UIKeyboard{Will,Did}{Show,Hide}Notifications</span> sent by <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIWindow</span>.</div>
+<div><span style="font-family: 'Andale Mono';">[[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNotificationCenter </span><span style="font-family: 'Andale Mono';">defaultCenter] addObserver:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span><span style="font-family: 'Andale Mono';"> selector:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@selector(</span><span style="font-family: 'Andale Mono';">theKeyboardAppeared:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> name:UIKeyboardDidShowNotification object:</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">self</span><span style="font-family: 'Andale Mono';">.view.window];</span></div>
+<div><br/></div>
+<div>The <span style="font-family: 'Andale Mono';">userInfo</span> in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNotification</span> will have details about the appearance.</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableViewController</span> listens for this and scrolls table automatically if a row has a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span>.</div>
+<div><br/></div>
+<div>Other <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> properties:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property BOOL </span><span style="font-family: 'Andale Mono';">clearsOnBeginEditing;</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property BOOL </span><span style="font-family: 'Andale Mono';">adjustsFontSizeToFitWidth;</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">CGFloat </font></span><span style="font-family: 'Andale Mono';">minimumFontSize;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// always set this if you set adjustsFontSizeToFitWidth</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSString </font></span><span style="font-family: 'Andale Mono';">*placeholder;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// drawn in gray when text field is empty</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">UIImage </font></span><span style="font-family: 'Andale Mono';">*background/disabledBackground;</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSDictionary </font></span><span style="font-family: 'Andale Mono';">*defaultTextAttributes;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// applies to entire text</span><br/></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';"><br/></span></div>
+<div>Other <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> functionality: have "left" and "right" overlays (similar to accessory views in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span>). You can control in detail the layout of the text field (border, left/right view, clear button)</div>
+<div><br/></div>
+<div>Other keyboard functionality:can have accessory views that appear above the keyboard (custom toolbar, etc). Method in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span>:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">retain</span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">UIView </font></span><span style="font-family: 'Andale Mono';">*inputAccessoryView;</span><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Action Sheets and Alerts</b></div>
+<div><b><br/></b></div>
+<div>Action Sheets for branching decisions; Alerts for alerting them to something.</div>
+<div><br/></div>
+<div>Alerts pop up in the middle of the screen. Usually ask questions with only two (or one) answers (e.g. OK/Cancel, Yes/No, etc.). Can be disruptive to your UI so use carefully.</div>
+<div><br/></div>
+<div>Action Sheets slide in from the bottom on an iPhone, and in a popover on iPad. Can be displayed from a tab bar, toolbar, bar button item or from a rectangular area in a view.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet</u><br/></div>
+<div><br/></div>
+<div>Initializer:</div>
+<div><font face="Andale Mono">   - (<span style="color: rgb(187, 44, 162);">id</span>)initWithTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)title</span></div>
+<div><span style="font-family: 'Andale Mono';">              </span><font face="Andale Mono">delegate:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">&lt;UIActionSheetDelegate&gt;)delegate</span></div>
+<div><span style="font-family: 'Andale Mono';">     </span><font face="Andale Mono">cancelButtonTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)cancelButtonTitle</span></div>
+<div><font face="Andale Mono">destructiveButtonTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)destructiveButtonTitle</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">     otherButtonTitles:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)otherButtonTitles, ...;</span><br/></div>
+<div><br/></div>
+<div><span style="font-family: 'Andale Mono';">delegate</span> tells you what button was chosen.</div>
+<div><br/></div>
+<div>Can add buttons programmatically:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addButtonWithTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)buttonTitle;</span><br/></div>
+<div><br/></div>
+<div>Displaying:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet </span><span style="font-family: 'Andale Mono';">*actionSheet = [[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet</span><span style="font-family: 'Andale Mono';"> alloc] initWithTitle:...];</span></div>
+<div><span style="font-family: 'Andale Mono';">[actionSheet showInView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><span style="font-family: 'Andale Mono';"> *)];</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// centers the view on iPhone (don't use this in iPad)</span></div>
+<div><span style="font-family: 'Andale Mono';">[actionSheet showFromRect:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGRect</span><span style="font-family: 'Andale Mono';">) inView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIView</span><span style="font-family: 'Andale Mono';"> *) animated:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span><span style="font-family: 'Andale Mono';">)];</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// good on iPad</span></div>
+<div><span style="font-family: 'Andale Mono';">[actionSheet showFromBarButtonItem:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIBarButtonItem</span><span style="font-family: 'Andale Mono';"> *) animated:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span><span style="font-family: 'Andale Mono';">)]; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// good on iPad</span></div>
+<div>Universal apps take care here!</div>
+<div><br/></div>
+<div>Finding out what the user has chosen via the delegate:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)actionSheet:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet </span><span style="font-family: 'Andale Mono';">*)sender didDismissWithButtonIndex:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSInteger</span><span style="font-family: 'Andale Mono';">)index;</span></div>
+<div><br/></div>
+<div>Remember from initializer that Cancel/Destructive are special:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSInteger </font></span><span style="font-family: 'Andale Mono';">cancelButtonIndex;</span><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSInteger </font></span><span style="font-family: 'Andale Mono';">destructiveButtonIndex;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Don't set these if you set it in initializer.</div>
+<div><br/></div>
+<div>Other indexes:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSInteger </font></span><span style="font-family: 'Andale Mono';">firstOtherButtonIndex;</span><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"> </span><span style="font-family: 'Andale Mono';"><font color="#703DAA">NSInteger </font></span><span style="font-family: 'Andale Mono';">numberOfButtons;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSInteger </span><font face="Andale Mono">*)buttonTitleAtIndex:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSInteger</span><span style="font-family: 'Andale Mono';">)index;</span></div>
+<div>The "other button" indexes are in the order you specified them in initializer and/or added them.<br/></div>
+<div><br/></div>
+<div>You can programmatically dismiss the action sheet as well:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)dismissWithClickedButtonIndex:(<font color="#703DAA">NSInteger</font></font><span style="font-family: 'Andale Mono';">)index animated:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span></div>
+<div>It is generally recommended to call this on <span style="font-family: 'Andale Mono';">UIApplicationDidEnterBackgroundNotification</span>.</div>
+<div><br/></div>
+<div>Remember also that you might be terminated while you are in the background, so be ready.</div>
+<div><br/></div>
+<div>Special popover considerations: no Cancel button; adds toolbar to popover's <span style="font-family: 'Andale Mono';">passThroughView</span> so repeated touches on bar button give multiple action sheets (fix by having a <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">weak @property</span> on your class that points to the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet</span>).</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIAlertView</u><br/></div>
+<div><br/></div>
+<div>Can have multiple buttons or a text field.</div>
+<div>Always appears in the center of the screen.</div>
+<div>
+<div><br/>
+Initializer:</div>
+<div><font face="Andale Mono">   - (<span style="color: rgb(187, 44, 162);">id</span>)initWithTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)title</span></div>
+<div><font face="Andale Mono">               message:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)message</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">              </span><font face="Andale Mono">delegate:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">&lt;UIActionSheetDelegate&gt;)delegate</span></div>
+<div><span style="font-family: 'Andale Mono';">     </span><font face="Andale Mono">cancelButtonTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)cancelButtonTitle</span></div>
+<div><font face="Andale Mono">destructiveButtonTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)destructiveButtonTitle</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">     otherButtonTitles:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)otherButtonTitles, ...;</span><br/></div>
+</div>
+<div>
+<div><br/>
+Can add buttons programmatically:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addButtonWithTitle:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSString </span><span style="font-family: 'Andale Mono';">*)buttonTitle;</span></div>
+</div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Displaying the Alert:</div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIActionSheet </span><span style="font-family: 'Andale Mono';">*alert = [[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIAlertView</span><span style="font-family: 'Andale Mono';"> alloc] initWithTitle:...];</span></div>
+<div><span style="font-family: 'Andale Mono';">[alert show];</span></div>
+<div><br/></div>
+<div>Can have a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> in your Alert:</div>
+<div><span style="font-family: 'Andale Mono';">alert.alertViewStyle = UIAlertViewStyle{SecureText,PlainText,LoginAndPassword}Input;</span><br/>
+<span style="font-family: 'Andale Mono';">[alertView textFieldAtIndex:</span><span style="color: rgb(39, 42, 216); font-family: 'Andale Mono';">0</span><span style="font-family: 'Andale Mono';">];</span> gives you the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField</span> (1 is password in <span style="font-family: 'Andale Mono';">LoginAndPassword</span>)</div>
+<div><br/></div>
+<div>Text field automatically moves out of the way when a keyboard appears.<br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>Bar Button Items have special Identifiers including Camera.</div>
+<div><br/></div>
+<div>Can wire up delegates (e.g. for text fields) in the storyboard by control dragging to the yellow button. </div>
+<div><br/></div>
+<div>Hiding keyboard when "return" is pressed for a text field:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)textFieldShouldReturn:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITextField </span><span style="font-family: 'Andale Mono';">*)textField</span></div>
+<div><span style="font-family: 'Andale Mono';">{</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">    [textfield </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">resignFirstResponder</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><span style="font-family: 'Andale Mono';">   </span> <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">return YES</span>;</div>
+<div><span style="font-family: 'Andale Mono';">}</span><br/></div>
+<div><br/></div>
+<div>Unwind by control-dragging button to the green (Exit) button on the storyboard.</div>
+<div>Be sure to define <span style="font-family: 'Andale Mono';">prepareForSegue</span>! Can't use <font face="Andale Mono">segue.destinationViewController</font> in this case, but can look at <span style="font-family: 'Andale Mono';">segue.identifer</span>.</div>
+<div><br/></div>
+<div><u>Putting up an alert</u></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)alert:(<span style="color: rgb(112, 61, 170);">NSString</span> *)msg<br/>
+{<br/>
+    [[[<span style="color: rgb(112, 61, 170);">UIAlertView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTitle</span>:<span style="color: rgb(209, 47, 27);">@"Add Photo"</span><br/>
+                               <span style="color: rgb(61, 29, 129);">message</span>:msg<br/>
+                              <span style="color: rgb(61, 29, 129);">delegate</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                     <span style="color: rgb(61, 29, 129);">cancelButtonTitle</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                      <span style="color: rgb(61, 29, 129);">otherButtonTitles</span>:<span style="color: rgb(209, 47, 27);">@"OK"</span>, <span style="color: rgb(187, 44, 162);">nil</span>] <span style="color: rgb(61, 29, 129);">show</span></font><font face="Andale Mono">];<br/>
+}</font><br/></div>
+<div>then</div>
+<div><font face="Andale Mono">[<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">alert</span>:<span style="color: rgb(209, 47, 27);">@"No photo taken!"</span>];</font><br/></div>
+<div><br/></div>
+<div>For a fatal alert, add the <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">UIAlertViewDelegate</font></span> interface and:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)fatalAlert:(<span style="color: rgb(112, 61, 170);">NSString</span> *)msg<br/>
+{<br/>
+    [[[<span style="color: rgb(112, 61, 170);">UIAlertView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTitle</span>:<span style="color: rgb(209, 47, 27);">@"Add Photo"</span><br/>
+                                <span style="color: rgb(61, 29, 129);">message</span>:msg<br/>
+                               <span style="color: rgb(61, 29, 129);">delegate</span>:<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(0, 132, 0);">// we're going to cancel when dismissed</span><br/>
+                      <span style="color: rgb(61, 29, 129);">cancelButtonTitle</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                      <span style="color: rgb(61, 29, 129);">otherButtonTitles</span>:<span style="color: rgb(209, 47, 27);">@"OK"</span>, <span style="color: rgb(187, 44, 162);">nil</span>] <span style="color: rgb(61, 29, 129);">show</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)alertView:(<span style="color: rgb(112, 61, 170);">UIAlertView</span> *)alertView didDismissWithButtonIndex:(<span style="color: rgb(112, 61, 170);">NSInteger</span>)buttonIndex<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">cancel</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Adding a location</u></div>
+<div><br/></div>
+<div>To add a location, you need a <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">CLLocationManager</font></span>. Lazy instantiate it:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">CLLocationManager</span> *locationManager;<br/></font></div>
+<div><font face="Andale Mono"><br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidAppear</span>:animated];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (![[<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">class</span>] <span style="color: rgb(49, 89, 93);">canAddPhoto</span>]) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">fatalAlert</span>:<span style="color: rgb(209, 47, 27);">@"Sorry, this device cannot add a photo."</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> { <span style="color: rgb(0, 132, 0);">// should check that location services are enabled first</span><br/>
+        [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">locationManager</span> <span style="color: rgb(61, 29, 129);">startUpdatingLocation</span>];<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillDisappear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillDisappear</span>:animated];<br/>
+<br/>
+    <span style="color: rgb(0, 132, 0);">// this will happen when we leave heap, but just to be sure ...</span></font><font face="Andale Mono"><br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">locationManager</span> <span style="color: rgb(61, 29, 129);">stopUpdatingLocation</span>];<br/>
+}<span style="color: rgb(120, 73, 42);"><br/></span><br/>
+- (<span style="color: rgb(112, 61, 170);">CLLocationManager</span> *)locationManager<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_locationManager</span>) {<br/>
+        <span style="color: rgb(112, 61, 170);">CLLocationManager</span> *locationManager = [[<span style="color: rgb(112, 61, 170);">CLLocationManager</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        locationManager.<span style="color: rgb(112, 61, 170);">delegate</span> = <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+        locationManager.<span style="color: rgb(112, 61, 170);">desiredAccuracy</span> = <span style="color: rgb(112, 61, 170);">kCLLocationAccuracyBest</span>;<br/>
+        <span style="color: rgb(79, 129, 135);">_locationManager</span> = locationManager;<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_locationManager</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)locationManager:(<span style="color: rgb(112, 61, 170);">CLLocationManager</span> *)manager didUpdateLocations:(<span style="color: rgb(112, 61, 170);">NSArray</span> *)locations<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">location</span> = [locations <span style="color: rgb(61, 29, 129);">lastObject</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)locationManager:(<span style="color: rgb(112, 61, 170);">CLLocationManager</span> *)manager didFailWithError:(<span style="color: rgb(112, 61, 170);">NSError</span> *)error<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">locationErrorCode</span> = error.<span style="color: rgb(61, 29, 129);">code</span></font><font face="Andale Mono">;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Saving an image</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">NSURL</span> *imageURL;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">strong</span>, <span style="color: rgb(187, 44, 162);">nonatomic</span>) <span style="color: rgb(112, 61, 170);">NSURL</span> *thumbnailURL;<u><br/></u></font></div>
+<div><u><font face="Andale Mono"><br/></font></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSURL</span> *)imageURL<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_imageURL</span> &amp;&amp; <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>) {<br/>
+        <span style="color: rgb(112, 61, 170);">NSURL</span> *url = [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">uniqueDocumentURL</span>];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (url) {<br/>
+            <span style="color: rgb(112, 61, 170);">NSData</span> *imageData = <span style="color: rgb(61, 29, 129);">UIImageJPEGRepresentation</span>(<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span>, <span style="color: rgb(39, 42, 216);">1.0</span>);<br/>
+            <span style="color: rgb(187, 44, 162);">if</span> ([imageData <span style="color: rgb(61, 29, 129);">writeToURL</span>:url <span style="color: rgb(61, 29, 129);">atomically</span>:<span style="color: rgb(187, 44, 162);">YES</span>]) {<br/>
+                <span style="color: rgb(79, 129, 135);">_imageURL</span> = url;<br/>
+            }<br/>
+        }<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_imageURL</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">NSURL</span> *)thumbnailURL<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSURL</span> *url = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span> <span style="color: rgb(61, 29, 129);">URLByAppendingPathExtension</span>:<span style="color: rgb(209, 47, 27);">@"thumbnail"</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (![<span style="color: rgb(79, 129, 135);">_thumbnailURL</span> <span style="color: rgb(61, 29, 129);">isEqual</span>:url]) {<br/>
+        <span style="color: rgb(79, 129, 135);">_thumbnailURL</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (url) {<br/>
+            <span style="color: rgb(112, 61, 170);">UIImage</span> *thumbnail = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> <span style="color: rgb(49, 89, 93);">imageByScalingToSize</span>:<span style="color: rgb(61, 29, 129);">CGSizeMake</span>(<span style="color: rgb(39, 42, 216);">75</span>, <span style="color: rgb(39, 42, 216);">75</span>)];<br/>
+            <span style="color: rgb(112, 61, 170);">NSData</span> *imageData = <span style="color: rgb(61, 29, 129);">UIImageJPEGRepresentation</span>(thumbnail, <span style="color: rgb(39, 42, 216);">0.5</span>);<br/>
+            <span style="color: rgb(187, 44, 162);">if</span> ([imageData <span style="color: rgb(61, 29, 129);">writeToURL</span>:url <span style="color: rgb(61, 29, 129);">atomically</span>:<span style="color: rgb(187, 44, 162);">YES</span>]) {<br/>
+                <span style="color: rgb(79, 129, 135);">_thumbnailURL</span> = url;<br/>
+            }<br/>
+        }<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_thumbnailURL</span>;<br/>
+}</font><u><br/></u></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">NSURL</span> *)uniqueDocumentURL<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">NSArray</span> *documentDirectories = [[<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>] <span style="color: rgb(61, 29, 129);">URLsForDirectory</span>:<span style="color: rgb(61, 29, 129);">NSDocumentDirectory</span> <span style="color: rgb(61, 29, 129);">inDomains</span>:<span style="color: rgb(61, 29, 129);">NSUserDomainMask</span>];<br/>
+    <span style="color: rgb(112, 61, 170);">NSString</span> *unique = [<span style="color: rgb(112, 61, 170);">NSString</span> <span style="color: rgb(61, 29, 129);">stringWithFormat</span>:<span style="color: rgb(209, 47, 27);">@"%.0f"</span>, <span style="color: rgb(61, 29, 129);">floor</span>([<span style="color: rgb(112, 61, 170);">NSDate</span> <span style="color: rgb(61, 29, 129);">timeIntervalSinceReferenceDate</span>])];<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [[documentDirectories <span style="color: rgb(61, 29, 129);">firstObject</span>] <span style="color: rgb(61, 29, 129);">URLByAppendingPathComponent</span></font><font face="Andale Mono">:unique];<br/>
+}</font><br/></div>
+<div><u><br/></u></div>
+<div>If someone changes the image, be sure to delete the image from before from disk:</div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setImage:(<span style="color: rgb(112, 61, 170);">UIImage</span> *)image<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>.<span style="color: rgb(112, 61, 170);">image</span> = image;<br/>
+<br/>
+    <span style="color: rgb(0, 132, 0);">// when image is changed, we must delete files we've created (if any)</span><br/>
+    [[<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>] <span style="color: rgb(61, 29, 129);">removeItemAtURL</span>:<span style="color: rgb(79, 129, 135);">_imageURL</span> <span style="color: rgb(61, 29, 129);">error</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSFileManager</span> <span style="color: rgb(61, 29, 129);">defaultManager</span>] <span style="color: rgb(61, 29, 129);">removeItemAtURL</span>:<span style="color: rgb(79, 129, 135);">_thumbnailURL</span> <span style="color: rgb(61, 29, 129);">error</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageURL</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">thumbnailURL</span> = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)image<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageView</span>.<span style="color: rgb(112, 61, 170);">image</span>;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Applying an image filter</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)imageByScalingToSize:(<span style="color: rgb(112, 61, 170);">CGSize</span>)size<br/>
+{<br/>
+    <span style="color: rgb(61, 29, 129);">UIGraphicsBeginImageContextWithOptions</span>(size, <span style="color: rgb(187, 44, 162);">YES</span>, <span style="color: rgb(39, 42, 216);">0.0</span>);<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">drawInRect</span>:<span style="color: rgb(61, 29, 129);">CGRectMake</span>(<span style="color: rgb(39, 42, 216);">0</span>, <span style="color: rgb(39, 42, 216);">0</span>, size.<span style="color: rgb(112, 61, 170);">width</span>, size.<span style="color: rgb(112, 61, 170);">height</span>)];<br/>
+    <span style="color: rgb(112, 61, 170);">UIImage</span> *resizedImage = <span style="color: rgb(61, 29, 129);">UIGraphicsGetImageFromCurrentImageContext</span>();<br/>
+    <span style="color: rgb(61, 29, 129);">UIGraphicsEndImageContext</span>();<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> resizedImage;<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(112, 61, 170);">UIImage</span> *)imageByApplyingFilterNamed:(<span style="color: rgb(112, 61, 170);">NSString</span> *)filterName<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">UIImage</span> *filteredImage = <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+<br/>
+    <span style="color: rgb(0, 132, 0);">//Step 1: create CIImage object</span><br/>
+    <span style="color: rgb(112, 61, 170);">CIImage</span> *inputImage = [<span style="color: rgb(112, 61, 170);">CIImage</span> <span style="color: rgb(61, 29, 129);">imageWithCGImage</span>:[<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">CGImage</span>]];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (inputImage) {<br/>
+        <span style="color: rgb(0, 132, 0);">//Step 2: get the filter</span><br/>
+        <span style="color: rgb(112, 61, 170);">CIFilter</span> *filter = [<span style="color: rgb(112, 61, 170);">CIFilter</span> <span style="color: rgb(61, 29, 129);">filterWithName</span>:filterName];<br/>
+        <span style="color: rgb(0, 132, 0);">//Step 3: provide arguments</span><br/>
+        [filter <span style="color: rgb(61, 29, 129);">setValue</span>:inputImage <span style="color: rgb(61, 29, 129);">forKey</span>:<span style="color: rgb(112, 61, 170);">kCIInputImageKey</span>];<br/>
+        <span style="color: rgb(0, 132, 0);">//Step 4: get output image</span><br/>
+        <span style="color: rgb(112, 61, 170);">CIImage</span> *outputImage = [filter <span style="color: rgb(61, 29, 129);">outputImage</span>];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (outputImage) {<br/>
+            filteredImage = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageWithCIImage</span>:outputImage];<br/>
+            <span style="color: rgb(187, 44, 162);">if</span> (filteredImage) {<br/>
+                <span style="color: rgb(0, 132, 0);">//Step 5: draw it into a new image</span><br/>
+                <span style="color: rgb(61, 29, 129);">UIGraphicsBeginImageContextWithOptions</span>(<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">size</span>, <span style="color: rgb(187, 44, 162);">YES</span>, <span style="color: rgb(39, 42, 216);">0.0</span>);<br/>
+                [filteredImage <span style="color: rgb(61, 29, 129);">drawInRect</span>:<span style="color: rgb(61, 29, 129);">CGRectMake</span>(<span style="color: rgb(39, 42, 216);">0</span>, <span style="color: rgb(39, 42, 216);">0</span>, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">size</span>.<span style="color: rgb(112, 61, 170);">width</span>, <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">size</span>.<span style="color: rgb(112, 61, 170);">height</span>)];<br/>
+                filteredImage = <span style="color: rgb(61, 29, 129);">UIGraphicsGetImageFromCurrentImageContext</span>();<br/>
+                <span style="color: rgb(61, 29, 129);">UIGraphicsEndImageContext</span>();<br/>
+            }<br/>
+        }<br/>
+    }<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> filteredImage;<br/>
+}</font></div>
+</body></html>

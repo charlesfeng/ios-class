@@ -9,8 +9,6 @@
 
 @interface PhotomaniaAppDelegate (MOC)
 
-- (void)saveContext:(NSManagedObjectContext *)managedObjectContext;
-
 - (NSManagedObjectContext *)createMainQueueManagedObjectContext;
 
 @end

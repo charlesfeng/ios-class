@@ -29,17 +29,21 @@
     } else if ([matches count]) {
         photo = [matches firstObject];
     } else {
-        photo = [NSEntityDescription insertNewObjectForEntityForName:@"Photo"
-                                              inManagedObjectContext:context];
-        photo.unique = unique;
-        photo.title = [photoDictionary valueForKeyPath:FLICKR_PHOTO_TITLE];
-        photo.subtitle = [photoDictionary valueForKeyPath:FLICKR_PHOTO_DESCRIPTION];
-        photo.imageURL = [[FlickrFetcher URLforPhoto:photoDictionary format:FlickrPhotoFormatLarge] absoluteString];
-        
-        NSString *photographerName = [photoDictionary valueForKeyPath:FLICKR_PHOTO_OWNER];
-        photo.whoTook = [Photographer photographerWithName:photographerName
-                                    inManagedObjectContext:context];
+        if ([photoDictionary[FLICKR_PHOTO_TITLE] length]) {
+            photo = [NSEntityDescription insertNewObjectForEntityForName:@"Photo"
+                                                  inManagedObjectContext:context];
+            photo.unique = unique;
+            photo.title = [photoDictionary valueForKeyPath:FLICKR_PHOTO_TITLE];
+            photo.subtitle = [photoDictionary valueForKeyPath:FLICKR_PHOTO_DESCRIPTION];
+            photo.imageURL = [[FlickrFetcher URLforPhoto:photoDictionary format:FlickrPhotoFormatLarge] absoluteString];
+            photo.latitude = @([photoDictionary[FLICKR_LATITUDE] doubleValue]);
+            photo.longitude = @([photoDictionary[FLICKR_LONGITUDE] doubleValue]);
+            photo.thumbnailURL = [[FlickrFetcher URLforPhoto:photoDictionary format:FlickrPhotoFormatSquare] absoluteString];
 
+            NSString *photographerName = [photoDictionary valueForKeyPath:FLICKR_PHOTO_OWNER];
+            photo.whoTook = [Photographer photographerWithName:photographerName
+                                        inManagedObjectContext:context];
+        }
     }
 
     return photo;

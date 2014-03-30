@@ -11,8 +11,9 @@
 #import "FlickrFetcher.h"
 #import "Photo+Flickr.h"
 #import "PhotoDatabaseAvailability.h"
+#import "Photographer+Create.h"
 
-// THIS FILE WANTS TO BE VERY WIDE BECAUSE IT HAS A LOT OF COMMENTS THAT ARE ATTACHED ONTO THE END OF LINES--MAKE THIS COMMENT FIT ON ONE LINE
+// THIS FILE WANTS TO BE VERY WIDE BECAUSE IT HAS A LOT OF COMMENTS THAT ARE ATTACHED ONTO THE END OF LINES--MAKE THIS COMMENT FIT ON ONE LINE.
 // (or turn off line wrapping)
 
 @interface PhotomaniaAppDelegate() <NSURLSessionDownloadDelegate>
@@ -43,7 +44,7 @@
     // when we're in the background, fetch as often as possible (which won't be much)
     // forgot to include this line in the demo during lecture, but don't forget to include it in your app!
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    
+
     // we get our managed object context by creating it ourself in a category on PhotomaniaAppDelegate
     // but in your homework assignment, you must get your context from a UIManagedDocument
     // (i.e. you cannot use the method createMainQueueManagedObjectContext, or even use that approach)
@@ -69,7 +70,7 @@
     // so let's simply make a non-discretionary, non-background-session fetch here
     // we don't want it to take too long because the system will start to lose faith in us as a background fetcher and stop calling this as much
     // so we'll limit the fetch to BACKGROUND_FETCH_TIMEOUT seconds (also we won't use valuable cellular data)
-    
+
     if (self.photoDatabaseContext) {
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         sessionConfig.allowsCellularAccess = NO;
@@ -77,19 +78,19 @@
         NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
         NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[FlickrFetcher URLforRecentGeoreferencedPhotos]];
         NSURLSessionDownloadTask *task = [session downloadTaskWithRequest:request
-                                                        completionHandler:^(NSURL *localFile, NSURLResponse *response, NSError *error) {
-                                                            if (error) {
-                                                                NSLog(@"Flickr background fetch failed: %@", error.localizedDescription);
-                                                                completionHandler(UIBackgroundFetchResultNoData);
-                                                            } else {
-                                                                [self loadFlickrPhotosFromLocalURL:localFile
-                                                                                       intoContext:self.photoDatabaseContext
-                                                                               andThenExecuteBlock:^{
-                                                                                   completionHandler(UIBackgroundFetchResultNewData);
-                                                                               }
-                                                                 ];
-                                                            }
-                                                        }];
+            completionHandler:^(NSURL *localFile, NSURLResponse *response, NSError *error) {
+                if (error) {
+                    NSLog(@"Flickr background fetch failed: %@", error.localizedDescription);
+                    completionHandler(UIBackgroundFetchResultNoData);
+                } else {
+                    [self loadFlickrPhotosFromLocalURL:localFile
+                                           intoContext:self.photoDatabaseContext
+                                   andThenExecuteBlock:^{
+                                       completionHandler(UIBackgroundFetchResultNewData);
+                                   }
+                     ];
+                }
+            }];
         [task resume];
     } else {
         completionHandler(UIBackgroundFetchResultNoData); // no app-switcher update if no database!
@@ -119,6 +120,9 @@
 {
     _photoDatabaseContext = photoDatabaseContext;
     
+    // make sure "the user" Photographer exists at all times
+    if (photoDatabaseContext) [Photographer userInManagedObjectContext:photoDatabaseContext];
+    
     // every time the context changes, we'll restart our timer
     // so kill (invalidate) the current one
     // (we didn't get to this line of code in lecture, sorry!)
@@ -129,10 +133,10 @@
     {
         // this timer will fire only when we are in the foreground
         self.flickrForegroundFetchTimer = [NSTimer scheduledTimerWithTimeInterval:FOREGROUND_FLICKR_FETCH_INTERVAL
-                                                                           target:self
-                                                                         selector:@selector(startFlickrFetch:)
-                                                                         userInfo:nil
-                                                                          repeats:YES];
+                                         target:self
+                                       selector:@selector(startFlickrFetch:)
+                                       userInfo:nil
+                                        repeats:YES];
     }
     
     // let everyone who might be interested know this context is available
@@ -201,8 +205,8 @@
     NSData *flickrJSONData = [NSData dataWithContentsOfURL:url];  // will block if url is not local!
     if (flickrJSONData) {
         flickrPropertyList = [NSJSONSerialization JSONObjectWithData:flickrJSONData
-                                                             options:0
-                                                               error:NULL];
+                                                                           options:0
+                                                                             error:NULL];
     }
     return [flickrPropertyList valueForKeyPath:FLICKR_RESULTS_PHOTOS];
 }

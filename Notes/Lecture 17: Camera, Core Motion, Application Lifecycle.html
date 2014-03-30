@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-30 04:17:34 +0000"/><meta name="latitude" content="37.4522725185158"/><meta name="longitude" content="-122.155208261511"/><meta name="updated" content="2014-03-30 05:30:24 +0000"/><title>Lecture 17: Camera, Core Motion, Application Lifecycle</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Demo</b>
+<div><b><br/></b></div>
+<div><u>Location error codes</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">kCLErrorLocationUnknown</span>:<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">alert</span>:<span style="color: rgb(209, 47, 27);">@"Couldn't figure out where this photo was taken (yet)."</span>]; <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+<span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">kCLErrorDenied</span>:<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">alert</span>:<span style="color: rgb(209, 47, 27);">@"Location Services disabled under Privacy in Settings application."</span>]; <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+<span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">kCLErrorNetwork</span>:<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">alert</span>:<span style="color: rgb(209, 47, 27);">@"Can't figure out where this photo is being taken.  Verify your connection to the network."</span>]; <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+<span style="color: rgb(187, 44, 162);">default</span>:<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">alert</span>:<span style="color: rgb(209, 47, 27);">@"Cant figure out where this photo is being taken, sorry."</span>]; <span style="color: rgb(187, 44, 162);">break</span>;</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div>
+<hr/>
+<u><br/></u></div>
+<div><span style="color: rgb(61, 29, 129);"><u><font face="Andale Mono">UIImagePickerController</font></u></span><u><br/></u></div>
+<div><u><br/></u></div>
+<div>Modal view to get media from camera or photo library.</div>
+<div><br/></div>
+<div>Modal means you put it up with <font face="Andale Mono">presentViewController:animated:completion:</font>. On an iPad, put it up in a <span style="color: rgb(61, 29, 129);"><font face="Andale Mono">UIPopoverController</font></span>.</div>
+<div><br/></div>
+<div>Usage:</div>
+<div>1. Create it with <span style="font-family: 'Andale Mono';">alloc</span>/<span style="font-family: 'Andale Mono';">init</span> and set <span style="font-family: 'Andale Mono';">delegate</span>.</div>
+<div>2. Configure it (source, kind of media, user editability).</div>
+<div>3. Present it.</div>
+<div>4. Respond to delegate method when user is done picking the media.</div>
+<div><br/></div>
+<div>What the user can do depends on the platform. Some devices have cameras, some do not; some can record video, some can not. Can only offer camera OR photo library on iPad (not both together at the same time).</div>
+<div><br/></div>
+<div>As with all device-dependent APIs, we want to check what's available:</div>
+<div><font face="Andale Mono">+ (<span style="color: rgb(187, 44, 162);">BOOL</span>)isSourceTypeAvailable:(<font color="#703DAA">UIImagePickerControllerSourceType</font>)sourceType;</font></div>
+<div>Source type is <span style="font-family: 'Andale Mono';">UIImagePickerControllerSourceTypePhotoLibrary/Camera/SavedPhotosAlbum</span></div>
+<div><br/></div>
+<div>If you want to take video, make sure that's available:</div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray </span><span style="font-family: 'Andale Mono';">*)availableMediaTypesForSourceType:(</span><font color="#703DAA" style="font-family: 'Andale Mono';">UIImagePickerControllerSourceType</font><span style="font-family: 'Andale Mono';">)sourceType;</span><br/></div>
+<div>Returns an array of strings you can check against constants.</div>
+<div><br/></div>
+<div>Two key constants:</div>
+<div><font face="Andale Mono">kUTTypeImage</font>: pretty much all sources provide this</div>
+<div><font face="Andale Mono">kUTTypeMovie</font>: audio and video together; only some sources provide this.</div>
+<div>These two come from <font face="Andale Mono"><span style="color: rgb(120, 73, 42);">#import</span> <span style="color: rgb(209, 47, 27);">&lt;MobileCoreServices/MobileCoreServices.h&gt;</span></font></div>
+<div>You have to add MobileCoreServices to your list of linked frameworks.</div>
+<div><br/></div>
+<div>Can get more specific about front/rear cameras (though usually this is not necessary)</div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)isCameraDeviceAvailable:(</span><font color="#703DAA" style="font-family: 'Andale Mono';">UIImagePickerControllerCameraDevice</font><span style="font-family: 'Andale Mono';">)cameraDevice;</span><br/></div>
+<div>Either <span style="font-family: 'Andale Mono';">UIImagePickerControllerCameraDeviceFront</span> or <span style="font-family: 'Andale Mono';">UIImagePickerControllerCameraDeviceRear</span>.</div>
+<div><br/></div>
+<div>Then check out more about each available camera:</div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)isFlashAvailableForCameraDevice:(</span><font color="#703DAA" style="font-family: 'Andale Mono';">UIImagePickerControllerCameraDevice</font><span style="font-family: 'Andale Mono';">)cameraDevice;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray </span><span style="font-family: 'Andale Mono';">*</span><span style="font-family: 'Andale Mono';">)availableCaptureModesForCameraDevice:(</span><font color="#703DAA" style="font-family: 'Andale Mono';">UIImagePickerControllerCameraDevice</font><span style="font-family: 'Andale Mono';">)cameraDevice;</span><br/></div>
+<div>This array contains <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSNumber</span> objects with constants <span style="font-family: 'Andale Mono';">UIImagePickerControllerCaptureModePhoto</span>/<span style="font-family: 'Andale Mono';">Video</span>.</div>
+<div><br/></div>
+<div>Set the source and media type you want in the picker:</div>
+<div><font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIImagePickerController</span> *</font><span style="font-family: 'Andale Mono';">picker</span><span style="font-family: 'Andale Mono';">= [[</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIImagePickerController</span> <span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">alloc</span><span style="font-family: 'Andale Mono';">]</span> <span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">init</span><span style="font-family: 'Andale Mono';">];</span></div>
+<div><font face="Andale Mono">picker.<span style="color: rgb(112, 61, 170);">delegate</span> = <span style="color: rgb(187, 44, 162);">self</span>;</font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> ([<span style="color: rgb(112, 61, 170);">UIImagePickerController</span> <span style="color: rgb(61, 29, 129);">isSourceTypeAvailable</span>:<span style="color: rgb(61, 29, 129);">UIImagePickerControllerSourceTypeCamera</span>]) {</font></div>
+<div><font face="Andale Mono">     picker.sourceType = UIImagePickerControllerSourceTypeCamera;<br/>
+} </font> <span style="color: rgb(0, 132, 0);"><font face="Andale Mono">// else we'll take what we can get (photo library by default)</font></span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> ([[<span style="color: rgb(112, 61, 170);">UIImagePickerController</span> <span style="color: rgb(61, 29, 129);">availableMediaTypesForSourceType</span>:picker.<span style="color: rgb(112, 61, 170);">sourceType</span>] <span style="color: rgb(61, 29, 129);">containsObject</span>:desired]) {<br/>
+    picker.<span style="color: rgb(112, 61, 170);">mediaTypes</span> = <span style="color: rgb(39, 42, 216);">@[</span>desired<span style="color: rgb(39, 42, 216);">]</span>;<br/>
+    <span style="color: rgb(0, 132, 0);">// proceed to put the picker up</span><br/>
+} <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+    <span style="color: rgb(0, 132, 0);">// fail, we can't get the type of media we want from the source we want</span><br/>
+}<font color="#008400"><br/></font>uiipc.<span style="color: rgb(112, 61, 170);">mediaTypes</span> = <span style="color: rgb(39, 42, 216);">@[</span>(<span style="color: rgb(112, 61, 170);">NSString</span> *)<span style="color: rgb(112, 61, 170);">kUTTypeImage</span><span style="color: rgb(39, 42, 216);">]</span>;</font><br/>
+<br/></div>
+<div>Editability:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(187, 44, 162);">BOOL </span>allowsEditing;</font><br/></div>
+<div>If <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span>, user will have opportunity to edit the image/video inside the picker.</div>
+<div>When your delegate is notified that the user is done, you'll get both raw and edited versions.</div>
+<div><font face="Andale Mono">picker.</font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">allowsEditing</span><font face="Andale Mono"> = </font><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">YES</span><font face="Andale Mono">;</font></div>
+<div><br/></div>
+<div>Limiting video capture: <br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <span style="color: rgb(112, 61, 170);">UIImagePickerControllerQualityType</span> videoQuality;</font><br/></div>
+<div>Default is <span style="font-family: 'Andale Mono';">UIImagePickerControllerQualityTypeMedium</span>.</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> <font color="#703DAA">NSTimeInterval</font></span><span style="font-family: 'Andale Mono';"> videoMaximumDuration;</span><br/></div>
+<div><br/></div>
+<div>Can also control which camera is used, how flash is used, etc.</div>
+<div><br/></div>
+<div>Present the picker: on iPad, if you are not offering Camera, you must present with popover. If you are offering the Camera on iPad, then full-screen is preferred. Remember, on iPad, it's Camera OR Photo Library (not both at the same time).</div>
+<div><font face="Andale Mono">picker.</font><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">sourceType</span><font face="Andale Mono"> = </font><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">UIImagePickerControllerSourceTypeCamera</span><font face="Andale Mono">;</font><br/>
+<font face="Andale Mono">[</font><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span> <span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">presentViewController</span><font face="Andale Mono">:picker </font><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">animated</span><font face="Andale Mono">:</font><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">YES</span> <span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">completion</span><font face="Andale Mono">:</font><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">NULL</span><font face="Andale Mono">];</font><br/></div>
+<div><br/></div>
+<div>Delegate will be notified when user is done:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)imagePickerController:(<span style="color: rgb(112, 61, 170);">UIImagePickerController</span> *)picker didFinishPickingMediaWithInfo:(<span style="color: rgb(112, 61, 170);">NSDictionary</span> *)info<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">UIImage</span> *image = info[<span style="color: rgb(112, 61, 170);">UIImagePickerControllerEditedImage</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!image) image = info[<span style="color: rgb(112, 61, 170);">UIImagePickerControllerOriginalImage</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">image</span> = image;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">dismissViewControllerAnimated</span>:<span style="color: rgb(187, 44, 162);">YES</span> <span style="color: rgb(61, 29, 129);">completion</span>:<span style="color: rgb(187, 44, 162);">NULL</span></font><font face="Andale Mono">];   <br/>
+}</font><br/></div>
+<div><br/></div>
+<div>What's in that <span style="font-family: 'Andale Mono';">info</span> dictionary?</div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerMediaType</span><span style="font-family: 'Andale Mono';">     </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// kUTTypeImage or kUTTypeMovie</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerOriginalImage</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// UIImage</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerEditedImage</span><span style="font-family: 'Andale Mono';">   </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// UIImage</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerCropRect</span><span style="font-family: 'Andale Mono';">      </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// CGRect (in an NSValue)</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerMediaMetadata</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// NSDictionary info about image</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerMediaURL     </span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// NSURL edited video</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">UIImagePickerControllerReferenceURL</span><span style="font-family: 'Andale Mono';">  </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// NSURL original (unedited) video</span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);"><br/></span></div>
+<div><br/></div>
+<div>Also dismiss it when cancel happens:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)imagePickerControllerDidCancel:(<span style="color: rgb(112, 61, 170);">UIImagePickerController</span> *)picker<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">dismissViewControllerAnimated</span>:<span style="color: rgb(187, 44, 162);">YES</span> <span style="color: rgb(61, 29, 129);">completion</span>:<span style="color: rgb(187, 44, 162);">NULL</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>If on iPad, you'll want to implement popover's <span style="font-family: 'Andale Mono';">didDismissPopover</span>... delegate method too.</div>
+<div><br/></div>
+<div>Saving taken images or video into the device's photo library: check out <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">ALAssetsLibrary</span>.</div>
+<div><br/></div>
+<div>Overlay view:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIView</span><span style="font-family: 'Andale Mono';"> *cameraOverlayView;</span><br/></div>
+<div>Be sure to set this view's <span style="font-family: 'Andale Mono';">frame</span> properly.</div>
+<div>Camera is always full screen: <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIScreen</span>'s <span style="font-family: 'Andale Mono';">bounds</span> property.</div>
+<div>But if you use the built-in controls at the bottom, you might want your view to be smaller.</div>
+<div><br/></div>
+<div>Hiding the normal camera controls (at the bottom):</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property BOOL</span><span style="font-family: 'Andale Mono';"> showsCameraControls;</span><br/></div>
+<div>Will leave a blank area at the bottom of the screen. With no controls, you'll need an overlay view with a "take picture" (at least) button.</div>
+<div>That button should send <span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)takePicture</span> to the picker.</div>
+<div>Don't forget to <span style="font-family: 'Andale Mono';">dismissModalViewController</span> when you are done taking pictures.</div>
+<div><br/></div>
+<div>You can zoom or translate the image while capturing:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CGAffineTransform</span><span style="font-family: 'Andale Mono';"> cameraViewTransform;</span><br/></div>
+<div>For example, you might want to scale the image up to full screen (some of it will get clipped).</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>To be a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImagePickerController</span>'s <span style="font-family: 'Andale Mono';">delegate</span>, need to be both <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">UINavigationControllerDelegate</font></span> and <span style="color: rgb(112, 61, 170);"><font face="Andale Mono">UIImagePickerControllerDelegate</font></span>.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Core Motion</b></div>
+<div><b><br/></b></div>
+<div>API to access motion sensing hardware on your device.</div>
+<div><br/></div>
+<div>Primary inputs: accelerometer, gyro, magnetometer.</div>
+<div>Not all devices have all inputs (e.g. only iPhone4-5 and 4th G iPod Touch and iPad 2 have a gyro).</div>
+<div><br/></div>
+<div>Class used to get this input is <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CMMotionManager</span>.</div>
+<div>Create with <span style="font-family: 'Andale Mono';">alloc</span>/<span style="font-family: 'Andale Mono';">init</span>, but use only one instance per application (else performance hit).</div>
+<div>It is a "global resource," so getting one via a class method somewhere is okay.</div>
+<div><br/></div>
+<div>Usage:</div>
+<div>1. Check to see what hardware is available.</div>
+<div>2. Start the sampling going and poll the motion manager for the latest sample it has.</div>
+<div>... or ...</div>
+<div>1. Check to see what hardware is available.</div>
+<div>2. Set the rate at which you want data to be reported from the hardware.</div>
+<div>3. Register a block (and a dispatch queue to run it on) each time a sample is taken.</div>
+<div><br/></div>
+<div>Checking availbility:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">) <font color="#BB2CA2">BOOL</font></span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">{accelerometer,gyro,magnetometer,deviceMotion}Available;</span></div>
+<div>The "device motion" is a combination of all available.</div>
+<div><br/></div>
+<div>Starting the hardware sensors collecting data (only need to do this if you are going to poll for data):</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)start{Accelerometer,Gyro,Magnetometer,DeviceMotion}</span><span style="font-family: 'Andale Mono';">Updates;</span><br/></div>
+<div><br/></div>
+<div>Is the hardware currently collecting data?</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">) <font color="#BB2CA2">BOOL</font></span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">{accelerometer,gyro,magnetometer,deviceMotion}Active;</span><br/></div>
+<div><br/></div>
+<div>Stop the hardware collecting data: (it's a performance hit to be collecting)</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)stop{Accelerometer,Gyro,Magnetometer,DeviceMotion}</span><span style="font-family: 'Andale Mono';">Updates;</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>CMDeviceMotion</u></span><br/></div>
+<div><br/></div>
+<div>Acceleration data:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CMAcceleration</span><span style="font-family: 'Andale Mono';"> gravity;</span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CMAcceleration</span><span style="font-family: 'Andale Mono';"> userAcceleration;</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// gravity factored out using gyro</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef</span> <span style="color: rgb(187, 44, 162);">struct</span> { <span style="color: rgb(187, 44, 162);">double</span> x; <span style="color: rgb(187, 44, 162);">double</span> y; <span style="color: rgb(187, 44, 162);">double</span> z; } </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CMAcceleration</span><span style="font-family: 'Andale Mono';">;</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// x, y, z in "g"</span></div>
+<div><br/></div>
+<div>Rotation data:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CMRotationRate</span><span style="font-family: 'Andale Mono';"> gravity;</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// bias removed using accelerometer</span><br/></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef</span> <span style="color: rgb(187, 44, 162);">struct</span> { <span style="color: rgb(187, 44, 162);">double</span> x; <span style="color: rgb(187, 44, 162);">double</span> y; <span style="color: rgb(187, 44, 162);">double</span> z; } </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CMRotationRate</span><span style="font-family: 'Andale Mono';">;</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// rads/sec</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CMAttitude</span><span style="font-family: 'Andale Mono';"> *attitude;</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(0, 132, 0);">// device's attitude (orientation) in 3D space</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@interface</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">CMAttitude</span><span style="font-family: 'Andale Mono';"> : </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSObject </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// roll, pitch, yaw in radians</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">double</span><span style="font-family: 'Andale Mono';"> roll;</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// around longitudinal axis thru top/bottom</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">double</span><span style="font-family: 'Andale Mono';"> pitch;</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// around lateral axis thru sides</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">double</span><span style="font-family: 'Andale Mono';"> yaw;</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// around axis with origin @ center of gravity and</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">                                </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// perpendicular to screen directed down</span></div>
+<div><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@end</span><br/></div>
+<div><br/></div>
+<div><u>Using blocks</u></div>
+<div><br/></div>
+<div>Registering a block to receive Accelerometer data:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startAccelerometerUpdatesToQueue:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> *)queue</span></div>
+<div><span style="font-family: 'Andale Mono';">                             withHandler:(<font color="#703DAA">CMAccelerometerHandler</font></span><span style="font-family: 'Andale Mono';">)handler</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef void</span> </font><span style="font-family: 'Andale Mono';">(^<font color="#703DAA">CMAccelerometerHandler</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">CMAccelerometerHandler </font></span><span style="font-family: 'Andale Mono';">*data, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *error);</span></div>
+<div><span style="font-family: 'Andale Mono';">queue == [[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">alloc] init]</span> or <span style="font-family: 'Andale Mono';">[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> mainQueue</span><span style="font-family: 'Andale Mono';">]</span> or <span style="font-family: 'Andale Mono';">[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">currentQueue]</span>.</div>
+<div><br/></div>
+<div>Registering a block to receive Gyro data:</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startGyroUpdatesToQueue:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> *)queue</span></div>
+<div><span style="font-family: 'Andale Mono';">                    withHandler:(<font color="#703DAA">CMGyroHandler</font></span><span style="font-family: 'Andale Mono';">)handler</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef void</span> </font><span style="font-family: 'Andale Mono';">(^<font color="#703DAA">CMGyroHandler</font></span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">CMGyroData </font></span><span style="font-family: 'Andale Mono';">*data, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *error);</span></div>
+</div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Registering a block to receive Magnetometer data:</div>
+<div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)startMagnetometerUpdatesToQueue:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSOperationQueue</span><span style="font-family: 'Andale Mono';"> *)queue</span></div>
+<div><span style="font-family: 'Andale Mono';">                            withHandler:(<font color="#703DAA">CMMagnetometerHandler</font></span><span style="font-family: 'Andale Mono';">)handler</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef void</span> </font><span style="font-family: 'Andale Mono';">(^</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CMMagnetometerHandler</span><span style="font-family: 'Andale Mono';">)</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">CMMagnetometerData </font></span><span style="font-family: 'Andale Mono';">*data, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *error);</span></div>
+</div>
+<div><br/></div>
+<div>Will keep calling block over and over at whatever rate you tell it.</div>
+<div>If the rate is pretty low (e.g. 10x/second), using the main queue is fine.</div>
+<div><br/></div>
+<div>Setting the rate at which your block gets executed:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSTimeInterval</span><span style="font-family: 'Andale Mono';"> accelerometerUpdateInterval;</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSTimeInterval</span><span style="font-family: 'Andale Mono';"> gyroUpdateInterval;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSTimeInterval</span><span style="font-family: 'Andale Mono';"> magnetometerUpdateInterval;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSTimeInterval</span><span style="font-family: 'Andale Mono';"> deviceMotionUpdateInterval;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>Most are limited to ~60 Hz.</div>
+<div><br/></div>
+<div>Can add multiple handler blocks even though you are only allowed one <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CMMotionManager</span>. Each of the blocks will receive the data at the same rate.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Application State</b></div>
+<div><b><br/></b></div>
+<div><u>When you application's UI starts/stops receiving events:</u></div>
+<div><br/></div>
+<div>Your application delegate gets:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)applicationDidBecomeActive:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIApplication</span><span style="font-family: 'Andale Mono';"> *)sender;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)applicationWillResignActive:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIApplication</span><span style="font-family: 'Andale Mono';"> *)sender;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>Everyone gets these radio station broadcasts:</div>
+<div><span style="font-family: 'Andale Mono';">UIApplicationDidBecomeActiveNotification</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">UIApplicationWillResignActiveNotification</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>Use these notifications to pause doing stuff in your UI and then restart it later.</div>
+<div><br/></div>
+<div><u>When you enter the background...</u></div>
+<div><u><br/></u></div>
+<div>You only get a few seconds to respond to this.</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)applicationDidEnterBackground:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIApplication</span><span style="font-family: 'Andale Mono';"> *)sender;</span><br/></div>
+<div>and <span style="font-family: 'Andale Mono';">UIApplicationDidEnterBackgroundNotification</span></div>
+<div><br/></div>
+<div>If you need more time, it is possible (see <span style="font-family: 'Andale Mono';">beginBackgroundTaskWithExpirationHandler:</span>)</div>
+<div><br/></div>
+<div><u>Other items of interest...</u></div>
+<div><u><br/></u></div>
+<div>Local Notifications (set timers to go off at certain times -- will wake your application if needed)</div>
+<div>State Restoration (saving the state of your UI so that you can restore it even if you are killed)</div>
+<div>Data Protection (files can be set to be protected when a user's device's screen is locked)</div>
+<div>Open URL (in Xcode's Info tab of Project Settings, you can register for certain URLs)</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div><u>Creating a motion manager:</u></div>
+<div><font face="Andale Mono"><br/></font></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">CMMotionManager</span> *)motionManager<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(79, 129, 135);">_motionManager</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">_motionManager</span> = [[<span style="color: rgb(112, 61, 170);">CMMotionManager</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        <span style="color: rgb(79, 129, 135);">_motionManager</span>.<span style="color: rgb(112, 61, 170);">accelerometerUpdateInterval</span> = <span style="color: rgb(39, 42, 216);">0.1</span>;<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> <span style="color: rgb(79, 129, 135);">_motionManager</span>;<br/>
+}</font><b><br/></b></div>
+<div><b><br/></b></div>
+<div><u>Changing gravity direction based on device orientation:</u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);"><br/></span></font></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">if</span> (!<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">motionManager</span>.<span style="color: rgb(61, 29, 129);">isAccelerometerActive</span>) {<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">motionManager</span> <span style="color: rgb(61, 29, 129);">startAccelerometerUpdatesToQueue</span>:[<span style="color: rgb(112, 61, 170);">NSOperationQueue</span> <span style="color: rgb(61, 29, 129);">mainQueue</span>]<br/>
+         <span style="color: rgb(61, 29, 129);">withHandler</span>:^(<span style="color: rgb(112, 61, 170);">CMAccelerometerData</span> *accelerometerData, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+             <span style="color: rgb(112, 61, 170);">CGFloat</span> x = accelerometerData.<span style="color: rgb(112, 61, 170);">acceleration</span>.<span style="color: rgb(112, 61, 170);">x</span>;<br/>
+             <span style="color: rgb(112, 61, 170);">CGFloat</span> y = accelerometerData.<span style="color: rgb(112, 61, 170);">acceleration</span>.<span style="color: rgb(112, 61, 170);">y</span>;<br/>
+             <span style="color: rgb(187, 44, 162);">switch</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">interfaceOrientation</span>) {<br/>
+                 <span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">UIInterfaceOrientationLandscapeRight</span>:<br/>
+                     <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">gravity</span>.<span style="color: rgb(112, 61, 170);">gravityDirection</span> = <span style="color: rgb(61, 29, 129);">CGVectorMake</span>(- y, - x); <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+                 <span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">UIInterfaceOrientationLandscapeLeft</span>:<br/>
+                     <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">gravity</span>.<span style="color: rgb(112, 61, 170);">gravityDirection</span> = <span style="color: rgb(61, 29, 129);">CGVectorMake</span>(y, x); <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+                 <span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">UIInterfaceOrientationPortrait</span>:<br/>
+                     <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">gravity</span>.<span style="color: rgb(112, 61, 170);">gravityDirection</span> = <span style="color: rgb(61, 29, 129);">CGVectorMake</span>(x, - y); <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+                 <span style="color: rgb(187, 44, 162);">case</span> <span style="color: rgb(61, 29, 129);">UIInterfaceOrientationPortraitUpsideDown</span>:<br/>
+                     <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">gravity</span>.<span style="color: rgb(112, 61, 170);">gravityDirection</span> = <span style="color: rgb(61, 29, 129);">CGVectorMake</span>(- x, y); <span style="color: rgb(187, 44, 162);">break</span>;<br/>
+             }<br/>
+             [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateScore</span>];<br/>
+         }];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Programmatically specifying orientation lock:</u> can just set your program to only run in a certain orientation.</div>
+<div><br/></div>
+<div><u>Pausing game on tap, get put in background; restart game on double tap:</u></div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidAppear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidAppear</span>:animated];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">resumeGame</span>];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)viewWillDisappear:(<span style="color: rgb(187, 44, 162);">BOOL</span>)animated<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewWillDisappear</span>:animated];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">pauseGame</span>];<br/>
+}<br/></font></div>
+<div><span style="font-size: 11px; font-family: Menlo;"><br/></span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)viewDidLoad<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">super</span> <span style="color: rgb(61, 29, 129);">viewDidLoad</span>];<br/>
+   <br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">view</span> <span style="color: rgb(61, 29, 129);">addGestureRecognizer</span>:[[<span style="color: rgb(112, 61, 170);">UITapGestureRecognizer</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTarget</span>:<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">action</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(tap)]];<br/>
+<br/>
+    <span style="color: rgb(112, 61, 170);">UITapGestureRecognizer</span> *doubleTap = [[<span style="color: rgb(112, 61, 170);">UITapGestureRecognizer</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTarget</span>:<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">action</span>:<span style="color: rgb(187, 44, 162);">@selector</span>(doubleTap)];<br/>
+    doubleTap.<span style="color: rgb(112, 61, 170);">numberOfTapsRequired</span> = <span style="color: rgb(39, 42, 216);">2</span>;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">view</span> <span style="color: rgb(61, 29, 129);">addGestureRecognizer</span>:doubleTap];<br/>
+   <br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">addObserverForName</span>:<span style="color: rgb(112, 61, 170);">UIApplicationWillResignActiveNotification</span><br/>
+                                                      <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                       <span style="color: rgb(61, 29, 129);">queue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                  <span style="color: rgb(61, 29, 129);">usingBlock</span>:^(<span style="color: rgb(112, 61, 170);">NSNotification</span> *note) {<br/>
+                                                      [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">pauseGame</span>];<br/>
+                                                  }];<br/>
+    [[<span style="color: rgb(112, 61, 170);">NSNotificationCenter</span> <span style="color: rgb(61, 29, 129);">defaultCenter</span>] <span style="color: rgb(61, 29, 129);">addObserverForName</span>:<span style="color: rgb(112, 61, 170);">UIApplicationDidBecomeActiveNotification</span><br/>
+                                                      <span style="color: rgb(61, 29, 129);">object</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                       <span style="color: rgb(61, 29, 129);">queue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                                                  <span style="color: rgb(61, 29, 129);">usingBlock</span>:^(<span style="color: rgb(112, 61, 170);">NSNotification</span> *note) {<br/>
+                                                      <span style="color: rgb(0, 132, 0);">// only resume if we regain active and this VC is on screen at the time</span><br/>
+                                                      <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">view</span>.<span style="color: rgb(112, 61, 170);">window</span>) [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">resumeGame</span>];<br/>
+                                                  }];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">IBAction</span>)tap<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">isPaused</span>]) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">resumeGame</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">pauseGame</span>];<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">IBAction</span>)doubleTap<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (![<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">isPaused</span>]) [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">pauseGame</span>];<br/>
+   <br/>
+    [[[<span style="color: rgb(112, 61, 170);">UIAlertView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithTitle</span>:<span style="color: rgb(209, 47, 27);">@"Bouncer"</span><br/>
+                                <span style="color: rgb(61, 29, 129);">message</span>:<span style="color: rgb(209, 47, 27);">@"Restart Game?"</span><br/>
+                               <span style="color: rgb(61, 29, 129);">delegate</span>:<span style="color: rgb(187, 44, 162);">self</span><br/>
+                      <span style="color: rgb(61, 29, 129);">cancelButtonTitle</span>:<span style="color: rgb(209, 47, 27);">@"No"</span><br/>
+                      <span style="color: rgb(61, 29, 129);">otherButtonTitles</span>:<span style="color: rgb(209, 47, 27);">@"Yes"</span>, <span style="color: rgb(187, 44, 162);">nil</span>] <span style="color: rgb(61, 29, 129);">show</span>];<br/>
+}</font></div>
+</body></html>

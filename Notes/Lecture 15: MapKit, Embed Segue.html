@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 5.5.0 (402474)"/><meta name="altitude" content="10"/><meta name="author" content="fengocyte"/><meta name="created" content="2014-03-10 08:05:02 +0000"/><meta name="latitude" content="37.4524585153587"/><meta name="longitude" content="-122.1550365965311"/><meta name="updated" content="2014-03-11 07:07:38 +0000"/><title>Lecture 15: MapKit, Embed Segue</title></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<b>Map Kit</b>
+<div><b><br/></b></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span> displays a map.</div>
+<div><br/></div>
+<div>The map can have annotations on it, displayed using an <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span>. Each annotation is simply a <font face="Andale Mono">coordinate</font>, a <span style="font-family: 'Andale Mono';">title</span>, and a <span style="font-family: 'Andale Mono';">subtitle</span>. Annotations can have a callout which appears when the annotation view is clicked. By default it just shows the <font face="Andale Mono">title</font> and <font face="Andale Mono">subtitle</font>, but it can also have accessory views, e.g. a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span> and a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIButton</span>.</div>
+<div><br/></div>
+<div>Create with <span style="font-family: 'Andale Mono';">alloc</span>/<span style="font-family: 'Andale Mono';">init</span> or drag from object palette in Xcode.</div>
+<div>
+<div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>MKAnnotation</u></span></div>
+</div>
+<div><br/></div>
+<div>To display an array of objects which implement <font color="#703DAA" face="Andale Mono">MKAnnotation</font>:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (<font color="#BB2CA2">readonly</font></span><span style="font-family: 'Andale Mono';">) </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> annotations; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// contains id &lt;MKAnnotation&gt; objects</span></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotation</span> protocol:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@protocol</span> </font><font color="#703DAA" face="Andale Mono">MKAnnotation</font><span style="font-family: 'Andale Mono';"> &lt;</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSObject</span><![CDATA[>]]>
+</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <font color="#703DAA">CLLocationCoordinate2D</font></font><span style="font-family: 'Andale Mono';"> coordinate; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// lat/lon</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@optional</span><br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <span style="color: rgb(112, 61, 170);">NSString</span> *title;<br/>
+<span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">readonly</span>) <span style="color: rgb(112, 61, 170);">NSString</span> *subtitle;<br/>
+<span style="color: rgb(187, 44, 162);">@end</span><br/>
+<br/>
+<span style="color: rgb(187, 44, 162);">typedef</span> {<br/>
+    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> latitude;</span></div>
+<div><font face="Andale Mono">    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> longitude;</span></div>
+<div><font face="Andale Mono">} </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><br/></div>
+<div>Note the <span style="font-family: 'Andale Mono';">annotations</span> property is <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">readonly</span>, so you must add/remove annotations explicitly:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addAnnotation:(<span style="color: rgb(187, 44, 162);">id</span> &lt;MKAnnotation&gt;)annotation;</font><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)addAnnotations:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray </span><span style="font-family: 'Andale Mono';">*)annotations;</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)removeAnnotation:(<span style="color: rgb(187, 44, 162);">id</span> &lt;MKAnnotation&gt;)annotation;</font><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)removeAnnotations:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray </span><span style="font-family: 'Andale Mono';">*)annotations;</span></div>
+<div><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div>Generally a good idea to add all your annotations up-front, since it allows the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span> to be efficient about how it displays them. Annotations are light-weight, but annotation views are not. <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span> reuses annotation views similarly to how <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UITableView</span> reuses cells.</div>
+<div><br/></div>
+<div>What do annotations look like?</div>
+<div>Default is a pin (using the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKPinAnnotationView</span> subclass)</div>
+<div>Can subclass or set properties to modify the look.</div>
+<div><br/></div>
+<div>What happens when you touch an annotation?</div>
+<div>By default, nothing happens, but if <font face="Andale Mono">canShowCallout</font> is set to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">YES</span> in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span>, then a little box will appear showing the annotation's title and subtitle.</div>
+<div>The callout can be enhanced with <span style="font-family: 'Andale Mono';">left</span>/<span style="font-family: 'Andale Mono';">rightCalloutAccessoryViews</span>.</div>
+<div><br/></div>
+<div>Following <span style="font-family: 'Andale Mono';">delegate</span> method is also called when a pin is pressed:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)mapView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView </span><span style="font-family: 'Andale Mono';">*)sender didSelectAnnotationView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView </span><span style="font-family: 'Andale Mono';">*</span><span style="font-family: 'Andale Mono';">)aView;</span></div>
+<div>Is a great place to set the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span>'s callout accessory views lazily.</div>
+<div>Usually want to wait until this method is called to e.g. download an image to show.</div>
+<div><br/></div>
+<div>How are <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span>s created/associated with annotations? Implement the following <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapViewDelegate</span> method (if not implemented, returns a pin view)</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span><span style="font-family: 'Andale Mono';"> *)mapView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span><span style="font-family: 'Andale Mono';"> *)sender viewForAnnotation:(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">id</span> <span style="font-family: 'Andale Mono';">&lt;</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotation</span><span style="font-family: 'Andale Mono';">&gt;)annotation</span></div>
+<div><font face="Andale Mono">{<br/>
+    MKAnnotationView *aView = [sender dequeueReusableAnnotationViewWithIdentifier:IDENT];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!aView) {<br/>
+        aView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:IDENT];<br/>
+        <span style="color: rgb(0, 132, 0);">// set canShowCallout to YES and build aView's callout accessory views here</span><br/>
+    }<br/>
+    aView.annotation = annotation; <span style="color: rgb(0, 132, 0);">// yes, this happens twice if no dequeue</span><br/>
+    <span style="color: rgb(0, 132, 0);">// maybe load up accessory views here? (if not too expensive)</span><br/>
+    <span style="color: rgb(0, 132, 0);">// or reset them and wait until mapView:didSelectAnnotationView: to load actual data</span><br/>
+    <span style="color: rgb(187, 44, 162);">return</span> aView;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</u><br/></div>
+<div><br/></div>
+<div>Interesting properties (all <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nonatomic</span>, <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">strong</span>):</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property id</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">&lt;</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">MKAnnotation</span><span style="font-family: 'Andale Mono';">&gt; *annotation; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// the annotation; treat as if readonly</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIImage</span><span style="font-family: 'Andale Mono';"> *image;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// instead of the pin, for example</span></div>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIView</span><span style="font-family: 'Andale Mono';"> *leftCalloutAccessoryView;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// maybe a UIImageView</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"><br/>
+@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">UIView</span><span style="font-family: 'Andale Mono';"> *rightCalloutAccessoryView;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// maybe a "disclosure" UIButton</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"><br/>
+@property BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">enabled; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// NO means ignores touch events, no delegate method, no callout</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"><br/>
+@property </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CGPoint</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">centerOffset; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// where the "head of the pin" is relative to the image</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);"><br/>
+@property BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">draggable; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// only works if annotation implements setCoordinate:</span>
+<div><br/></div>
+<div>If you set one of the callout accessory views to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIControl</span>...</div>
+<div><span style="font-family: 'Andale Mono';">aView.rightCalloutAccessoryView = </span><span style="font-family: 'Andale Mono';">[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIButton</span><span style="font-family: 'Andale Mono';"> buttonWithType:UIButtonTypeDetailDisclosure];</span><br/></div>
+<div>... a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapViewDelegate</span> method will get called when the accessory view is touched:</div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)mapView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView </span><span style="font-family: 'Andale Mono';">*)sender </span><span style="font-family: 'Andale Mono';">annotationView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView </span><span style="font-family: 'Andale Mono';">*)aView </span><span style="font-family: 'Andale Mono';">calloutAccessoryControlTapped:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIControl </span><span style="font-family: 'Andale Mono';">*)control</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><br/></div>
+<div>Use <span style="font-family: 'Andale Mono';">didSelectAnnotationView:</span> to load up callout accessories.</div>
+<div>e.g. downloaded thumbnail image in <span style="font-family: 'Andale Mono';">leftCalloutAccessoryView</span> -- create the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span> and assign it to <span style="font-family: 'Andale Mono';">leftCalloutAccessoryView</span> in <span style="font-family: 'Andale Mono';">mapView:viewForAnnotation:</span>; reset the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span>'s image to <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">nil</span>. Then load the image on demand in <span style="font-family: 'Andale Mono';">mapView:didSelectAnnotationView:</span>...</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span><span style="font-family: 'Andale Mono';"> *)sender didSelectAnnotationView:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotationView</span><span style="font-family: 'Andale Mono';"> *)aView</span></div>
+<div><font face="Andale Mono">{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([aView.leftCalloutAccessoryView isKindOfClass:[</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span><span style="font-family: 'Andale Mono';"> class]]) {</span></div>
+<div><font face="Andale Mono">        </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span><span style="font-family: 'Andale Mono';"> *imageView = (</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIImageView</span><span style="font-family: 'Andale Mono';"> *)aView.leftCalloutAccessoryView;</span></div>
+<div><font face="Andale Mono">        imageView.image = ...; <span style="color: rgb(0, 132, 0);">// if you do this in a GCD queue, be careful, views are reused!</span><br/>
+    }<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Could segue here too, but you have to segue in code.</div>
+<div><br/></div>
+<div><u>Customizing </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>MKMapView</u></span></div>
+</div>
+<div><br/></div>
+<div>
+<div>Anything you can do in the Maps app, you can do in the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span>.</div>
+<div><br/></div>
+<div>Configuring the map view's display type:</div>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">MKMapType</span><span style="font-family: 'Andale Mono';"> mapType; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// MKMapTypeStandard,Satellite,Hybrid</span>
+<div><br/></div>
+<div>Showing the user's current location:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">showsUserLocation;</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">) </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> isUserLocationVisible</span><span style="font-family: 'Andale Mono';">;</span></div>
+<span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">) <font color="#703DAA">MKUserLocation </font></span><span style="font-family: 'Andale Mono';">*userLocation;<br/></span>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKUserLocation </span>is an object which conforms to <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotation</span> which holds the user's location.</div>
+<div><br/></div>
+<div>Restricting the user's interaction with the map:</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">zoomEnabled;</span><br/></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">scrollEnabled;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">pitchEnabled;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// 3D</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">rotateEnabled;</span></div>
+</div>
+<div><br/></div>
+<div>Setting (via <span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">@property</span> in <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span>) where the user is seeing the map from (in 3D):</div>
+<div><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">@property</span><span style="font-family: 'Andale Mono';"> (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">copy</span><span style="font-family: 'Andale Mono';">) <font color="#703DAA">MKMapCamera </font></span><span style="font-family: 'Andale Mono';">*camera;</span><br/></div>
+<div><br/></div>
+<div>Specify <span style="font-family: 'Andale Mono';">centerCoordinate</span>, <span style="font-family: 'Andale Mono';">heading</span>, <span style="font-family: 'Andale Mono';">pitch</span>, and <span style="font-family: 'Andale Mono';">altitude</span> of the camera, or use initializer:</div>
+<div><span style="font-family: 'Andale Mono';">+ (</span><span style="font-family: 'Andale Mono';"><font color="#703DAA">MKMapCamera </font></span><span style="font-family: 'Andale Mono';">*</span><span style="font-family: 'Andale Mono';">)cameraLookingAtCenterCoordinate:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';">)coord fromEye</span><span style="font-family: 'Andale Mono';">Coordinate:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';">)cameraPosition</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono';">eyeAltitude:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDistance</span><span style="font-family: 'Andale Mono';">)eyeAltitude;</span></div>
+<div><br/></div>
+<div>Region map is displaying:</div>
+<div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <font color="#703DAA">MKCoordinateRegion</font></font><span style="font-family: 'Andale Mono';"> region;</span></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef struct</span> {<br/>
+    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';"> center;</span></div>
+<div><font face="Andale Mono">    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKCoordinateSpan</span><span style="font-family: 'Andale Mono';"> span;</span></div>
+<div><font face="Andale Mono">} </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKCoordinateRegion</span><span style="font-family: 'Andale Mono';">;</span></div>
+</div>
+<div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">typedef struct</span> {<br/>
+    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> latitudeDelta;</span></div>
+<div><font face="Andale Mono">    </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationDegrees</span><span style="font-family: 'Andale Mono';"> longitudeDelta</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><font face="Andale Mono">} </font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKCoordinateSpan</span><span style="font-family: 'Andale Mono';">;</span></div>
+</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setRegion:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKCoordinateRegion</span><span style="font-family: 'Andale Mono';">)region animated:</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span><br/></div>
+<div><br/></div>
+<div>Can set center point only or set to show annotations:</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> <font color="#703DAA">CLLocationCoordinate2D</font></font><span style="font-family: 'Andale Mono';"> centerCoordinate;</span><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setCenterCoordinate:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">CLLocationCoordinate2D</span><span style="font-family: 'Andale Mono';">)center animated:</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)showAnnotations:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSArray</span><span style="font-family: 'Andale Mono';"> *)someAnnotations animated:</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>Lots of C functions to convert points, regions, rects, etc.</div>
+<div>See documentation on e.g. <span style="font-family: 'Andale Mono';">MKMapRectContainsPoint</span>, <span style="font-family: 'Andale Mono';">MKMapPointForCoordinate</span>, etc.</div>
+<div><span style="font-family: 'Andale Mono';">- (<font color="#703DAA">MKMapPoint</font></span><span style="font-family: 'Andale Mono';">)mapPointForPoint:</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">CGPoint</font></span><span style="font-family: 'Andale Mono';">)point;</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">- (<font color="#703DAA">MKMapRect</font></span><span style="font-family: 'Andale Mono';">)mapRectForRect:</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">CGRect</font></span><span style="font-family: 'Andale Mono';">)rect;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">- (<font color="#703DAA">CGPoint</font></span><span style="font-family: 'Andale Mono';">)pointForMapPoint:</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">MKMapPoint</font></span><span style="font-family: 'Andale Mono';">)mapPoint;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">- (<font color="#703DAA">CGRect</font></span><span style="font-family: 'Andale Mono';">)rectForMapRect:</span><span style="font-family: 'Andale Mono';">(<font color="#703DAA">MKMapRect</font></span><span style="font-family: 'Andale Mono';">)mapRect;</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>When map is done changing region, it calls another <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapViewDelegate</span> method:</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span><span style="font-family: 'Andale Mono';"> *)mapView didChangeRegionAnimated:</span><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">BOOL</span><span style="font-family: 'Andale Mono';">)animated;</span><br/></div>
+<div>Good place to "chain" animations to the map: e.g. if displaying somewhere new that's far away, zoom out then back in -- this will let you know when you finish zooming out.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearch</u><br/></div>
+<div><br/></div>
+<div>Search for places in the world.</div>
+<div><br/></div>
+<div>Can search by "natural language" strings asynchronously.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearchRequest</span><span style="font-family: 'Andale Mono';"> *request = [[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearchRequest</span><span style="font-family: 'Andale Mono';"> alloc] init];</span></div>
+<div><span style="font-family: 'Andale Mono';">request.naturalLanguageQuery = </span><span style="color: rgb(209, 47, 27); font-family: 'Andale Mono';">@"Ike's"</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><span style="font-family: 'Andale Mono';">request.region = ...;</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// e.g. Stanford campus</span></div>
+<div><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearch</span><span style="font-family: 'Andale Mono';"> *search = </span><span style="font-family: 'Andale Mono';">[[</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearch</span><span style="font-family: 'Andale Mono';"> alloc] initWithRequest:request];</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">[search startWithCompletionHandler:^(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKLocalSearchResponse</span><span style="font-family: 'Andale Mono';"> *response, </span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSError</span><span style="font-family: 'Andale Mono';"> *error) {</span></div>
+<div><span style="font-family: 'Andale Mono';">    </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// response contains an array of MKMapItem which contains MKPlacemark</span></div>
+<div><span style="font-family: 'Andale Mono';">}];</span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';"><br/></span></div>
+<div><br/></div>
+<div>Can also open a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapItem</span> in the Maps app.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)openInMapsWithLaunchOptions:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">NSDictionary</span><span style="font-family: 'Andale Mono';"> *)options</span><span style="font-family: 'Andale Mono';">; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// options like region, show traffic</span><br/></div>
+<div><br/></div>
+<div>A <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKPlacemark</span> contains <span style="font-family: 'Andale Mono';">location</span>, name of <span style="font-family: 'Andale Mono';">location</span>, <span style="font-family: 'Andale Mono';">postalCode</span>, <span style="font-family: 'Andale Mono';">region</span>, etc.</div>
+<div><br/></div>
+<div>Tiles of map data are downloaded via network too. Happens in the background; you don't even need to know generally.</div>
+<div><br/></div>
+<div><u style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKDirections</u><br/></div>
+<div><br/></div>
+<div>Getting directions from one place to another. Very similar API to searching: specify source and destination <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapItem</span>; asynchronous API gets a bunch of <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKRoute</span>s.</div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKRoute</span> includes a name for the route, turn-by-turn directions, expected travel time, etc.</div>
+<div><br/></div>
+<div>Also comes with <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKPolyline</span> descriptions of the routes which can be overlaid on the map.</div>
+<div><br/></div>
+<div>How do you draw a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKPolyline</span> on the map? Use overlays.</div>
+<div><br/></div>
+<div><u>Overlays</u></div>
+<div><u><br/></u></div>
+<div>Add overlays to the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span> (with the level) and it will later ask you for a renderer to draw it.</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)addOverlay:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono"> &lt;</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlay</span><span style="font-family: 'Andale Mono';">&gt;)overlay level:(</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlayLevel</span><span style="font-family: 'Andale Mono';">)level</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><span style="font-family: 'Andale Mono';">level</span> is either <span style="font-family: 'Andale Mono';">AboveRoads</span> or <span style="font-family: 'Andale Mono';">AboveLabels</span> (over everything but annotation views).</div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)removeOverlay:(</font><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><font face="Andale Mono"> &lt;</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlay</span><span style="font-family: 'Andale Mono';">&gt;)overlay</span><span style="font-family: 'Andale Mono';">;</span><br/></div>
+<div><br/></div>
+<div><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlay</span> protocol: include <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotation</span> plus...</div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property </span></font><span style="font-family: 'Andale Mono';">(</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">readonly</span><span style="font-family: 'Andale Mono';">)</span><font face="Andale Mono"> <font color="#703DAA">MKMapRect</font></font><span style="font-family: 'Andale Mono';"> boundingMapRect;</span></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">BOOL</span>)intersectsMapRect:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapRect</span><span style="font-family: 'Andale Mono';">)mapRect; </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// optional, uses boundingMapRect otherwise</span><br/></div>
+<div><br/></div>
+<div>Overlays are associated with <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlayRenderer</span>s via <span style="font-family: 'Andale Mono';">delegate</span>:</div>
+<div><font face="Andale Mono">- (</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlayRenderer</span><font face="Andale Mono"> *)mapView:(</font><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlay *</span><span style="font-family: 'Andale Mono';">)sender</span></div>
+<div><span style="font-family: 'Andale Mono';">            rendererForOverlay:(</span><span style="color: rgb(187, 44, 162); font-family: 'Andale Mono';">id</span><span style="font-family: 'Andale Mono';"> &lt;</span><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKOverlay</span><span style="font-family: 'Andale Mono';">&gt;)overlay</span><span style="font-family: 'Andale Mono';">;</span></div>
+<div><br/></div>
+<div>Built-in Overlays and Renderers for numerous shapes:</div>
+<div><span style="font-family: 'Andale Mono';">MKCircleRenderer</span><br/></div>
+<div><span style="font-family: 'Andale Mono';">MKPolylineRenderer</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">MKPolygonRenderer</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">MKTileOverlayRenderer</span><span style="font-family: 'Andale Mono';"> </span><span style="color: rgb(0, 132, 0); font-family: 'Andale Mono';">// can be used to replace map data from Apple</span><span style="font-family: 'Andale Mono';"><br/></span></div>
+<div><span style="font-family: 'Andale Mono';">MKShape...</span><br/></div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Embed segues</b></div>
+<div><b><br/></b></div>
+<div>Putting a VC's <span style="font-family: 'Andale Mono';">self.view</span> in another VC's view hierarchy. Can divide up a rectangular area into multiple MVCs.</div>
+<div><br/></div>
+<div>In Xcode: drag a Container View from object palette into the scene you want to embed it in. This automatically sets up an Embed Segue from the container VC to the contained VC.</div>
+<div><br/></div>
+<div>Works just like other segues: <span style="font-family: 'Andale Mono';">prepareForSegue:sender:</span>, etc.</div>
+<div><br/></div>
+<div>View loading timing: don't forget that the embedded VC's outlets are not set at the time <span style="font-family: 'Andale Mono';">prepareForSegue:sender:</span> is called. Do it in both <span style="font-family: 'Andale Mono';">prepareForSegue:sender:</span> and the outlet setter.</div>
+<div><br/></div>
+<div>
+<hr/>
+<br/></div>
+<div><b>Demo</b></div>
+<div><b><br/></b></div>
+<div>To use MapKit, need to add it to Build Phases -&gt; Link Binary With Libraries.</div>
+<div><br/></div>
+<div><u>Using a Map View Controller</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)setMapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">_mapView</span> = mapView;<br/>
+    <span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span>.<span style="color: rgb(112, 61, 170);">delegate</span> = <span style="color: rgb(187, 44, 162);">self</span>;<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateMapViewAnnotations</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Fetch request</u></div>
+<div><u><br/></u></div>
+<div><span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">void</span><span style="font-family: 'Andale Mono';">)setPhotographer:(</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">Photographer</span><span style="font-family: 'Andale Mono';"> *)photographer</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">{</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    </span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">_photographer</span><span style="font-family: 'Andale Mono';"> = photographer;</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">title</span><span style="font-family: 'Andale Mono';"> = photographer.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">name</span><span style="font-family: 'Andale Mono';">;</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">photosByPhotographer</span><span style="font-family: 'Andale Mono';"> = </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">nil</span><span style="font-family: 'Andale Mono';">;</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    [</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(49, 89, 93);">updateMapViewAnnotations</span><span style="font-family: 'Andale Mono';">];</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">}</span><br style="font-family: 'Andale Mono';"/>
+<br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">- (</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSArray</span><span style="font-family: 'Andale Mono';"> *)photosByPhotographer</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">{</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">if</span><span style="font-family: 'Andale Mono';"> (!</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">_photosByPhotographer</span><span style="font-family: 'Andale Mono';">) {</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">        </span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> *request = [</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSFetchRequest</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">fetchRequestWithEntityName</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"Photo"</span><span style="font-family: 'Andale Mono';">];</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">        request.</span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">predicate</span><span style="font-family: 'Andale Mono';"> = [</span><span style="font-family: 'Andale Mono'; color: rgb(112, 61, 170);">NSPredicate</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">predicateWithFormat</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono'; color: rgb(209, 47, 27);">@"whoTook = %@"</span><span style="font-family: 'Andale Mono';">, </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">photographer</span><span style="font-family: 'Andale Mono';">];</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">        </span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">_photosByPhotographer</span><span style="font-family: 'Andale Mono';"> = [</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">self</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">photographer</span><span style="font-family: 'Andale Mono';">.</span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">managedObjectContext</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">executeFetchRequest</span><span style="font-family: 'Andale Mono';">:request </span><span style="font-family: 'Andale Mono'; color: rgb(61, 29, 129);">error</span><span style="font-family: 'Andale Mono';">:</span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">NULL</span><span style="font-family: 'Andale Mono';">];</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    }</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">    </span><span style="font-family: 'Andale Mono'; color: rgb(187, 44, 162);">return</span><span style="font-family: 'Andale Mono';"> </span><span style="font-family: 'Andale Mono'; color: rgb(79, 129, 135);">_photosByPhotographer</span><span style="font-family: 'Andale Mono';">;</span><br style="font-family: 'Andale Mono';"/>
+<span style="font-family: 'Andale Mono';">}</span><br/></div>
+<div><br/></div>
+<div>When you're not sure whether you're getting back a double as a string or number:</div>
+<div><font face="Andale Mono">photo.<span style="color: rgb(79, 129, 135);">latitude</span> = <span style="color: rgb(39, 42, 216);">@(</span>[photoDictionary[<span style="color: rgb(120, 73, 42);">FLICKR_LATITUDE</span>] <span style="color: rgb(61, 29, 129);">doubleValue</span>]<span style="color: rgb(39, 42, 216);">)</span>;</font><br/></div>
+<div><br/></div>
+<div><u>Implement the <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKAnnotation</span> protocol</u></div>
+<div><br/></div>
+<div>Need to add <span style="font-family: 'Andale Mono';">coordinate</span></div>
+<div><br/></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">CLLocationCoordinate2D</span>)coordinate<br/>
+{<br/>
+    <span style="color: rgb(112, 61, 170);">CLLocationCoordinate2D</span> coordinate;<br/>
+   <br/>
+    coordinate.<span style="color: rgb(112, 61, 170);">latitude</span> = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">latitude</span> <span style="color: rgb(61, 29, 129);">doubleValue</span>];<br/>
+    coordinate.<span style="color: rgb(112, 61, 170);">longitude</span> = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">longitude</span> <span style="color: rgb(61, 29, 129);">doubleValue</span>];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">return</span> coordinate;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div><u>Adding annotations to a map</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)updateMapViewAnnotations<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">removeAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span>.<span style="color: rgb(112, 61, 170);">annotations</span>];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">addAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photosByPhotographer</span>];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">showAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photosByPhotographer</span> <span style="color: rgb(61, 29, 129);">animated</span>:<span style="color: rgb(187, 44, 162);">YES</span>];<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Adding a <span style="font-family: 'Andale Mono';">viewForAnnotation:</span> to a <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">MKMapView</span>:</div>
+<div><u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><br/></span></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView viewForAnnotation:(<span style="color: rgb(187, 44, 162);">id</span>&lt;<span style="color: rgb(112, 61, 170);">MKAnnotation</span>&gt;)annotation<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">static</span> <span style="color: rgb(112, 61, 170);">NSString</span> *reuseId = <span style="color: rgb(209, 47, 27);">@"PhotosByPhotographerMapViewController"</span>;<br/>
+    <span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *view = [mapView <span style="color: rgb(61, 29, 129);">dequeueReusableAnnotationViewWithIdentifier</span>:reuseId];<br/>
+   <br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (!view) {<br/>
+        view = [[<span style="color: rgb(112, 61, 170);">MKPinAnnotationView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithAnnotation</span>:annotation <span style="color: rgb(61, 29, 129);">reuseIdentifier</span>:reuseId];<br/>
+        view.<span style="color: rgb(112, 61, 170);">canShowCallout</span> = <span style="color: rgb(187, 44, 162);">YES</span>;</font><br/>
+<font face="Menlo" style="font-size: 11px;">         </font><br/>
+<font face="Andale Mono">       </font> <font face="Andale Mono"><span style="color: rgb(112, 61, 170);">UIImageView</span> *imageView = [[<span style="color: rgb(112, 61, 170);">UIImageView</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">initWithFrame</span>:<span style="color: rgb(61, 29, 129);">CGRectMake</span>(<span style="color: rgb(39, 42, 216);">0</span>, <span style="color: rgb(39, 42, 216);">0</span>, <span style="color: rgb(39, 42, 216);">46</span>, <span style="color: rgb(39, 42, 216);">46</span>)];<br/>
+        view.<span style="color: rgb(112, 61, 170);">leftCalloutAccessoryView</span> = imageView;<br/>
+       <br/>
+        <span style="color: rgb(112, 61, 170);">UIButton</span> *disclosureButton = [[<span style="color: rgb(112, 61, 170);">UIButton</span> <span style="color: rgb(61, 29, 129);">alloc</span>] <span style="color: rgb(61, 29, 129);">init</span>];<br/>
+        [disclosureButton <span style="color: rgb(61, 29, 129);">setBackgroundImage</span>:[<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageNamed</span>:<span style="color: rgb(209, 47, 27);">@"disclosure"</span>] <span style="color: rgb(61, 29, 129);">forState</span>:<span style="color: rgb(61, 29, 129);">UIControlStateNormal</span>];<br/>
+        [disclosureButton <span style="color: rgb(61, 29, 129);">sizeToFit</span>];<br/>
+        view.<span style="color: rgb(112, 61, 170);">rightCalloutAccessoryView</span> = disclosureButton;<br/>
+    }<br/>
+   <br/>
+    view.<span style="color: rgb(112, 61, 170);">annotation</span> = annotation;<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> view;<br/>
+}</font><br/></div>
+<div><br/></div>
+<div>Note we're using a blue disclosure button -- better to draw it so it matches global tint color, or use Core Image to recolor it.</div>
+<div><br/></div>
+<div><u>Image in left callout</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView didSelectAnnotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)view<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateLeftCalloutAccessoryViewInAnnotationView</span>:view];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)updateLeftCalloutAccessoryViewInAnnotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)annotationView<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// this is mostly introspection: is the leftCalloutAccessoryView an UIImageView;</span><br/>
+    <span style="color: rgb(0, 132, 0);">// is the annotation a Photo?</span><br/>
+   <br/>
+    <span style="color: rgb(112, 61, 170);">UIImageView</span> *imageView = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([annotationView.<span style="color: rgb(112, 61, 170);">leftCalloutAccessoryView</span> <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UIImageView</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        imageView = (<span style="color: rgb(112, 61, 170);">UIImageView</span> *)annotationView.<span style="color: rgb(112, 61, 170);">leftCalloutAccessoryView</span>;<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (imageView) {<br/>
+        <span style="color: rgb(79, 129, 135);">Photo</span> *photo = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> ([annotationView.<span style="color: rgb(112, 61, 170);">annotation</span> <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">Photo</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+            photo = (<span style="color: rgb(79, 129, 135);">Photo</span> *)annotationView.<span style="color: rgb(112, 61, 170);">annotation</span>;<br/>
+        }<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (photo) {<br/>
+            <span style="color: rgb(112, 61, 170);">NSURL</span> *imageURL = [<span style="color: rgb(112, 61, 170);">NSURL</span> <span style="color: rgb(61, 29, 129);">URLWithString</span>:photo.<span style="color: rgb(79, 129, 135);">thumbnailURL</span>];<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLRequest</span> *request = [<span style="color: rgb(112, 61, 170);">NSURLRequest</span> <span style="color: rgb(61, 29, 129);">requestWithURL</span>:imageURL];<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> *configuration = [<span style="color: rgb(112, 61, 170);">NSURLSessionConfiguration</span> <span style="color: rgb(61, 29, 129);">ephemeralSessionConfiguration</span>];<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLSession</span> *session = [<span style="color: rgb(112, 61, 170);">NSURLSession</span> <span style="color: rgb(61, 29, 129);">sessionWithConfiguration</span>:configuration];<br/>
+            <span style="color: rgb(112, 61, 170);">NSURLSessionDownloadTask</span> *task = [session <span style="color: rgb(61, 29, 129);">downloadTaskWithRequest</span>:request<br/>
+                                                            <span style="color: rgb(61, 29, 129);">completionHandler</span>:^(<span style="color: rgb(112, 61, 170);">NSURL</span> *localFile, <span style="color: rgb(112, 61, 170);">NSURLResponse</span> *response, <span style="color: rgb(112, 61, 170);">NSError</span> *error) {<br/>
+                                                                <span style="color: rgb(187, 44, 162);">if</span> (!error) {<br/>
+                                                                    <span style="color: rgb(187, 44, 162);">if</span> ([request.<span style="color: rgb(61, 29, 129);">URL</span> <span style="color: rgb(61, 29, 129);">isEqual</span>:imageURL]) {<br/>
+                                                                        <span style="color: rgb(112, 61, 170);">UIImage</span> *image = [<span style="color: rgb(112, 61, 170);">UIImage</span> <span style="color: rgb(61, 29, 129);">imageWithData</span>:[<span style="color: rgb(112, 61, 170);">NSData</span> <span style="color: rgb(61, 29, 129);">dataWithContentsOfURL</span>:localFile]];<br/>
+                                                                        <span style="color: rgb(61, 29, 129);">dispatch_async</span>(<span style="color: rgb(120, 73, 42);">dispatch_get_main_queue</span>(), ^{<br/>
+                                                                            imageView.<span style="color: rgb(112, 61, 170);">image</span> = image;<br/>
+                                                                        });<br/>
+                                                                    }<br/>
+                                                                }<br/>
+                                                            }];<br/>
+            [task <span style="color: rgb(61, 29, 129);">resume</span>];<br/>
+        }<br/>
+    }<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Segueing from </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>MKAnnotationView</u></span><u> to </u><span style="color: rgb(79, 129, 135);"><u><font face="Andale Mono">ImageViewController</font></u></span></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView annotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)view calloutAccessoryControlTapped:(<span style="color: rgb(112, 61, 170);">UIControl</span> *)control<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">performSegueWithIdentifier</span>:<span style="color: rgb(209, 47, 27);">@"Show Photo"</span> <span style="color: rgb(61, 29, 129);">sender</span>:view];<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)prepareViewController:(<span style="color: rgb(187, 44, 162);">id</span>)vc<br/>
+                     forSegue:(<span style="color: rgb(112, 61, 170);">NSString</span> *)segueIdentifier<br/>
+             toShowAnnotation:(<span style="color: rgb(187, 44, 162);">id</span> &lt;<span style="color: rgb(112, 61, 170);">MKAnnotation</span>&gt;)annotation<br/>
+{<br/>
+    <span style="color: rgb(79, 129, 135);">Photo</span> *photo = <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([annotation <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">Photo</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        photo = (<span style="color: rgb(79, 129, 135);">Photo</span> *)annotation;<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (photo) {<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (![segueIdentifier <span style="color: rgb(61, 29, 129);">length</span>] || [segueIdentifier <span style="color: rgb(61, 29, 129);">isEqualToString</span>:<span style="color: rgb(209, 47, 27);">@"Show Photo"</span>]) {<br/>
+            <span style="color: rgb(187, 44, 162);">if</span> ([vc <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">ImageViewController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+                <span style="color: rgb(79, 129, 135);">ImageViewController</span> *ivc = (<span style="color: rgb(79, 129, 135);">ImageViewController</span> *)vc;<br/>
+                ivc.<span style="color: rgb(79, 129, 135);">imageURL</span> = [<span style="color: rgb(112, 61, 170);">NSURL</span> <span style="color: rgb(61, 29, 129);">URLWithString</span>:photo.<span style="color: rgb(79, 129, 135);">imageURL</span>];<br/>
+                ivc.<span style="color: rgb(112, 61, 170);">title</span> = photo.<span style="color: rgb(79, 129, 135);">title</span>;<br/>
+            }<br/>
+        }<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)prepareForSegue:(<span style="color: rgb(112, 61, 170);">UIStoryboardSegue</span> *)segue sender:(<span style="color: rgb(187, 44, 162);">id</span>)sender<br/>
+{<br/>
+    <span style="color: rgb(0, 132, 0);">// sender is AnnotationView</span><br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([sender <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:segue.<span style="color: rgb(112, 61, 170);">destinationViewController</span><br/>
+                           <span style="color: rgb(49, 89, 93);">forSegue</span>:segue.<span style="color: rgb(112, 61, 170);">identifier</span><br/>
+                   <span style="color: rgb(49, 89, 93);">toShowAnnotation</span>:((<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)sender).<span style="color: rgb(112, 61, 170);">annotation</span>];<br/>
+    }<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Check if </u><span style="color: rgb(79, 129, 135); font-family: 'Andale Mono';"><u>ImageViewController</u></span><u> is Detail View of </u><span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';"><u>splitViewController</u></span></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono"><span style="color: rgb(187, 44, 162);">@property</span> (<span style="color: rgb(187, 44, 162);">nonatomic</span>, <span style="color: rgb(187, 44, 162);">strong</span>) <span style="color: rgb(79, 129, 135);">ImageViewController</span> *imageViewController;<u><br/></u></font></div>
+<div><u><font face="Andale Mono"><br/></font></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(79, 129, 135);">ImageViewController</span> *)imageViewController<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">id</span> detailvc = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(112, 61, 170);">splitViewController</span>.<span style="color: rgb(112, 61, 170);">viewControllers</span> <span style="color: rgb(61, 29, 129);">lastObject</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> ([detailvc <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(112, 61, 170);">UINavigationController</span> <span style="color: rgb(61, 29, 129);">class</span>]]) {<br/>
+        detailvc = [((<span style="color: rgb(112, 61, 170);">UINavigationController</span> *)detailvc).<span style="color: rgb(112, 61, 170);">viewControllers</span> <span style="color: rgb(61, 29, 129);">firstObject</span>];<br/>
+    }<br/>
+    <span style="color: rgb(187, 44, 162);">return</span> [detailvc <span style="color: rgb(61, 29, 129);">isKindOfClass</span>:[<span style="color: rgb(79, 129, 135);">ImageViewController</span> <span style="color: rgb(61, 29, 129);">class</span>]] ? detailvc : <span style="color: rgb(187, 44, 162);">nil</span>;<br/>
+}</font><u><br/></u></div>
+<div><u><font face="Andale Mono"><br/></font></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView annotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)view calloutAccessoryControlTapped:(<span style="color: rgb(112, 61, 170);">UIControl</span> *)control<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span>) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span><br/>
+                           <span style="color: rgb(49, 89, 93);">forSegue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                   <span style="color: rgb(49, 89, 93);">toShowAnnotation</span>:view.<span style="color: rgb(112, 61, 170);">annotation</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">performSegueWithIdentifier</span>:<span style="color: rgb(209, 47, 27);">@"Show Photo"</span> <span style="color: rgb(61, 29, 129);">sender</span>:view];<br/>
+    }<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Clicking pin shows photo on iPad</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView didSelectAnnotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)view<br/>
+{<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span>) {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span><br/>
+                           <span style="color: rgb(49, 89, 93);">forSegue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                   <span style="color: rgb(49, 89, 93);">toShowAnnotation</span>:view.<span style="color: rgb(112, 61, 170);">annotation</span>];<br/>
+    } <span style="color: rgb(187, 44, 162);">else</span> {<br/>
+        [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">updateLeftCalloutAccessoryViewInAnnotationView</span>:view];<br/>
+    }<br/>
+}<br/>
+<br/>
+- (<span style="color: rgb(187, 44, 162);">void</span>)mapView:(<span style="color: rgb(112, 61, 170);">MKMapView</span> *)mapView annotationView:(<span style="color: rgb(112, 61, 170);">MKAnnotationView</span> *)view calloutAccessoryControlTapped:(<span style="color: rgb(112, 61, 170);">UIControl</span> *)control<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(61, 29, 129);">performSegueWithIdentifier</span>:<span style="color: rgb(209, 47, 27);">@"Show Photo"</span> <span style="color: rgb(61, 29, 129);">sender</span>:view];<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Autoselecting photo when photographer selected</u></div>
+<div><u><br/></u></div>
+<div><font face="Andale Mono">- (<span style="color: rgb(187, 44, 162);">void</span>)updateMapViewAnnotations<br/>
+{<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">removeAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span>.<span style="color: rgb(112, 61, 170);">annotations</span>];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">addAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photosByPhotographer</span>];<br/>
+    [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">showAnnotations</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photosByPhotographer</span> <span style="color: rgb(61, 29, 129);">animated</span>:<span style="color: rgb(187, 44, 162);">YES</span>];<br/>
+    <span style="color: rgb(187, 44, 162);">if</span> (<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span>) {<br/>
+        <span style="color: rgb(79, 129, 135);">Photo</span> *autoSelectedPhoto = [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">photosByPhotographer</span> <span style="color: rgb(61, 29, 129);">firstObject</span>];<br/>
+        <span style="color: rgb(187, 44, 162);">if</span> (autoSelectedPhoto) {<br/>
+            [<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">mapView</span> <span style="color: rgb(61, 29, 129);">selectAnnotation</span>:autoSelectedPhoto <span style="color: rgb(61, 29, 129);">animated</span>:<span style="color: rgb(187, 44, 162);">YES</span>];<br/>
+            [<span style="color: rgb(187, 44, 162);">self</span> <span style="color: rgb(49, 89, 93);">prepareViewController</span>:<span style="color: rgb(187, 44, 162);">self</span>.<span style="color: rgb(79, 129, 135);">imageViewController</span><br/>
+                               <span style="color: rgb(49, 89, 93);">forSegue</span>:<span style="color: rgb(187, 44, 162);">nil</span><br/>
+                       <span style="color: rgb(49, 89, 93);">toShowAnnotation</span>:autoSelectedPhoto];<br/>
+        }<br/>
+    }<br/>
+}</font><u><br/></u></div>
+<div><u><br/></u></div>
+<div><u>Using <span style="color: rgb(112, 61, 170); font-family: 'Andale Mono';">UIContainerView</span></u></div>
+<div><br/></div>
+<div>Can change where things snap to for a Navigation Controller under Attributes Inspector -&gt; Extend Edges.</div>
+<div><br/></div>
+<div><br/></div>
+</body></html>

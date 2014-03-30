@@ -12,10 +12,13 @@
 
 @implementation Photo
 
-@dynamic title;
-@dynamic subtitle;
 @dynamic imageURL;
+@dynamic subtitle;
+@dynamic title;
 @dynamic unique;
+@dynamic latitude;
+@dynamic longitude;
+@dynamic thumbnailURL;
 @dynamic whoTook;
 
 @end

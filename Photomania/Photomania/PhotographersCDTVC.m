@@ -10,12 +10,13 @@
 #import "Photographer.h"
 #import "PhotoDatabaseAvailability.h"
 #import "PhotosByPhotographerCDTVC.h"
+#import "PhotosByPhotographerMapViewController.h"
+#import "PhotosByPhotographerImageViewController.h"
 
 @implementation PhotographersCDTVC
 
 - (void)awakeFromNib
 {
-    // add observer really early in the lifecycle
     [[NSNotificationCenter defaultCenter] addObserverForName:PhotoDatabaseAvailabilityNotification
                                                       object:nil
                                                        queue:nil
@@ -42,6 +43,8 @@
                                                                                    cacheName:nil];
 }
 
+#pragma mark - UITableViewDataSource
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Photographer Cell"];
@@ -56,15 +59,29 @@
 
 #pragma mark - Navigation
 
-- (void)prepareViewController:(id)vc forSegue:(NSString *)segueIdentifier fromIndexPath:(NSIndexPath *)indexPath
+- (void)prepareViewController:(id)vc forSegue:(NSString *)segueIdentifer fromIndexPath:(NSIndexPath *)indexPath
 {
     Photographer *photographer = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    // note that we don't check the segue identifier here
+    // probably fine ... hard to imagine any other way this class would segue to PhotosByPhotographerCDTVC
     if ([vc isKindOfClass:[PhotosByPhotographerCDTVC class]]) {
-        PhotosByPhotographerCDTVC *pbpcdtvc = (PhotosByPhotographerCDTVC *)vc;
+        PhotosByPhotographerCDTVC *pbpcdtvc =
+            (PhotosByPhotographerCDTVC *)vc;
         pbpcdtvc.photographer = photographer;
+    // we can also segue to a PhotosByPhotographerMapViewController
+    } else if ([vc isKindOfClass:[PhotosByPhotographerMapViewController class]]) {
+        PhotosByPhotographerMapViewController *pbpmapvc =
+            (PhotosByPhotographerMapViewController *)vc;
+        pbpmapvc.photographer = photographer;
+    // or a PhotosByPhotographerImageViewController
+    } else if ([vc isKindOfClass:[PhotosByPhotographerImageViewController class]]) {
+        PhotosByPhotographerImageViewController *pbpivc =
+            (PhotosByPhotographerImageViewController *)vc;
+        pbpivc.photographer = photographer;
     }
 }
 
+// boilerplate
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     NSIndexPath *indexPath = nil;
@@ -76,6 +93,7 @@
                   fromIndexPath:indexPath];
 }
 
+// boilerplate
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id detailvc = [self.splitViewController.viewControllers lastObject];

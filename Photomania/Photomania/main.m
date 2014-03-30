@@ -2,8 +2,8 @@
 //  main.m
 //  Photomania
 //
-//  Created by Charles Feng on 3/4/14.
-//  Copyright (c) 2014 Charles Feng. All rights reserved.
+//  Created by CS193p Instructor.
+//  Copyright (c) 2013 Stanford University. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
